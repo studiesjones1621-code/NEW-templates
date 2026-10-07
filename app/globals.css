@@ -155,6 +155,67 @@
   animation: draw-stroke 1.5s ease-out forwards;
 }
 
+/* Cinematic hero */
+@keyframes hero-drift {
+  from { transform: scale(1.06) translate3d(-1%, 0, 0); }
+  to { transform: scale(1.16) translate3d(1.5%, -1.5%, 0); }
+}
+.hero-drift { animation: hero-drift 24s ease-in-out infinite alternate; transform-origin: 55% 60%; }
+
+@keyframes hero-rise {
+  from { transform: translateY(110%); }
+  to { transform: translateY(0); }
+}
+.hero-rise { transform: translateY(110%); animation: hero-rise 1.2s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms) forwards; }
+
+@keyframes hero-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-in { opacity: 0; animation: hero-in 1s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms) forwards; }
+
+@keyframes hero-rule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.hero-rule { transform: scaleX(0); animation: hero-rule 1.2s cubic-bezier(0.16, 1, 0.3, 1) 400ms forwards; }
+
+/* Letterbox bars slide away as the film starts */
+@keyframes hero-bar-top { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+.hero-bar { animation: hero-bar-top 1.6s cubic-bezier(0.65, 0, 0.35, 1) 300ms forwards; }
+.hero-bar-bottom { animation: hero-bar-bottom 1.6s cubic-bezier(0.65, 0, 0.35, 1) 300ms forwards; }
+@keyframes hero-bar-bottom { from { transform: translateY(0); } to { transform: translateY(100%); } }
+
+/* Brushed-gold text with a slow light sweep */
+.hero-gold-text {
+  background-image: linear-gradient(100deg, var(--gold-deep) 0%, var(--gold) 35%, oklch(0.95 0.06 92) 50%, var(--gold) 65%, var(--gold-deep) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: hero-sheen 7s ease-in-out 1.6s infinite;
+}
+@keyframes hero-sheen { 0%, 100% { background-position: 100% 0; } 50% { background-position: 0% 0; } }
+
+/* Warm light leak drifting across the frame */
+.hero-leak {
+  background: radial-gradient(circle at 30% 40%, oklch(0.76 0.12 82 / 0.22), transparent 45%);
+  mix-blend-mode: screen;
+  animation: hero-leak 18s ease-in-out infinite alternate;
+}
+@keyframes hero-leak { from { transform: translate3d(-10%, -5%, 0); } to { transform: translate3d(20%, 10%, 0); } }
+
+/* Film grain */
+.hero-grain {
+  opacity: 0.12;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: hero-grain 0.8s steps(4) infinite;
+}
+@keyframes hero-grain {
+  0% { transform: translate(0, 0); } 25% { transform: translate(-3%, 2%); }
+  50% { transform: translate(2%, -3%); } 75% { transform: translate(-2%, -1%); } 100% { transform: translate(0, 0); }
+}
+
+.hero-pulse { box-shadow: 0 0 0 0 oklch(0.76 0.12 82 / 0.5); animation: hero-pulse 2.4s ease-out infinite; }
+@keyframes hero-pulse { to { box-shadow: 0 0 0 22px oklch(0.76 0.12 82 / 0); } }
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -165,4 +226,5 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+  .hero-rise, .hero-in, .hero-rule { opacity: 1 !important; transform: none !important; }
 }
