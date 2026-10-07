@@ -22,6 +22,8 @@
   --gold: oklch(0.76 0.12 82);
   --gold-light: oklch(0.86 0.09 88);
   --gold-deep: oklch(0.62 0.11 75);
+  /* Page color the hero's clouds clear into; Services starts on the same color */
+  --sky: color-mix(in oklab, var(--secondary) 60%, var(--background));
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: oklch(0.88 0.012 85);
@@ -153,6 +155,11 @@
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
   animation: draw-stroke 1.5s ease-out forwards;
+}
+
+/* Services rises through the hero's clouds: transparent at its top edge, solid sky color below */
+.services-sky {
+  background: linear-gradient(to bottom, transparent 0, var(--sky) 38svh);
 }
 
 /* Cinematic hero */

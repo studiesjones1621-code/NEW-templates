@@ -1,3 +1,8 @@
+/* Services rises through the hero's clouds: transparent at its top edge, solid sky color below */
+.services-sky {
+  background: linear-gradient(to bottom, transparent 0, var(--sky) 38svh);
+}
+
 /* Cinematic hero */
 @keyframes hero-drift {
   from { transform: scale(1.02) translate3d(-0.5%, 0, 0); }
@@ -59,3 +64,4 @@
 .hero-pulse { box-shadow: 0 0 0 0 oklch(0.76 0.12 82 / 0.5); animation: hero-pulse 2.4s ease-out infinite; }
 @keyframes hero-pulse { to { box-shadow: 0 0 0 22px oklch(0.76 0.12 82 / 0); } }
 
+/* Also add to :root: --sky: color-mix(in oklab, var(--secondary) 60%, var(--background)); and give the section after the hero class "relative z-10 services-sky". */

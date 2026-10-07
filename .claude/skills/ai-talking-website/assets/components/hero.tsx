@@ -40,17 +40,18 @@ export function Hero() {
       const p = reduce ? 0 : clamp(-rect.top / Math.max(travel, 1))
 
       // Timeline: headline out → pilot seat reveal → climb into clouds → white-out → clouds clear into the page
-      const out = span(p, 0, 0.25)
-      const inn = span(p, 0.22, 0.45)
-      const climb = span(p, 0.55, 0.78)
-      const white = span(p, 0.72, 0.86)
-      const clear = span(p, 0.86, 1)
+      // Services overlaps the last 60svh (from p≈0.75), so the white-out must be done by then.
+      const out = span(p, 0, 0.22)
+      const inn = span(p, 0.2, 0.4)
+      const climb = span(p, 0.5, 0.66)
+      const white = span(p, 0.62, 0.74)
+      const clear = span(p, 0.74, 1)
 
       // The reveal: camera pulls back and the grade lifts so the pilot seat and captain's hat take the frame
       // Wide screens: slide the seat right so the caption can sit beside it. All screens: drop it so the hat clears the nav.
       const wide = window.innerWidth >= 1024
       if (bgRef.current)
-        bgRef.current.style.transform = `translate(${wide ? inn * 17 : 0}%, ${inn * (wide ? 9 : 7)}%) scale(${(1.14 - inn * 0.14) * (1 + climb * 0.15)})`
+        bgRef.current.style.transform = `translate(${wide ? inn * 17 : 0}%, ${inn * 15}%) scale(${(1.14 - inn * 0.2) * (1 + climb * 0.15)})`
       if (shadeRef.current) shadeRef.current.style.opacity = String(0.4 - inn * 0.36)
       if (gradeRef.current) gradeRef.current.style.opacity = String(1 - inn * 0.7)
       if (sceneOneRef.current) {
@@ -61,7 +62,7 @@ export function Hero() {
       }
       if (sceneTwoRef.current) {
         sceneTwoRef.current.style.transform = `translateY(${(1 - inn) * 60}px)`
-        const two = inn * (1 - span(p, 0.5, 0.6))
+        const two = inn * (1 - span(p, 0.46, 0.54))
         sceneTwoRef.current.style.opacity = String(two)
         sceneTwoRef.current.style.pointerEvents = two > 0.4 ? "auto" : "none"
       }
@@ -71,7 +72,7 @@ export function Hero() {
         bankRef.current.style.transform = `translateY(${70 - climb * 75 - clear * 30}%) scale(${1 + climb * 0.15 + clear * 0.5})`
       }
       if (wispsRef.current) {
-        wispsRef.current.style.opacity = String(span(p, 0.6, 0.8) * (1 - clear))
+        wispsRef.current.style.opacity = String(span(p, 0.54, 0.68) * (1 - clear))
         wispsRef.current.style.transform = `translateY(${(1 - climb) * 25}%) scale(${1.1 + climb * 0.3 + clear * 0.7})`
       }
       if (fillRef.current) fillRef.current.style.opacity = String(white)
@@ -90,7 +91,7 @@ export function Hero() {
   }, [])
 
   return (
-    <section id="hero" ref={sectionRef} className="relative h-[340svh] motion-reduce:h-[100svh] bg-black">
+    <section id="hero" ref={sectionRef} className="relative h-[340svh] mb-[-60svh] motion-reduce:h-[100svh] motion-reduce:mb-0 bg-black">
       <div className="sticky top-0 h-[100svh] overflow-hidden" style={{ perspective: "1200px" }}>
         {/* Camera: slow drift (CSS) inside a scroll-driven push-in (JS) */}
         <div ref={bgRef} data-hero="bg" className="absolute inset-0 will-change-transform" style={{ transform: "scale(1.14)" }}>
@@ -118,9 +119,13 @@ export function Hero() {
         <div className="hero-grain absolute inset-0 pointer-events-none" aria-hidden />
 
         {/* Flight out: page-colored fill (matches Services) under two cloud layers */}
-        <div ref={fillRef} data-hero="fill" className="absolute inset-0 bg-background opacity-0" aria-hidden>
-          <div className="absolute inset-0 bg-secondary/60" />
-        </div>
+        <div
+          ref={fillRef}
+          data-hero="fill"
+          className="absolute inset-0 opacity-0"
+          style={{ background: "var(--sky)" }}
+          aria-hidden
+        />
         <div
           ref={wispsRef}
           data-hero="wisps"

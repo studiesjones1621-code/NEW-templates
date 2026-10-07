@@ -96,7 +96,7 @@ export function Services() {
   }, [])
 
   return (
-    <section id="services" className="py-24 md:py-32 bg-secondary/60">
+    <section id="services" className="relative z-10 py-24 md:py-32 services-sky">
       <div className="container mx-auto px-5 md:px-12">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14 md:mb-16">
           <div>
