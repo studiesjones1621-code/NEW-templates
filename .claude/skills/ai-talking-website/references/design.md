@@ -46,3 +46,11 @@ Gotchas found the hard way:
 - Lazy map iframes look blank in full-page screenshots. Scroll to the map and screenshot the element to confirm it loads.
 - Don't `pkill -f "next dev"` from a shell whose own command line contains that string; it kills the shell. Find the PID instead.
 - Run `npx tsc --noEmit` and `npx next build`. Remove the template's `typescript.ignoreBuildErrors` once types are clean.
+
+## Going live without the user's Vercel login (cloud session)
+If the Vercel connector can read but gets `403 Not authorized … scope`, use an anonymous temporary deployment the user can claim:
+1. Deploy from a clean copy with no secrets: `git archive HEAD | tar -x -C <dir>`, then `npm ci` there. With `.env` in the tree, Next traces it into server functions and the build fails with `ENOENT … readlink '/vercel/path0/.env'`. Keep `.vercelignore` (`.env`, `.env.*`, `!.env.example`) and `outputFileTracingExcludes: { "*": [".env", ".env.*"] }` anyway.
+2. `-b KEY=VALUE` build-env did not reach the build. Write the two browser-safe values to `.env.production` in the deploy copy only (and `!.env.production` in its `.vercelignore`). Never include server secrets.
+3. Node's fetch ignores the agent proxy: run `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt npx vercel@latest deploy --temporary --prod --yes`. Uploads abort intermittently, so retry with backoff (it took 1–3 tries).
+4. Re-running from the same directory updates the same temporary URL. It expires after about an hour unless the user opens the `claimUrl` (tell them the exact expiry time).
+5. Verify on the live URL: no secret prefixes in the JS chunks, `/.env` returns 404, `#retell-widget` has the agent ID and public key, and the create-web-call result. A `401 Public key is not allowed for this domain` means the user must add the `*.vercel.app` domain in Retell → Public Keys.
