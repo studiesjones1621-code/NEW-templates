@@ -23,6 +23,8 @@ export function Hero() {
   const fillRef = useRef<HTMLDivElement>(null)
   const bankRef = useRef<HTMLImageElement>(null)
   const wispsRef = useRef<HTMLDivElement>(null)
+  const jetRef = useRef<HTMLImageElement>(null)
+  const wispsFrontRef = useRef<HTMLDivElement>(null)
   const sceneOneRef = useRef<HTMLDivElement>(null)
   const sceneTwoRef = useRef<HTMLDivElement>(null)
   const cueRef = useRef<HTMLAnchorElement>(null)
@@ -76,6 +78,20 @@ export function Hero() {
         wispsRef.current.style.transform = `translateY(${(1 - climb) * 25}%) scale(${1.1 + climb * 0.3 + clear * 0.7})`
       }
       if (fillRef.current) fillRef.current.style.opacity = String(white)
+      // Thin wisps that drift past in front of the jet (faster parallax than the back layer)
+      if (wispsFrontRef.current) {
+        wispsFrontRef.current.style.opacity = String(0.4 * span(p, 0.6, 0.7) * (1 - span(p, 0.76, 0.9)))
+        wispsFrontRef.current.style.transform = `translate3d(${(0.5 - span(p, 0.58, 0.9)) * 30}%, 0, 0) scale(${1.2 + clear * 0.6})`
+      }
+      // The jet crosses left to right through the clouds, climbing slightly and growing as it nears
+      if (jetRef.current) {
+        const fly = span(p, 0.58, 0.83)
+        const w = jetRef.current.offsetWidth
+        const x = -w + fly * (window.innerWidth + w * 1.1)
+        const y = (0.5 - fly) * window.innerHeight * 0.16
+        jetRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${-2 - fly * 3}deg) scale(${0.85 + fly * 0.3})`
+        jetRef.current.style.opacity = String(fly > 0 && fly < 1 ? Math.min(1, fly * 10, (1 - fly) * 10) : 0)
+      }
     }
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update)
@@ -118,7 +134,7 @@ export function Hero() {
         <div className="hero-leak absolute -inset-1/4 pointer-events-none" aria-hidden />
         <div className="hero-grain absolute inset-0 pointer-events-none" aria-hidden />
 
-        {/* Flight out: page-colored fill (matches Services) under two cloud layers */}
+        {/* Flight out: page-colored fill (matches Services), the jet, then two cloud layers in front of it */}
         <div
           ref={fillRef}
           data-hero="fill"
@@ -148,6 +164,22 @@ export function Hero() {
           className="absolute -left-[15%] -bottom-[10%] w-[130%] h-[120%] max-w-none object-cover object-bottom opacity-0 pointer-events-none will-change-transform"
           style={{ transform: "translateY(70%)" }}
         />
+        <img
+          ref={jetRef}
+          data-hero="jet"
+          src="/biz/jet.webp"
+          alt=""
+          aria-hidden
+          className="absolute left-0 top-[30%] w-[72vw] sm:w-[48vw] lg:w-[40vw] max-w-[760px] opacity-0 pointer-events-none will-change-transform drop-shadow-[0_18px_30px_rgba(60,45,20,0.25)]"
+        />
+        <div
+          ref={wispsFrontRef}
+          data-hero="wisps-front"
+          className="absolute -inset-[20%] opacity-0 pointer-events-none will-change-transform"
+          aria-hidden
+        >
+          <img src="/biz/cloud-wisps.webp" alt="" className="absolute inset-0 w-full h-full object-cover -scale-y-100" />
+        </div>
 
         <div className="hero-bar absolute inset-x-0 top-0 h-[7vh] bg-black" aria-hidden />
         <div className="hero-bar-bottom absolute inset-x-0 bottom-0 h-[7vh] bg-black" aria-hidden />
