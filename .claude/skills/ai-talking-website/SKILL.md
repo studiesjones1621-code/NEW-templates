@@ -54,6 +54,7 @@ Either way:
 
 ## Phase 4: Embed the agent
 
+0. Commit the two browser-safe values (`NEXT_PUBLIC_RETELL_PUBLIC_KEY`, `NEXT_PUBLIC_RETELL_AGENT_ID`) in `.env.production` (with `!.env.production` in `.gitignore` and `.vercelignore`). They are visible in the page anyway and protected by Retell's domain allowlist, so any Vercel build, including a git-connected one, enables the widget without dashboard env vars. Server secrets stay in the ignored `.env`.
 1. Copy `assets/components/voice-assistant.tsx` and `talk-button.tsx`, and render `<VoiceAssistant />` in the root layout. Customize the bot name, prompt copy and colors (`data-theme-color`, `data-component-color`). It reads `NEXT_PUBLIC_RETELL_PUBLIC_KEY` and `NEXT_PUBLIC_RETELL_AGENT_ID`.
 2. What it gives you: a branded floating "Talk to us" launcher, a friendly prompt after 4s, a mic check before any call with friendly messages (mic not found / blocked / busy, each with the phone number), the widget opened for the visitor to tap start (never auto-start: phones won't join the audio), and a "call us" fallback if Retell refuses the call. Re-verify the widget's shadow-DOM selectors if Retell has shipped a new widget (retell.md).
 3. Verify in Playwright: granted, denied and no-device paths, plus the `create-web-call` response. `401 not allowed for this domain` means the user must add domains in the dashboard.
