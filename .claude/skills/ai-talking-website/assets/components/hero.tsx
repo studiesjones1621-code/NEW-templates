@@ -1,0 +1,180 @@
+"use client"
+
+import { useEffect, useRef } from "react"
+import { ArrowDown, Phone, Star } from "lucide-react"
+import { business } from "@/lib/business"
+import { TalkButton } from "./talk-button"
+
+const clamp = (v: number, min = 0, max = 1) => Math.min(max, Math.max(min, v))
+// Maps overall progress p into 0..1 across [start, end]
+const span = (p: number, start: number, end: number) => clamp((p - start) / (end - start))
+
+/**
+ * Cinematic hero: the section is taller than the screen and its stage stays pinned while you scroll.
+ * Scene 1 (headline) tilts and lifts away, the camera pushes in on the studio, then scene 2 (the
+ * assistant pitch) fades up. Scroll is never hijacked; everything is driven by scroll position.
+ */
+export function Hero() {
+  const sectionRef = useRef<HTMLElement>(null)
+  const bgRef = useRef<HTMLDivElement>(null)
+  const shadeRef = useRef<HTMLDivElement>(null)
+  const sceneOneRef = useRef<HTMLDivElement>(null)
+  const sceneTwoRef = useRef<HTMLDivElement>(null)
+  const cueRef = useRef<HTMLAnchorElement>(null)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    let frame = 0
+
+    const update = () => {
+      frame = 0
+      const rect = section.getBoundingClientRect()
+      const travel = section.offsetHeight - window.innerHeight
+      const p = reduce ? 0 : clamp(-rect.top / Math.max(travel, 1))
+
+      const out = span(p, 0, 0.45)
+      const inn = span(p, 0.4, 0.8)
+
+      if (bgRef.current) bgRef.current.style.transform = `scale(${1 + p * 0.22}) translateY(${p * -3}%)`
+      if (shadeRef.current) shadeRef.current.style.opacity = String(0.35 + p * 0.5)
+      if (sceneOneRef.current) {
+        sceneOneRef.current.style.transform = `translateY(${out * -90}px) rotateX(${out * 28}deg) scale(${1 - out * 0.12})`
+        sceneOneRef.current.style.opacity = String(1 - out)
+        sceneOneRef.current.style.filter = `blur(${out * 8}px)`
+        sceneOneRef.current.style.pointerEvents = out > 0.6 ? "none" : "auto"
+      }
+      if (sceneTwoRef.current) {
+        sceneTwoRef.current.style.transform = `translateY(${(1 - inn) * 60}px)`
+        sceneTwoRef.current.style.opacity = String(inn)
+        sceneTwoRef.current.style.pointerEvents = inn > 0.4 ? "auto" : "none"
+      }
+      if (cueRef.current) cueRef.current.style.opacity = String(1 - span(p, 0, 0.15))
+    }
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("resize", onScroll)
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onScroll)
+      cancelAnimationFrame(frame)
+    }
+  }, [])
+
+  return (
+    <section id="hero" ref={sectionRef} className="relative h-[230svh] motion-reduce:h-[100svh] bg-black">
+      <div className="sticky top-0 h-[100svh] overflow-hidden" style={{ perspective: "1200px" }}>
+        {/* Camera: slow drift (CSS) inside a scroll-driven push-in (JS) */}
+        <div ref={bgRef} data-hero="bg" className="absolute inset-0 will-change-transform">
+          <img
+            src="/biz/studio-chair-cape.jpg"
+            alt="Barber chair draped in a First Class Cutz cape inside the studio"
+            className="hero-drift w-full h-full object-cover object-[50%_60%]"
+            fetchPriority="high"
+          />
+        </div>
+
+        {/* Grade: base darkening, scroll-deepening shade, vignette, gold light leak, grain, letterbox */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/35 to-black/90" aria-hidden />
+        <div ref={shadeRef} data-hero="shade" className="absolute inset-0 bg-black opacity-35" aria-hidden />
+        <div
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.75)_100%)]"
+          aria-hidden
+        />
+        <div className="hero-leak absolute -inset-1/4 pointer-events-none" aria-hidden />
+        <div className="hero-grain absolute inset-0 pointer-events-none" aria-hidden />
+        <div className="hero-bar absolute inset-x-0 top-0 h-[7vh] bg-black" aria-hidden />
+        <div className="hero-bar-bottom absolute inset-x-0 bottom-0 h-[7vh] bg-black" aria-hidden />
+
+        {/* Scene 1: the headline */}
+        <div
+          ref={sceneOneRef} data-hero="one"
+          className="absolute inset-0 flex items-center justify-center px-5 will-change-transform"
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          <div className="max-w-5xl mx-auto text-center pt-10">
+            <p className="hero-in [--d:200ms] inline-flex items-center gap-3 text-[11px] md:text-xs tracking-[0.35em] uppercase text-gold-light mb-8">
+              <span className="hero-rule h-px w-10 bg-gold/70" aria-hidden />
+              Baltimore Barber Studio
+              <span className="hero-rule h-px w-10 bg-gold/70" aria-hidden />
+            </p>
+
+            <h1 className="text-[3.5rem] leading-[0.95] sm:text-7xl lg:text-[7.5rem] font-medium text-balance text-white tracking-tight mb-8">
+              <span className="block overflow-hidden pb-2">
+                <span className="hero-rise block [--d:450ms]">Every cut,</span>
+              </span>
+              <span className="block overflow-hidden pb-3">
+                <span className="hero-rise block [--d:700ms] font-serif italic font-normal">
+                  <span className="hero-gold-text pr-2">flown first class.</span>
+                </span>
+              </span>
+            </h1>
+
+            <p className="hero-in [--d:1100ms] text-white/75 text-base md:text-xl max-w-xl mx-auto mb-10 leading-relaxed">
+              Precision fades, beard work and locs by Reem.
+            </p>
+
+            <div className="hero-in [--d:1300ms] flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center max-w-sm sm:max-w-none mx-auto">
+              <TalkButton className="inline-flex items-center justify-center gap-2.5 bg-gold text-primary font-semibold px-8 py-4 text-sm tracking-wide hover:bg-gold-light transition-colors duration-300">
+                Talk to our assistant
+              </TalkButton>
+              <a
+                href={business.phoneHref}
+                className="inline-flex items-center justify-center gap-2.5 border border-white/30 text-white px-8 py-4 text-sm tracking-wide hover:border-gold hover:text-gold transition-colors duration-300 backdrop-blur-sm"
+              >
+                <Phone className="w-4 h-4" strokeWidth={1.75} aria-hidden />
+                Call {business.phoneDisplay}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Scene 2: the assistant pitch, revealed as you scroll */}
+        <div
+          ref={sceneTwoRef} data-hero="two"
+          className="absolute inset-0 flex items-center justify-center px-5 opacity-0 pointer-events-none"
+        >
+          <div className="max-w-3xl mx-auto text-center">
+            <p className="text-[11px] md:text-xs tracking-[0.35em] uppercase text-gold-light mb-6">Now boarding</p>
+            <p className="text-4xl sm:text-6xl lg:text-7xl font-medium tracking-tight text-white text-balance leading-[1.02] mb-6">
+              Book your seat in <span className="font-serif italic font-normal hero-gold-text">one conversation.</span>
+            </p>
+            <p className="text-white/70 text-base md:text-lg max-w-lg mx-auto mb-10">
+              Our voice assistant knows every service and Reem&apos;s real openings. Just ask.
+            </p>
+            <TalkButton className="hero-pulse inline-flex items-center justify-center gap-3 rounded-full bg-gold text-primary font-semibold pl-3 pr-7 py-3 text-sm tracking-wide hover:bg-gold-light transition-colors">
+              Start talking
+            </TalkButton>
+            <a
+              href={business.booksy}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-10 flex items-center justify-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
+            >
+              <span className="flex text-gold" aria-hidden>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </span>
+              {business.rating} from {business.reviewCount} Booksy reviews
+            </a>
+          </div>
+        </div>
+
+        <a
+          ref={cueRef} data-hero="cue"
+          href="#services"
+          aria-label="Skip to services"
+          className="hero-in [--d:1700ms] absolute bottom-[9vh] left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 text-white/60 hover:text-gold text-[10px] tracking-[0.3em] uppercase"
+        >
+          Scroll
+          <ArrowDown className="w-4 h-4 animate-bounce" />
+        </a>
+      </div>
+    </section>
+  )
+}

@@ -1,0 +1,9 @@
+{
+  "agent_name": "First Class Cutz by Reem - Website Assistant",
+  "prompt_file": "retell/system-prompt.md",
+  "begin_message": "Hey, welcome to First Class Cutz by Reem! I can answer questions or get you booked in the chair. What can I do for you?",
+  "voice_id": "retell-Leland",
+  "timezone": "America/New_York",
+  "cal_event_type_id": "7384212",
+  "boosted_keywords": ["Reem", "Kareem", "First Class Cutz", "Reisterstown", "taper", "fade", "line-up", "retwist", "locs"]
+}

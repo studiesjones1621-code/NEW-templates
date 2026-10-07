@@ -14,7 +14,7 @@ npm run dev            # http://localhost:3000
 
 - Retell agent: `agent_1974dcab1a2cfdd5777470101b` (LLM `llm_2667eba9b2c03b6e2b3f9ebee378`, voice `retell-Leland`)
 - Booking: Retell Cal.com integration (`app_823116af07261b8329842c35`) → Cal.com event type `7384212` ("30 min meeting")
-- Prompt: `retell/system-prompt.md`. After editing, run `python3 retell/setup.py` to update and republish the same agent (IDs live in `retell/ids.json`).
+- Prompt: `retell/system-prompt.md`. After editing, run `python3 .claude/skills/ai-talking-website/scripts/retell_setup.py retell/agent.json` to update and republish the same agent (IDs live in `retell/ids.json`).
 - Widget: `components/voice-assistant.tsx` loads Retell's `retell-widget-v2.js`, hides its stock button, and drives it from the branded "Talk to us" launcher after a microphone check.
 
 ## Images
