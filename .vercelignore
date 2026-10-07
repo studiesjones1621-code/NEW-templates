@@ -6,3 +6,5 @@ node_modules
 .next
 out
 .claude
+# Public widget settings only
+!.env.production
