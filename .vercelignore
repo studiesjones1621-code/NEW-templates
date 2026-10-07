@@ -1,0 +1,8 @@
+# Never upload secrets or local build output
+.env
+.env.*
+!.env.example
+node_modules
+.next
+out
+.claude
