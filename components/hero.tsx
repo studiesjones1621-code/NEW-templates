@@ -18,6 +18,7 @@ export function Hero() {
   const sectionRef = useRef<HTMLElement>(null)
   const bgRef = useRef<HTMLDivElement>(null)
   const shadeRef = useRef<HTMLDivElement>(null)
+  const gradeRef = useRef<HTMLDivElement>(null)
   const sceneOneRef = useRef<HTMLDivElement>(null)
   const sceneTwoRef = useRef<HTMLDivElement>(null)
   const cueRef = useRef<HTMLAnchorElement>(null)
@@ -37,8 +38,13 @@ export function Hero() {
       const out = span(p, 0, 0.45)
       const inn = span(p, 0.4, 0.8)
 
-      if (bgRef.current) bgRef.current.style.transform = `scale(${1 + p * 0.22}) translateY(${p * -3}%)`
-      if (shadeRef.current) shadeRef.current.style.opacity = String(0.35 + p * 0.5)
+      // The reveal: camera pulls back and the grade lifts so the pilot seat and captain's hat take the frame
+      // Wide screens: slide the seat right so the caption can sit beside it. All screens: drop it so the hat clears the nav.
+      const wide = window.innerWidth >= 1024
+      if (bgRef.current)
+        bgRef.current.style.transform = `translate(${wide ? inn * 17 : 0}%, ${inn * (wide ? 9 : 7)}%) scale(${1.14 - inn * 0.14})`
+      if (shadeRef.current) shadeRef.current.style.opacity = String(0.4 - inn * 0.36)
+      if (gradeRef.current) gradeRef.current.style.opacity = String(1 - inn * 0.7)
       if (sceneOneRef.current) {
         sceneOneRef.current.style.transform = `translateY(${out * -90}px) rotateX(${out * 28}deg) scale(${1 - out * 0.12})`
         sceneOneRef.current.style.opacity = String(1 - out)
@@ -69,18 +75,23 @@ export function Hero() {
     <section id="hero" ref={sectionRef} className="relative h-[230svh] motion-reduce:h-[100svh] bg-black">
       <div className="sticky top-0 h-[100svh] overflow-hidden" style={{ perspective: "1200px" }}>
         {/* Camera: slow drift (CSS) inside a scroll-driven push-in (JS) */}
-        <div ref={bgRef} data-hero="bg" className="absolute inset-0 will-change-transform">
+        <div ref={bgRef} data-hero="bg" className="absolute inset-0 will-change-transform" style={{ transform: "scale(1.14)" }}>
           <img
-            src="/biz/studio-chair-cape.jpg"
-            alt="Barber chair draped in a First Class Cutz cape inside the studio"
-            className="hero-drift w-full h-full object-cover object-[50%_60%]"
+            src="/biz/pilot-chair.jpg"
+            alt="The studio barber chair styled as a pilot seat, with a First Class Cutz cape and a captain's hat"
+            className="hero-drift w-full h-full object-cover object-[50%_38%]"
             fetchPriority="high"
           />
         </div>
 
-        {/* Grade: base darkening, scroll-deepening shade, vignette, gold light leak, grain, letterbox */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/35 to-black/90" aria-hidden />
-        <div ref={shadeRef} data-hero="shade" className="absolute inset-0 bg-black opacity-35" aria-hidden />
+        {/* Grade: base darkening and shade (both lift during the reveal), vignette, gold light leak, grain, letterbox */}
+        <div
+          ref={gradeRef}
+          data-hero="grade"
+          className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/35 to-black/90"
+          aria-hidden
+        />
+        <div ref={shadeRef} data-hero="shade" className="absolute inset-0 bg-black opacity-40" aria-hidden />
         <div
           className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.75)_100%)]"
           aria-hidden
@@ -136,14 +147,21 @@ export function Hero() {
         {/* Scene 2: the assistant pitch, revealed as you scroll */}
         <div
           ref={sceneTwoRef} data-hero="two"
-          className="absolute inset-0 flex items-center justify-center px-5 opacity-0 pointer-events-none"
+          className="absolute inset-0 flex items-end justify-center px-5 pb-[5vh] lg:items-center lg:justify-start lg:pb-0 lg:pl-[7vw] opacity-0 pointer-events-none"
         >
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-[11px] md:text-xs tracking-[0.35em] uppercase text-gold-light mb-6">Now boarding</p>
-            <p className="text-4xl sm:text-6xl lg:text-7xl font-medium tracking-tight text-white text-balance leading-[1.02] mb-6">
+          {/* Keeps the caption legible while leaving the seat itself clear */}
+          <div
+            className="absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black via-black/80 to-transparent lg:inset-y-0 lg:left-0 lg:right-auto lg:h-full lg:w-[55%] lg:bg-gradient-to-r"
+            aria-hidden
+          />
+          <div className="relative max-w-3xl lg:max-w-md mx-auto lg:mx-0 text-center lg:text-left">
+            <p className="text-[11px] md:text-xs tracking-[0.35em] uppercase text-gold-light mb-4">
+              Now boarding
+            </p>
+            <p className="text-3xl sm:text-5xl lg:text-[3.5rem] font-medium tracking-tight text-white text-balance leading-[1.05] mb-4">
               Book your seat in <span className="font-serif italic font-normal hero-gold-text">one conversation.</span>
             </p>
-            <p className="text-white/70 text-base md:text-lg max-w-lg mx-auto mb-10">
+            <p className="text-white/70 text-sm md:text-lg max-w-lg mx-auto lg:mx-0 mb-7">
               Our voice assistant knows every service and Reem&apos;s real openings. Just ask.
             </p>
             <TalkButton className="hero-pulse inline-flex items-center justify-center gap-3 rounded-full bg-gold text-primary font-semibold pl-3 pr-7 py-3 text-sm tracking-wide hover:bg-gold-light transition-colors">
@@ -153,7 +171,7 @@ export function Hero() {
               href={business.booksy}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-10 flex items-center justify-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
+              className="mt-6 flex items-center justify-center lg:justify-start gap-2 text-sm text-white/70 hover:text-white transition-colors"
             >
               <span className="flex text-gold" aria-hidden>
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -169,10 +187,13 @@ export function Hero() {
           ref={cueRef} data-hero="cue"
           href="#services"
           aria-label="Skip to services"
-          className="hero-in [--d:1700ms] absolute bottom-[9vh] left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-2 text-white/60 hover:text-gold text-[10px] tracking-[0.3em] uppercase"
+          className="absolute bottom-[9vh] left-1/2 -translate-x-1/2 z-30 text-white/60 hover:text-gold text-[10px] tracking-[0.3em] uppercase"
         >
-          Scroll
-          <ArrowDown className="w-4 h-4 animate-bounce" />
+          {/* Entrance animation lives on the inner span so it can't override the scroll fade on the link */}
+          <span className="hero-in [--d:1700ms] flex flex-col items-center gap-2">
+            Scroll
+            <ArrowDown className="w-4 h-4 animate-bounce" />
+          </span>
         </a>
       </div>
     </section>

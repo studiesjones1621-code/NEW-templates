@@ -8,12 +8,15 @@ for line in (ROOT / ".env").read_text().splitlines():
         os.environ.setdefault(k.strip(), v.strip())
 
 SRC = ROOT / "public" / "biz" / "studio-chair-cape.jpg"
-DEST = ROOT / "public" / "biz" / "pilot-chair.jpg"
+DEST = ROOT / "public" / "biz" / (sys.argv[1] if len(sys.argv) > 1 else "pilot-chair.jpg")
 PROMPT = (
     "Edit this photo of a barbershop chair. Turn the chair into an unmistakable airplane cockpit pilot seat: "
-    "high padded black leather backrest with a headrest, side bolsters, a five-point harness with brushed-gold buckles, "
-    "and aviation-style armrests. Keep the black barber cape draped over it exactly as it is, with the gold "
-    "'First Class Cutz by Reem' script, crown and stars still clearly readable. Hang a classic airline captain's hat "
+    "high padded black leather backrest with a headrest, side bolsters, aviation-style armrests with a flight-control "
+    "stick, and harness straps with brushed-gold buckles that run only along the outer edges of the seat and hang open "
+    "at the sides, never crossing the cape. Keep the black barber cape draped over the seat exactly as in the original "
+    "photo: the gold crown, the complete 'First Class Cutz' script, 'BY REEM' and the three stars must be fully visible, "
+    "unobstructed and spelled correctly. Smooth the cape so it lies flat and wide across the backrest, so the whole "
+    "'First Class Cutz' script reads edge to edge with no letters folded or cut off. Hang a classic airline captain's hat "
     "on the headrest: black with a gold braid band on the visor and a gold pilot-wings badge. Keep the same room, "
     "camera angle and floor. Color grade: deep black with warm metallic gold highlights and soft moody light, "
     "matching a black-and-gold luxury brand. Photorealistic. No extra text, no watermarks."

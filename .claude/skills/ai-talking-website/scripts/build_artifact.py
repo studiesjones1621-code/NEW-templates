@@ -151,14 +151,16 @@ js = r"""
   (function(){
     var sec = document.getElementById('hero'); if (!sec) return;
     var q = function(n){ return sec.querySelector('[data-hero="'+n+'"]') };
-    var bg=q('bg'), shade=q('shade'), one=q('one'), two=q('two'), cue=q('cue');
+    var bg=q('bg'), shade=q('shade'), grade=q('grade'), one=q('one'), two=q('two'), cue=q('cue');
     var clamp=function(v){return Math.min(1,Math.max(0,v))}, span=function(p,a,b){return clamp((p-a)/(b-a))};
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches, f=0;
     function upd(){ f=0;
       var travel = sec.offsetHeight - innerHeight, p = reduce?0:clamp(-sec.getBoundingClientRect().top/Math.max(travel,1));
       var o=span(p,0,.45), i=span(p,.4,.8);
-      bg.style.transform='scale('+(1+p*.22)+') translateY('+(p*-3)+'%)';
-      shade.style.opacity=.35+p*.5;
+      var wide = innerWidth >= 1024;
+      bg.style.transform='translate('+(wide?i*17:0)+'%, '+(i*(wide?9:7))+'%) scale('+(1.14-i*.14)+')';
+      shade.style.opacity=.4-i*.36;
+      if (grade) grade.style.opacity=1-i*.7;
       one.style.transform='translateY('+(o*-90)+'px) rotateX('+(o*28)+'deg) scale('+(1-o*.12)+')';
       one.style.opacity=1-o; one.style.filter='blur('+(o*8)+'px)'; one.style.pointerEvents=o>.6?'none':'auto';
       two.style.transform='translateY('+((1-i)*60)+'px)'; two.style.opacity=i; two.style.pointerEvents=i>.4?'auto':'none';
