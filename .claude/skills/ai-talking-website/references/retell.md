@@ -32,7 +32,8 @@ data-title data-bot-name data-logo-url data-theme-color data-component-color dat
 data-show-ai-popup="false" (we render our own prompt)
 ```
 - It mounts `#retell-widget-root` with an **open shadow root**. Useful selectors: `[class*="_fabWrapBase"]` (stock launcher), `button[class*="_fabBase"]` (open), `[class*="_window_"]` (call window open), `button[class*="_startCallButton"]` ("Start to call"), `button[aria-label="Close assistant"]`. Class hashes change; match on the stable prefix.
-- `assets/components/voice-assistant.tsx` hides the stock launcher, shows a branded one with a delayed prompt, calls `getUserMedia` first (friendly messages for NotFound / NotAllowed / NotReadable), then clicks the widget's launcher and auto-presses "Start to call". If the call hasn't connected after about 10s, it closes the widget and shows a "call us" fallback. It also catches unhandled mic rejections.
+- **Never auto-press the widget's start button.** Browsers (iPhone Safari especially) only start call audio from a real tap; a scripted click after the async mic check creates the call but it ends `error_user_not_joined`. Open the widget and let the visitor tap start (relabelled "Tap to start talking"). Check `POST /v2/list-calls` for `error_user_not_joined` when users say it doesn't work.
+- `assets/components/voice-assistant.tsx` hides the stock launcher, shows a branded one with a delayed prompt, calls `getUserMedia` first (friendly messages for NotFound / NotAllowed / NotReadable), then opens the widget for the visitor to tap start. It wraps `window.fetch` to catch a refused `create-web-call` (401/402) and swaps in a "call us" message. It also catches unhandled mic rejections.
 - `POST /v3/create-web-call` errors seen in the browser:
   - `401 Public key is not allowed for this domain`: add `localhost` and the production domain under Public Keys → allowed domains in the dashboard.
   - `402 Credit balance exhausted`: top up.

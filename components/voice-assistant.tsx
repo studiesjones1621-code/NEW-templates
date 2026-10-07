@@ -82,32 +82,16 @@ function relabelWidget(shadow: ShadowRoot) {
   const walker = document.createTreeWalker(shadow, NodeFilter.SHOW_TEXT)
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     if (node.nodeValue?.trim() === "Your RetellAI assistant") node.nodeValue = "Ask anything · book your cut"
+    if (node.nodeValue?.trim() === "Start to call") node.nodeValue = "Tap to start talking"
   }
 }
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
-
-const startButton = (shadow: ShadowRoot) =>
-  shadow.querySelector<HTMLButtonElement>('button[class*="_startCallButton"]') ?? findButtonByText(shadow, "start to call")
-
-/**
- * The visitor already chose to talk, so press the widget's own start button for them.
- * Resolves false if the call never connects (e.g. Retell refuses it), so we can show a fallback.
- */
-async function autoStartCall(shadow: ShadowRoot): Promise<boolean> {
-  let btn: HTMLButtonElement | null | undefined
-  for (let i = 0; i < 20 && !btn; i++) {
-    btn = startButton(shadow)
-    if (!btn) await sleep(100)
-  }
-  if (!btn) return true // widget changed shape; let it handle the call itself
-  btn.click()
-  // A connected call replaces the start button; if it's still there after ~10s, the call failed.
-  for (let i = 0; i < 40; i++) {
-    await sleep(250)
-    if (!startButton(shadow)) return true
-  }
-  return !startButton(shadow)
+/** Friendly text for a refused call (Retell's create-web-call response status). */
+function callErrorMessage(status: number) {
+  if (status === 402) return `Our assistant can't take calls right now — please call us at ${business.phoneDisplay}.`
+  if (status === 401 || status === 403)
+    return `Our assistant isn't available on this page yet — please call us at ${business.phoneDisplay}.`
+  return `We couldn't connect the call — try again, or call us at ${business.phoneDisplay}.`
 }
 
 export function VoiceAssistant() {
@@ -162,6 +146,28 @@ export function VoiceAssistant() {
     }
   }, [enabled])
 
+  // Watch the widget's own call request: if Retell refuses it (no credits, domain not allowed…),
+  // close the widget and show a friendly message instead of leaving the visitor on a dead button.
+  useEffect(() => {
+    const original = window.fetch
+    window.fetch = async (...args: Parameters<typeof fetch>) => {
+      const res = await original(...args)
+      try {
+        const input = args[0]
+        const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input)
+        if (url.includes("create-web-call") && !res.ok) {
+          getWidgetShadow()?.querySelector<HTMLButtonElement>('button[aria-label="Close assistant"]')?.click()
+          setStatus("idle")
+          setError(callErrorMessage(res.status))
+        }
+      } catch {}
+      return res
+    }
+    return () => {
+      window.fetch = original
+    }
+  }, [])
+
   // Safety net: never let a mic failure inside the widget surface as an uncaught runtime error
   useEffect(() => {
     const onRejection = (e: PromiseRejectionEvent) => {
@@ -210,14 +216,10 @@ export function VoiceAssistant() {
       return
     }
 
+    // Open the widget; the visitor taps its "start" button themselves. Browsers (iPhone Safari especially)
+    // only let a call's audio start from a real tap, so pressing it for them leaves the call unjoined.
     fab.click()
     setStatus("open")
-    const connected = await autoStartCall(shadow)
-    if (!connected) {
-      shadow.querySelector<HTMLButtonElement>('button[aria-label="Close assistant"]')?.click()
-      setStatus("idle")
-      setError(`Our assistant can't take calls right now — please call us at ${business.phoneDisplay}.`)
-    }
   }, [enabled])
 
   useEffect(() => {
