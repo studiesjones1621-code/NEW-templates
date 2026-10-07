@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { ArrowUpRight, MapPin, Phone } from "lucide-react"
 import { HighlightedText } from "./highlighted-text"
 import { TalkButton } from "./talk-button"
+import { BooksyButton } from "./booksy-button"
 import { business, fullAddress, hours, mapEmbed, mapsLink } from "@/lib/business"
 
 function useStudioToday() {
@@ -92,7 +93,7 @@ export function Visit() {
               <p className="text-sm text-primary-foreground/55 mt-4">Before or after hours? Premium slots from $75.</p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3">
               <a
                 href={business.phoneHref}
                 className="inline-flex items-center justify-center gap-2.5 bg-gold text-primary font-semibold px-7 py-4 text-sm tracking-wide hover:bg-gold-light transition-colors duration-300"
@@ -103,6 +104,7 @@ export function Visit() {
               <TalkButton className="inline-flex items-center justify-center gap-2.5 border border-primary-foreground/30 px-7 py-4 text-sm tracking-wide hover:border-gold hover:text-gold transition-colors duration-300">
                 Talk to our assistant
               </TalkButton>
+              <BooksyButton className="inline-flex items-center justify-center gap-2.5 border border-gold/50 text-gold-light px-7 py-4 text-sm tracking-wide hover:bg-gold hover:text-primary transition-colors duration-300" />
             </div>
           </div>
 

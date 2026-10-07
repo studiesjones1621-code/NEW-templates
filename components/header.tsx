@@ -8,6 +8,7 @@ import { Phone } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { business } from "@/lib/business"
 import { TalkButton } from "./talk-button"
+import { BooksyButton } from "./booksy-button"
 
 const navItems = [
   { label: "Services", href: "#services" },
@@ -67,6 +68,12 @@ export function Header() {
         </ul>
 
         <div className="hidden md:flex items-center gap-3">
+          <BooksyButton
+            icon={false}
+            className="hidden xl:inline-flex text-sm text-gold-light hover:text-gold underline-offset-4 hover:underline transition-colors"
+          >
+            Book online
+          </BooksyButton>
           <a
             href={business.phoneHref}
             className="inline-flex items-center gap-2 text-sm px-4 py-2.5 text-white border border-white/25 hover:border-gold hover:text-gold transition-all duration-300"
@@ -132,6 +139,7 @@ export function Header() {
               <Phone className="w-4 h-4" strokeWidth={1.75} aria-hidden />
               Call {business.phoneDisplay}
             </a>
+            <BooksyButton className="inline-flex items-center justify-center gap-2 text-sm px-5 py-3.5 text-gold-light border border-gold/50" />
           </div>
         </div>
       </div>

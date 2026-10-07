@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react"
 import { ArrowDown, Phone, Star } from "lucide-react"
 import { business } from "@/lib/business"
 import { TalkButton } from "./talk-button"
+import { BooksyButton } from "./booksy-button"
 
 const clamp = (v: number, min = 0, max = 1) => Math.min(max, Math.max(min, v))
 // Maps overall progress p into 0..1 across [start, end]
@@ -19,6 +20,9 @@ export function Hero() {
   const bgRef = useRef<HTMLDivElement>(null)
   const shadeRef = useRef<HTMLDivElement>(null)
   const gradeRef = useRef<HTMLDivElement>(null)
+  const fillRef = useRef<HTMLDivElement>(null)
+  const bankRef = useRef<HTMLImageElement>(null)
+  const wispsRef = useRef<HTMLDivElement>(null)
   const sceneOneRef = useRef<HTMLDivElement>(null)
   const sceneTwoRef = useRef<HTMLDivElement>(null)
   const cueRef = useRef<HTMLAnchorElement>(null)
@@ -35,14 +39,18 @@ export function Hero() {
       const travel = section.offsetHeight - window.innerHeight
       const p = reduce ? 0 : clamp(-rect.top / Math.max(travel, 1))
 
-      const out = span(p, 0, 0.45)
-      const inn = span(p, 0.4, 0.8)
+      // Timeline: headline out → pilot seat reveal → climb into clouds → white-out → clouds clear into the page
+      const out = span(p, 0, 0.25)
+      const inn = span(p, 0.22, 0.45)
+      const climb = span(p, 0.55, 0.78)
+      const white = span(p, 0.72, 0.86)
+      const clear = span(p, 0.86, 1)
 
       // The reveal: camera pulls back and the grade lifts so the pilot seat and captain's hat take the frame
       // Wide screens: slide the seat right so the caption can sit beside it. All screens: drop it so the hat clears the nav.
       const wide = window.innerWidth >= 1024
       if (bgRef.current)
-        bgRef.current.style.transform = `translate(${wide ? inn * 17 : 0}%, ${inn * (wide ? 9 : 7)}%) scale(${1.14 - inn * 0.14})`
+        bgRef.current.style.transform = `translate(${wide ? inn * 17 : 0}%, ${inn * (wide ? 9 : 7)}%) scale(${(1.14 - inn * 0.14) * (1 + climb * 0.15)})`
       if (shadeRef.current) shadeRef.current.style.opacity = String(0.4 - inn * 0.36)
       if (gradeRef.current) gradeRef.current.style.opacity = String(1 - inn * 0.7)
       if (sceneOneRef.current) {
@@ -53,10 +61,20 @@ export function Hero() {
       }
       if (sceneTwoRef.current) {
         sceneTwoRef.current.style.transform = `translateY(${(1 - inn) * 60}px)`
-        sceneTwoRef.current.style.opacity = String(inn)
-        sceneTwoRef.current.style.pointerEvents = inn > 0.4 ? "auto" : "none"
+        const two = inn * (1 - span(p, 0.5, 0.6))
+        sceneTwoRef.current.style.opacity = String(two)
+        sceneTwoRef.current.style.pointerEvents = two > 0.4 ? "auto" : "none"
       }
       if (cueRef.current) cueRef.current.style.opacity = String(1 - span(p, 0, 0.15))
+      if (bankRef.current) {
+        bankRef.current.style.opacity = String(Math.min(1, climb * 1.5) * (1 - clear))
+        bankRef.current.style.transform = `translateY(${70 - climb * 75 - clear * 30}%) scale(${1 + climb * 0.15 + clear * 0.5})`
+      }
+      if (wispsRef.current) {
+        wispsRef.current.style.opacity = String(span(p, 0.6, 0.8) * (1 - clear))
+        wispsRef.current.style.transform = `translateY(${(1 - climb) * 25}%) scale(${1.1 + climb * 0.3 + clear * 0.7})`
+      }
+      if (fillRef.current) fillRef.current.style.opacity = String(white)
     }
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update)
@@ -72,7 +90,7 @@ export function Hero() {
   }, [])
 
   return (
-    <section id="hero" ref={sectionRef} className="relative h-[230svh] motion-reduce:h-[100svh] bg-black">
+    <section id="hero" ref={sectionRef} className="relative h-[340svh] motion-reduce:h-[100svh] bg-black">
       <div className="sticky top-0 h-[100svh] overflow-hidden" style={{ perspective: "1200px" }}>
         {/* Camera: slow drift (CSS) inside a scroll-driven push-in (JS) */}
         <div ref={bgRef} data-hero="bg" className="absolute inset-0 will-change-transform" style={{ transform: "scale(1.14)" }}>
@@ -98,6 +116,34 @@ export function Hero() {
         />
         <div className="hero-leak absolute -inset-1/4 pointer-events-none" aria-hidden />
         <div className="hero-grain absolute inset-0 pointer-events-none" aria-hidden />
+
+        {/* Flight out: page-colored fill (matches Services) under two cloud layers */}
+        <div ref={fillRef} data-hero="fill" className="absolute inset-0 bg-background opacity-0" aria-hidden>
+          <div className="absolute inset-0 bg-secondary/60" />
+        </div>
+        <div
+          ref={wispsRef}
+          data-hero="wisps"
+          className="absolute -inset-[15%] opacity-0 pointer-events-none will-change-transform"
+          aria-hidden
+        >
+          <img src="/biz/cloud-wisps.webp" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <img
+            src="/biz/cloud-wisps.webp"
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover -scale-x-100 translate-y-[18%] opacity-80"
+          />
+        </div>
+        <img
+          ref={bankRef}
+          data-hero="bank"
+          src="/biz/cloud-bank.webp"
+          alt=""
+          aria-hidden
+          className="absolute -left-[15%] -bottom-[10%] w-[130%] h-[120%] max-w-none object-cover object-bottom opacity-0 pointer-events-none will-change-transform"
+          style={{ transform: "translateY(70%)" }}
+        />
+
         <div className="hero-bar absolute inset-x-0 top-0 h-[7vh] bg-black" aria-hidden />
         <div className="hero-bar-bottom absolute inset-x-0 bottom-0 h-[7vh] bg-black" aria-hidden />
 
@@ -140,6 +186,7 @@ export function Hero() {
                 <Phone className="w-4 h-4" strokeWidth={1.75} aria-hidden />
                 Call {business.phoneDisplay}
               </a>
+              <BooksyButton className="inline-flex items-center justify-center gap-2.5 border border-gold/60 text-gold-light px-8 py-4 text-sm tracking-wide hover:bg-gold hover:text-primary transition-colors duration-300 backdrop-blur-sm" />
             </div>
           </div>
         </div>
@@ -167,11 +214,19 @@ export function Hero() {
             <TalkButton className="hero-pulse inline-flex items-center justify-center gap-3 rounded-full bg-gold text-primary font-semibold pl-3 pr-7 py-3 text-sm tracking-wide hover:bg-gold-light transition-colors">
               Start talking
             </TalkButton>
+            <p className="mt-5 text-sm text-white/65 flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2">
+              <span>Prefer another way?</span>
+              <BooksyButton className="inline-flex items-center gap-1.5 text-gold-light underline decoration-gold/60 underline-offset-4 hover:text-gold" />
+              <a href={business.phoneHref} className="inline-flex items-center gap-1.5 text-white/85 underline decoration-white/30 underline-offset-4 hover:text-white">
+                <Phone className="w-3.5 h-3.5" aria-hidden />
+                Call
+              </a>
+            </p>
             <a
               href={business.booksy}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 flex items-center justify-center lg:justify-start gap-2 text-sm text-white/70 hover:text-white transition-colors"
+              className="mt-6 hidden sm:flex items-center justify-center lg:justify-start gap-2 text-sm text-white/70 hover:text-white transition-colors"
             >
               <span className="flex text-gold" aria-hidden>
                 {Array.from({ length: 5 }).map((_, i) => (

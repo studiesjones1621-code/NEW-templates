@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Plus } from "lucide-react"
 import { menu } from "@/lib/business"
 import { TalkButton } from "./talk-button"
+import { BooksyButton } from "./booksy-button"
 
 export function Menu() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
@@ -79,6 +80,7 @@ export function Menu() {
           <TalkButton className="inline-flex items-center justify-center gap-2.5 bg-primary text-primary-foreground px-7 py-4 text-sm tracking-wide hover:bg-primary/85 transition-colors">
             Ask the assistant to book
           </TalkButton>
+          <BooksyButton className="inline-flex items-center justify-center gap-2.5 border border-foreground/25 px-7 py-4 text-sm tracking-wide hover:border-gold-deep hover:text-gold-deep transition-colors" />
           <p className="text-sm text-muted-foreground">Enhancement add-on available for $5–$10.</p>
         </div>
       </div>

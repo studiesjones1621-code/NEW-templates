@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { ArrowUpRight, Mic } from "lucide-react"
 import { openAssistant } from "./talk-button"
+import { BooksyButton } from "./booksy-button"
 
 const services = [
   {
@@ -154,14 +155,21 @@ export function Services() {
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                 {service.blurb} <span className="text-muted-foreground/70">· {service.time}</span>
               </p>
-              <button
-                type="button"
-                onClick={openAssistant}
-                className="inline-flex items-center gap-2 text-sm font-medium text-foreground underline-offset-4 decoration-gold hover:underline cursor-pointer"
-              >
-                <Mic className="w-3.5 h-3.5 text-gold-deep" strokeWidth={2} aria-hidden />
-                Book this with our assistant
-              </button>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                <button
+                  type="button"
+                  onClick={openAssistant}
+                  className="inline-flex items-center gap-2 text-sm font-medium text-foreground underline-offset-4 decoration-gold hover:underline cursor-pointer"
+                >
+                  <Mic className="w-3.5 h-3.5 text-gold-deep" strokeWidth={2} aria-hidden />
+                  Book with our assistant
+                </button>
+                <BooksyButton
+                  className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground underline-offset-4 decoration-gold hover:underline [&>svg]:w-3.5 [&>svg]:h-3.5 [&>svg]:text-gold-deep"
+                >
+                  or Booksy
+                </BooksyButton>
+              </div>
             </article>
           ))}
         </div>
