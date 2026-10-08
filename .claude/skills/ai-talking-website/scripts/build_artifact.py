@@ -184,13 +184,15 @@ js = r"""
   (function(){
     if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var below = function(el){ return el.getBoundingClientRect().top > innerHeight * 0.9; };
-    // Photo curtains (Services cards)
-    document.querySelectorAll('#services .origin-top').forEach(function(cur){
-      var box = cur.parentElement; if (!below(box)) return;
-      cur.style.transform = 'scaleY(1)';
-      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { cur.style.transform = 'scaleY(0)'; io.disconnect(); } }); }, { threshold: 0.2 });
-      io.observe(box);
-    });
+    // Photo curtains (Services cards): scroll-linked, so the unveil is always seen as a card rises
+    var boxes = [].slice.call(document.querySelectorAll('#services .origin-top')).map(function(c){ return [c.parentElement, c]; });
+    var ease = function(x){ return x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3) / 2; }, cf = 0;
+    function curtains(){ cf = 0; var vh = Math.min(document.documentElement.clientHeight || innerHeight, innerHeight); // clientHeight is the whole page in quirks mode
+      boxes.forEach(function(bc){ var r = bc[0].getBoundingClientRect();
+        var pr = Math.min(1, Math.max(0, (vh*.95 - r.top) / (r.height*.7)));
+        bc[1].style.transform = 'scaleY(' + (1 - ease(pr)) + ')'; }); }
+    addEventListener('scroll', function(){ if (!cf) cf = requestAnimationFrame(curtains); }, { passive: true });
+    addEventListener('resize', curtains); curtains();
     // Fade-up items (Why Choose Us, Testimonials)
     document.querySelectorAll('#why [data-index], #reviews [data-index]').forEach(function(el){
       if (!below(el)) return;
