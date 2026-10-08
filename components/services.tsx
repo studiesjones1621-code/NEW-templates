@@ -13,8 +13,8 @@ const services = [
     blurb: "Low, mid or high fade with a razor-sharp line-up.",
     price: "$40",
     time: "45 min",
-    image: "/biz/reem-cutting.jpg",
-    alt: "Reem cutting a client's hair with clippers",
+    image: "/biz/cut-twists-taper.jpg",
+    alt: "Client with a high taper, sharp line-up and twists on top",
   },
   {
     id: 2,
@@ -53,8 +53,9 @@ const services = [
     blurb: "Patient, precise cuts. Enhancements included for kids.",
     price: "From $35",
     time: "30 min",
-    image: "/biz/reem-kids-cut.jpg",
-    alt: "Reem giving a smiling young client a haircut",
+    image: "/biz/cut-kid-curly-taper.jpg",
+    alt: "Young client with a curly top, clean taper and sharp line-up",
+    position: "40% 50%",
   },
   {
     id: 6,
@@ -63,8 +64,8 @@ const services = [
     blurb: "Edge-ups, beard trims and hot-towel beard care.",
     price: "From $20",
     time: "20–30 min",
-    image: "/biz/cut-braids-lineup.jpg",
-    alt: "Client with a crisp hairline shape-up",
+    image: "/biz/cut-braids-beard.jpg",
+    alt: "Client with braids, a crisp shape-up and a full shaped beard",
   },
 ]
 
@@ -132,6 +133,7 @@ export function Services() {
                   src={service.image}
                   alt={service.alt}
                   loading="lazy"
+                  style={{ objectPosition: "position" in service ? service.position : undefined }}
                   className={`w-full h-full object-cover transition-transform duration-700 ${
                     hoveredId === service.id ? "scale-105" : "scale-100"
                   }`}
