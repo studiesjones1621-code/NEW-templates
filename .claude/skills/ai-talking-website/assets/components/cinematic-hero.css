@@ -51,14 +51,10 @@
 @keyframes hero-leak { from { transform: translate3d(-10%, -5%, 0); } to { transform: translate3d(20%, 10%, 0); } }
 
 /* Film grain */
+/* Static grain: moving it read as the screen shaking */
 .hero-grain {
-  opacity: 0.12;
+  opacity: 0.1;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: hero-grain 0.8s steps(4) infinite;
-}
-@keyframes hero-grain {
-  0% { transform: translate(0, 0); } 25% { transform: translate(-3%, 2%); }
-  50% { transform: translate(2%, -3%); } 75% { transform: translate(-2%, -1%); } 100% { transform: translate(0, 0); }
 }
 
 .hero-pulse { box-shadow: 0 0 0 0 oklch(0.76 0.12 82 / 0.5); animation: hero-pulse 2.4s ease-out infinite; }

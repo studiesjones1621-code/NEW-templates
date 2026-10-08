@@ -17,6 +17,7 @@ const span = (p: number, start: number, end: number) => clamp((p - start) / (end
  */
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
   const bgRef = useRef<HTMLDivElement>(null)
   const shadeRef = useRef<HTMLDivElement>(null)
   const gradeRef = useRef<HTMLDivElement>(null)
@@ -38,7 +39,11 @@ export function Hero() {
     const update = () => {
       frame = 0
       const rect = section.getBoundingClientRect()
-      const travel = section.offsetHeight - window.innerHeight
+      // Measure against the pinned stage (100svh, fixed), not innerHeight, which jumps when mobile
+      // browser bars show/hide and would make the whole hero jolt.
+      const stageH = stageRef.current?.offsetHeight || window.innerHeight
+      const stageW = stageRef.current?.offsetWidth || window.innerWidth
+      const travel = section.offsetHeight - stageH
       const p = reduce ? 0 : clamp(-rect.top / Math.max(travel, 1))
 
       // Timeline: headline out → pilot seat reveal → climb into clouds → white-out → clouds clear into the page
@@ -51,7 +56,7 @@ export function Hero() {
 
       // The reveal: camera pulls back and the grade lifts so the pilot seat and captain's hat take the frame
       // Wide screens: slide the seat right so the caption can sit beside it. All screens: drop it so the hat clears the nav.
-      const wide = window.innerWidth >= 1024
+      const wide = stageW >= 1024
       if (bgRef.current)
         bgRef.current.style.transform = `translate(${wide ? inn * 17 : 0}%, ${inn * 15}%) scale(${(1.14 - inn * 0.2) * (1 + climb * 0.15)})`
       if (shadeRef.current) shadeRef.current.style.opacity = String(0.4 - inn * 0.36)
@@ -87,8 +92,8 @@ export function Hero() {
       if (jetRef.current) {
         const fly = span(p, 0.58, 0.83)
         const w = jetRef.current.offsetWidth
-        const x = -w + fly * (window.innerWidth + w * 1.1)
-        const y = (0.5 - fly) * window.innerHeight * 0.16
+        const x = -w + fly * (stageW + w * 1.1)
+        const y = (0.5 - fly) * stageH * 0.16
         jetRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${-2 - fly * 3}deg) scale(${0.85 + fly * 0.3})`
         jetRef.current.style.opacity = String(fly > 0 && fly < 1 ? Math.min(1, fly * 10, (1 - fly) * 10) : 0)
       }
@@ -108,7 +113,7 @@ export function Hero() {
 
   return (
     <section id="hero" ref={sectionRef} className="relative h-[340svh] mb-[-60svh] motion-reduce:h-[100svh] motion-reduce:mb-0 bg-black">
-      <div className="sticky top-0 h-[100svh] overflow-hidden" style={{ perspective: "1200px" }}>
+      <div ref={stageRef} data-hero="stage" className="sticky top-0 h-[100svh] overflow-hidden" style={{ perspective: "1200px" }}>
         {/* Camera: slow drift (CSS) inside a scroll-driven push-in (JS) */}
         <div ref={bgRef} data-hero="bg" className="absolute inset-0 will-change-transform" style={{ transform: "scale(1.14)" }}>
           <img
