@@ -78,6 +78,8 @@ body{margin:0}
 """
 
 js = r"""
+// Momentum smooth-scrolling for wheel/trackpad (touch stays native); skipped for reduced motion
+try { if (window.Lenis && !matchMedia('(prefers-reduced-motion: reduce)').matches) new Lenis({ lerp: 0.09, autoRaf: true, anchors: true }); } catch (e) {}
 (function(){
   var header = document.querySelector('header');
   var top = 'bg-transparent py-4 top-0 left-0 right-0'.split(' ');
@@ -163,7 +165,7 @@ js = r"""
       shade.style.opacity=.4-i*.36;
       if (grade) grade.style.opacity=1-i*.7;
       one.style.transform='translateY('+(o*-90)+'px) rotateX('+(o*28)+'deg) scale('+(1-o*.12)+')';
-      one.style.opacity=1-o; one.style.filter='blur('+(o*8)+'px)'; one.style.pointerEvents=o>.6?'none':'auto';
+      one.style.opacity=1-o; one.style.pointerEvents=o>.6?'none':'auto';
       var tw=i*(1-span(p,.46,.54));
       two.style.transform='translateY('+((1-i)*60)+'px)'; two.style.opacity=tw; two.style.pointerEvents=tw>.4?'auto':'none';
       if (bank) { bank.style.opacity=Math.min(1,climb*1.5)*(1-clear); bank.style.transform='translateY('+(70-climb*75-clear*30)+'%) scale('+(1+climb*.15+clear*.5)+')'; }
@@ -227,6 +229,7 @@ out = f"""<meta charset="utf-8">
 <div class="{html_cls} {body_cls}">
 {body}
 </div>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
 <script>{js}</script>
 """
 dst.mkdir(exist_ok=True)

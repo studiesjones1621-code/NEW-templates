@@ -134,6 +134,10 @@
   html {
     scroll-behavior: smooth;
   }
+  /* Lenis handles smoothing when active; native smooth-behavior would fight it */
+  html.lenis {
+    scroll-behavior: auto;
+  }
   section[id] {
     scroll-margin-top: 88px;
   }
@@ -204,7 +208,6 @@
 /* Warm light leak drifting across the frame */
 .hero-leak {
   background: radial-gradient(circle at 30% 40%, oklch(0.76 0.12 82 / 0.22), transparent 45%);
-  mix-blend-mode: screen;
   animation: hero-leak 18s ease-in-out infinite alternate;
 }
 @keyframes hero-leak { from { transform: translate3d(-10%, -5%, 0); } to { transform: translate3d(20%, 10%, 0); } }

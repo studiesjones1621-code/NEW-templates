@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next"
 import { Manrope, Instrument_Serif } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { VoiceAssistant } from "@/components/voice-assistant"
+import { SmoothScroll } from "@/components/smooth-scroll"
 import { business, fullAddress, hours } from "@/lib/business"
 import "./globals.css"
 
@@ -82,6 +83,7 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         {children}
+        <SmoothScroll />
         <VoiceAssistant />
         <Analytics />
       </body>

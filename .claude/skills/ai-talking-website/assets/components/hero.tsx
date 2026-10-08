@@ -64,7 +64,6 @@ export function Hero() {
       if (sceneOneRef.current) {
         sceneOneRef.current.style.transform = `translateY(${out * -90}px) rotateX(${out * 28}deg) scale(${1 - out * 0.12})`
         sceneOneRef.current.style.opacity = String(1 - out)
-        sceneOneRef.current.style.filter = `blur(${out * 8}px)`
         sceneOneRef.current.style.pointerEvents = out > 0.6 ? "none" : "auto"
       }
       if (sceneTwoRef.current) {
@@ -175,7 +174,7 @@ export function Hero() {
           src="/biz/jet.webp"
           alt=""
           aria-hidden
-          className="absolute left-0 top-[30%] w-[72vw] sm:w-[48vw] lg:w-[40vw] max-w-[760px] opacity-0 pointer-events-none will-change-transform drop-shadow-[0_18px_30px_rgba(60,45,20,0.25)]"
+          className="absolute left-0 top-[30%] w-[72vw] sm:w-[48vw] lg:w-[40vw] max-w-[760px] opacity-0 pointer-events-none will-change-transform"
         />
         <div
           ref={wispsFrontRef}
@@ -223,12 +222,12 @@ export function Hero() {
               </TalkButton>
               <a
                 href={business.phoneHref}
-                className="inline-flex items-center justify-center gap-2.5 border border-white/30 text-white px-8 py-4 text-sm tracking-wide hover:border-gold hover:text-gold transition-colors duration-300 backdrop-blur-sm"
+                className="inline-flex items-center justify-center gap-2.5 border border-white/30 text-white px-8 py-4 text-sm tracking-wide hover:border-gold hover:text-gold transition-colors duration-300 bg-black/25"
               >
                 <Phone className="w-4 h-4" strokeWidth={1.75} aria-hidden />
                 Call {business.phoneDisplay}
               </a>
-              <BooksyButton className="inline-flex items-center justify-center gap-2.5 border border-gold/60 text-gold-light px-8 py-4 text-sm tracking-wide hover:bg-gold hover:text-primary transition-colors duration-300 backdrop-blur-sm" />
+              <BooksyButton className="inline-flex items-center justify-center gap-2.5 border border-gold/60 text-gold-light px-8 py-4 text-sm tracking-wide hover:bg-gold hover:text-primary transition-colors duration-300 bg-black/25" />
             </div>
           </div>
         </div>

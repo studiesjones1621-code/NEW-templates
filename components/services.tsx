@@ -146,7 +146,7 @@ export function Services() {
                     hoveredId === service.id ? "scale-105" : "scale-100"
                   }`}
                 />
-                <span className="absolute top-4 left-4 bg-primary/85 backdrop-blur text-gold-light text-[11px] tracking-[0.2em] uppercase px-3 py-1.5">
+                <span className="absolute top-4 left-4 bg-primary/90 text-gold-light text-[11px] tracking-[0.2em] uppercase px-3 py-1.5">
                   {service.tag}
                 </span>
                 <div
