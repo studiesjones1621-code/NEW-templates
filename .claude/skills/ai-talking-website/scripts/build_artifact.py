@@ -179,6 +179,28 @@ js = r"""
     addEventListener('resize',upd); upd();
   })();
 
+  // Scroll reveals: the static markup ships fully visible (thumbnails, no-JS); here, anything that starts
+  // below the fold is hidden again and animates in when it scrolls into view, like the live site.
+  (function(){
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var below = function(el){ return el.getBoundingClientRect().top > innerHeight * 0.9; };
+    // Photo curtains (Services cards)
+    document.querySelectorAll('#services .origin-top').forEach(function(cur){
+      var box = cur.parentElement; if (!below(box)) return;
+      cur.style.transform = 'scaleY(1)';
+      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { cur.style.transform = 'scaleY(0)'; io.disconnect(); } }); }, { threshold: 0.2 });
+      io.observe(box);
+    });
+    // Fade-up items (Why Choose Us, Testimonials)
+    document.querySelectorAll('#why [data-index], #reviews [data-index]').forEach(function(el){
+      if (!below(el)) return;
+      el.classList.remove('opacity-100', 'translate-y-0'); el.classList.add('opacity-0', 'translate-y-8');
+      var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) {
+        el.classList.remove('opacity-0', 'translate-y-8'); el.classList.add('opacity-100', 'translate-y-0'); io.disconnect(); } }); }, { threshold: 0.2 });
+      io.observe(el);
+    });
+  })();
+
   // Studio-time "today" highlight + open/closed
   try {
     var parts = new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'long',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());
