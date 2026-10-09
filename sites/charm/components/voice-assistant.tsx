@@ -81,7 +81,7 @@ function findButtonByText(shadow: ShadowRoot, text: string) {
 function relabelWidget(shadow: ShadowRoot) {
   const walker = document.createTreeWalker(shadow, NodeFilter.SHOW_TEXT)
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-    if (node.nodeValue?.trim() === "Your RetellAI assistant") node.nodeValue = "Ask anything · book your visit"
+    if (node.nodeValue?.trim() === "Your RetellAI assistant") node.nodeValue = "Ask anything · book your free consult"
     if (node.nodeValue?.trim() === "Start to call") node.nodeValue = "Tap to start talking"
   }
 }
