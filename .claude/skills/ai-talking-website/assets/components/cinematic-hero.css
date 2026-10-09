@@ -45,7 +45,6 @@
 /* Warm light leak drifting across the frame */
 .hero-leak {
   background: radial-gradient(circle at 30% 40%, oklch(0.76 0.12 82 / 0.22), transparent 45%);
-  mix-blend-mode: screen;
   animation: hero-leak 18s ease-in-out infinite alternate;
 }
 @keyframes hero-leak { from { transform: translate3d(-10%, -5%, 0); } to { transform: translate3d(20%, 10%, 0); } }
@@ -60,4 +59,4 @@
 .hero-pulse { box-shadow: 0 0 0 0 oklch(0.76 0.12 82 / 0.5); animation: hero-pulse 2.4s ease-out infinite; }
 @keyframes hero-pulse { to { box-shadow: 0 0 0 22px oklch(0.76 0.12 82 / 0); } }
 
-/* Also add to :root: --sky: color-mix(in oklab, var(--secondary) 60%, var(--background)); and give the section after the hero class "relative z-10 services-sky". */
+/* Also add to :root: --sky: color-mix(in oklab, var(--secondary) 60%, var(--background)); give the section after the hero "relative z-10 services-sky"; and html.lenis { scroll-behavior: auto } for smooth-scroll.tsx. */

@@ -26,18 +26,14 @@ Delete pricing tiers, feature comparisons, newsletter forms, booking forms (the 
 - Favicons: `app/icon.png` and `app/apple-icon.png` (Next app-dir convention). OG image: 1200×630 photo with a dark overlay and the logo composited (ImageMagick).
 
 ## Cinematic hero (assets/components/hero.tsx + cinematic-hero.css)
-A section about 230svh tall with a sticky 100svh stage, driven by scroll position (never hijack wheel/touch):
-- Camera: CSS drift (slow scale/translate, 24s alternate) inside a JS push-in tied to scroll progress.
-- Grade: gradient darkening, a scroll-deepening shade, vignette, a drifting gold light leak (`mix-blend-mode: screen`), animated SVG-noise film grain, and letterbox bars that slide away on load.
-- Scene 1 on load: eyebrow rules draw in, headline lines rise from masks (staggered `--d` delays), then subline, CTAs and scroll cue. On scroll it tilts back (rotateX), blurs and fades.
-- Scene 2 fades up mid-scroll: the voice-assistant pitch ("Book your seat in one conversation.") with a pulsing talk button and the rating.
-- Respect `prefers-reduced-motion` (hero collapses to one screen, animations off).
+A ~340svh section with a sticky 100svh stage, driven by scroll position (never hijack wheel or touch). On load: letterbox bars slide away, eyebrow rules draw in, and headline lines rise from masks with staggered `--d` delays. Static film grain, a vignette, and a drifting gold light leak (normal blend). Scene 1 tilts away, the themed object is revealed, scene 2 pitches the voice assistant, then the fly-through clears into Services. The full timeline, asset recipes and performance rules are in `references/signature-moment.md`. Respect `prefers-reduced-motion` (one screen, no motion, no smooth scroll).
 Gotchas found the hard way:
 - Gradient text: use `background-image`, never the `background` shorthand. Tailwind/LightningCSS emits a second `@supports` rule with the shorthand, which resets `background-clip: text` and paints a solid bar.
 - Don't put `background-clip: text` on the same element that runs a transform animation; the text disappears in Chromium. Wrap it: animated outer span, gradient inner span.
+- Don't animate `filter`, `backdrop-filter`, `drop-shadow` or `mix-blend-mode` on large layers; scrolling stutters.
 
 ## Verification
-- Playwright (chromium at /opt/pw-browsers or system) at 1440×900 and 390×844. Scroll the whole page before a full-page screenshot so reveal animations fire, then check:
+- Playwright (chromium at /opt/pw-browsers or system) at 1440×900 and 390×844. Scroll the whole page before a full-page screenshot so reveal animations fire (the service-photo unveil is scroll-linked, so screenshot cards after they've risen above mid-screen), then check:
   - console/page errors and HTTP ≥400
   - no horizontal overflow (`scrollWidth > innerWidth`)
   - no broken images (`img.complete && naturalWidth === 0`)

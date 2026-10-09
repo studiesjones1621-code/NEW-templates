@@ -1,6 +1,6 @@
 ---
 name: ai-talking-website
-description: Build a premium one-page website for a local business (barber, salon, dentist, med spa, contractor, restaurant, law office…) with an embedded Retell AI voice agent that answers questions and books real appointments through Cal.com, optionally on top of a template zip, then preview it as a claude.ai artifact and deploy to Vercel. Use this whenever someone pastes a business URL (Booksy, Google, Yelp, their own site) with Retell / Cal.com / Gemini keys, asks for an "AI talking website", "voice agent website", "website with an AI receptionist", wants to rebrand a website template for a local business, or wants to swap a new template onto an existing talking site — even if they don't use those exact words.
+description: Build a premium one-page website for a local business (barber, salon, dentist, med spa, contractor, restaurant, law office…) with an embedded Retell AI voice agent that answers questions and books real appointments through Cal.com, optionally on top of a template zip, with a cinematic themed hero (scroll-driven reveal, fly-through transition, smooth scrolling), then preview it as a claude.ai artifact and deploy it live on Vercel. Use this whenever someone pastes a business URL (Booksy, Google, Yelp, their own site) with Retell / Cal.com / Gemini keys, asks for an "AI talking website", "voice agent website", "website with an AI receptionist", wants to rebrand a website template for a local business, or wants to swap a new template onto an existing talking site, or wants a local-business site made more immersive or cinematic — even if they don't use those exact words.
 ---
 
 # AI talking website
@@ -14,11 +14,14 @@ Bundled resources (paths relative to this skill):
 - `scripts/cal_event_types.py`: list Cal.com event types and schedule, or set working hours
 - `scripts/retell_setup.py`: create or update the LLM, agent and Cal.com tools, then publish (idempotent)
 - `scripts/retell_check.py`: text-chat the agent to verify prompt, tools and credits
-- `scripts/gen_images.py`: Gemini image generation for missing visuals
+- `scripts/gen_images.py`: Gemini image generation for missing visuals and scene layers
+- `scripts/edit_photo.py`: Gemini edit of a REAL business photo (keeps room and branding, changes one object)
+- `scripts/alpha_tools.py`: generated image → transparent WebP (`key-green` for solid objects, `soft-black` for clouds or smoke)
 - `scripts/build_artifact.py`: static export → claude.ai artifact preview
-- `assets/components/`: proven components (voice-assistant, talk-button, cinematic hero + CSS, highlighted-text, business.ts example)
+- `assets/components/`: proven components: voice-assistant, talk-button, booksy-button (secondary online booking), hero.tsx + cinematic-hero.css (pinned reveal, clouds, jet), services.tsx (scroll-linked photo unveil), smooth-scroll.tsx (Lenis), highlighted-text, business.ts example
 - `references/retell.md`: Retell API, Cal.com integration, widget internals, error meanings. Read before Phase 3.
-- `references/design.md`: section mapping, copy rules, hero gotchas, verification checklist. Read before Phase 2.
+- `references/design.md`: section mapping, copy rules, hero gotchas, verification checklist, going live. Read before Phase 2.
+- `references/signature-moment.md`: how to turn the business's name into the cinematic hero (metaphor table, asset recipes, the scroll timeline, performance rules). Read when building the hero.
 
 ## Phase 1: Research the business
 
@@ -37,10 +40,11 @@ Bundled resources (paths relative to this skill):
 Either way:
 - Put all real data in one `lib/business.ts` (see `assets/components/business.ts`) and import it everywhere.
 - Sections: Hero, Services grid, Why Choose Us, Testimonials, Hours & Location (tel: links, Google Maps embed `https://www.google.com/maps?q=<address>&z=15&output=embed`), Footer. A full price menu is a good addition when there are many services.
-- CTAs: click-to-call, plus "Talk to our assistant" buttons that dispatch the talk event (`talk-button.tsx`). No booking forms; the agent books.
+- CTAs: click-to-call, plus "Talk to our assistant" buttons that dispatch the talk event (`talk-button.tsx`). No booking forms; the agent books. If the business already books online (Booksy, Vagaro, Square, etc.), add a secondary "Book on …" link (`booksy-button.tsx`) beside talk and call in the hero, nav, service cards, menu and visit sections, and tell the agent about it in its prompt.
 - SEO: title `Business Name | Business Type in City, ST`, meta description, Open Graph with a 1200×630 image, one h1, LocalBusiness JSON-LD, `metadataBase` from `NEXT_PUBLIC_SITE_URL` or `VERCEL_PROJECT_PRODUCTION_URL`.
 - Images: real photos first. If a Gemini key is given, run `gen_images.py` only for slots with no real photo. If it 429s with "limit: 0", the key has no billing; fall back without retrying. Never leave a broken image or placeholder.
-- If the user wants it "immersive" or "cinematic", use the bundled cinematic hero (`hero.tsx` + `cinematic-hero.css`) and read its gotchas in design.md.
+- **Signature moment:** build the hero around the business's own name or theme (`references/signature-moment.md`). Example: "First Class Cutz" got its real chair edited into a pilot seat, then a fly-through of gold-lit clouds with a jet that clears into the service photos. Use the bundled hero, smooth scrolling and scroll-linked unveils. Generate and edit assets with Gemini when there's a key with billing; without one, use the plain cinematic hero over the best real photo.
+- Show the user the result early (artifact link) and iterate on their visual feedback. Small asks ("can't see the hat", "too much space after the clouds", "it's shaky") are common and quick to fix.
 
 ## Phase 3: Voice agent (Retell)
 
@@ -67,9 +71,9 @@ Either way:
 4. Final summary, short:
    1. What was built and which real details were used.
    2. Preview: the artifact link, plus localhost if they run it locally.
-   3. Vercel steps with no CLI: vercel.com → Add New → Project → import repo (pick the branch) → add env vars `NEXT_PUBLIC_RETELL_PUBLIC_KEY`, `NEXT_PUBLIC_RETELL_AGENT_ID` → Deploy.
+   3. Live site. Best: the user imports the GitHub repo in Vercel (Add New → Project → pick the branch → Deploy). With the public values in `.env.production`, no env vars are needed, and every push auto-deploys. After each push, poll the live URL until the new build is served, then re-test. If Claude has no Vercel write access (403 scope), use the anonymous temporary deploy in `references/design.md` and give the claim link plus the exact expiry time.
    4. Booking mode: real Cal.com booking (which event type, hours change made) or lead capture.
-   5. Manual attention: add `localhost` and the production domain to the Retell public key's allowed domains; Retell credits; Gemini billing if it failed; renaming generic Cal.com event types (the name shows in confirmation emails); rotating keys pasted in chat.
+   5. Manual attention: add `localhost` and the production domain to the Retell public key's allowed domains; Retell credits; Gemini billing if it failed (image models are not on the free tier: pay-as-you-go API billing, not a Google AI subscription); renaming generic Cal.com event types (the name shows in confirmation emails); rotating keys pasted in chat.
 
 ## Template revamp (existing talking site + new template zip)
 Throw away the old UI and rebuild on the new template's design. Keep everything that isn't design: `lib/business.ts`, photos, copy rules, SEO, tel links, `voice-assistant.tsx`, mic handling, `.env`, `retell/` (do **not** create a new agent). Remap sections, recolor, replace all template copy, re-verify (including that the widget still loads), and republish the artifact preview.
