@@ -1,0 +1,238 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Charm palette - ivory, deep forest green (from the Charm logo) and champagne gold.
+   The "gold" tokens carry the champagne-gold accent so every component picks up the brand without renaming. */
+:root {
+  --background: oklch(0.982 0.008 85);
+  --foreground: oklch(0.24 0.025 165);
+  --card: oklch(0.99 0.006 85);
+  --card-foreground: oklch(0.24 0.025 165);
+  --popover: oklch(0.99 0.006 85);
+  --popover-foreground: oklch(0.24 0.025 165);
+  --primary: oklch(0.27 0.03 165);
+  --primary-foreground: oklch(0.982 0.008 85);
+  --secondary: oklch(0.955 0.018 80);
+  --secondary-foreground: oklch(0.27 0.03 165);
+  --muted: oklch(0.935 0.015 85);
+  --muted-foreground: oklch(0.48 0.025 160);
+  --accent: oklch(0.8 0.09 85);
+  --accent-foreground: oklch(0.24 0.025 165);
+  --gold: oklch(0.8 0.09 85);
+  --gold-light: oklch(0.9 0.05 88);
+  --gold-deep: oklch(0.55 0.085 75);
+  --metal: oklch(0.42 0.04 165);
+  /* Page color the hero's clouds clear into; Services starts on the same color */
+  --sky: color-mix(in oklab, var(--secondary) 60%, var(--background));
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.9 0.015 85);
+  --input: oklch(0.9 0.015 85);
+  --ring: oklch(0.55 0.085 75);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.25rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --font-sans: var(--font-sans-brand), system-ui, sans-serif;
+  --font-serif: var(--font-serif-brand), Georgia, serif;
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-deep: var(--gold-deep);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  /* Lenis handles smoothing when active; native smooth-behavior would fight it */
+  html.lenis {
+    scroll-behavior: auto;
+  }
+  section[id] {
+    scroll-margin-top: 88px;
+  }
+}
+
+/* Adding stroke drawing animation for expertise icons */
+@keyframes draw-stroke {
+  from {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-draw-stroke svg {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw-stroke 1.5s ease-out forwards;
+}
+
+/* Services rises through the hero's clouds: transparent at its top edge, solid sky color below */
+.services-sky {
+  background: linear-gradient(to bottom, transparent 0, var(--sky) 38svh);
+}
+
+/* Cinematic hero */
+@keyframes hero-drift {
+  from { transform: scale(1.02) translate3d(-0.5%, 0, 0); }
+  to { transform: scale(1.08) translate3d(1%, -1%, 0); }
+}
+.hero-drift { animation: hero-drift 24s ease-in-out infinite alternate; transform-origin: 55% 60%; }
+
+@keyframes hero-rise {
+  from { transform: translateY(110%); }
+  to { transform: translateY(0); }
+}
+.hero-rise { transform: translateY(110%); animation: hero-rise 1.2s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms) forwards; }
+
+@keyframes hero-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hero-in { opacity: 0; animation: hero-in 1s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms) forwards; }
+
+@keyframes hero-rule { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.hero-rule { transform: scaleX(0); animation: hero-rule 1.2s cubic-bezier(0.16, 1, 0.3, 1) 400ms forwards; }
+
+/* Letterbox bars slide away as the film starts */
+@keyframes hero-bar-top { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+.hero-bar { animation: hero-bar-top 1.6s cubic-bezier(0.65, 0, 0.35, 1) 300ms forwards; }
+.hero-bar-bottom { animation: hero-bar-bottom 1.6s cubic-bezier(0.65, 0, 0.35, 1) 300ms forwards; }
+@keyframes hero-bar-bottom { from { transform: translateY(0); } to { transform: translateY(100%); } }
+
+/* Brushed-gold text with a slow light sweep */
+.hero-gold-text {
+  background-image: linear-gradient(100deg, var(--gold-deep) 0%, var(--gold) 35%, oklch(0.97 0.04 90) 50%, var(--gold) 65%, var(--gold-deep) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: hero-sheen 7s ease-in-out 1.6s infinite;
+}
+@keyframes hero-sheen { 0%, 100% { background-position: 100% 0; } 50% { background-position: 0% 0; } }
+
+/* Warm light leak drifting across the frame */
+.hero-leak {
+  background: radial-gradient(circle at 30% 40%, oklch(0.88 0.07 85 / 0.2), transparent 45%);
+  animation: hero-leak 18s ease-in-out infinite alternate;
+}
+@keyframes hero-leak { from { transform: translate3d(-10%, -5%, 0); } to { transform: translate3d(20%, 10%, 0); } }
+
+/* Film grain */
+/* Static grain: moving it read as the screen shaking */
+.hero-grain {
+  opacity: 0.1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.hero-pulse { box-shadow: 0 0 0 0 oklch(0.8 0.09 85 / 0.5); animation: hero-pulse 2.4s ease-out infinite; }
+@keyframes hero-pulse { to { box-shadow: 0 0 0 22px oklch(0.8 0.09 85 / 0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .hero-rise, .hero-in, .hero-rule { opacity: 1 !important; transform: none !important; }
+}

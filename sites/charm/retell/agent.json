@@ -1,0 +1,9 @@
+{
+  "agent_name": "Charm Medical Aesthetics - Website Assistant",
+  "prompt_file": "retell/system-prompt.md",
+  "begin_message": "Hi, welcome to Charm Medical Aesthetics! I'm Clara. I can answer questions about Botox, fillers, skin treatments or weight loss, share prices, or book you a free consultation. How can I help?",
+  "voice_id": "11labs-Marissa",
+  "timezone": "America/New_York",
+  "cal_event_type_id": "7414538",
+  "boosted_keywords": ["Charm", "Olga", "Olga Lannon", "Carli", "Vanessa", "Rosedale", "Ridge Road", "Botox", "Xeomin", "Dysport", "Sculptra", "Radiesse", "EZ Gel", "microneedling", "Silktox", "dermaplaning", "semaglutide", "tirzepatide", "PCA", "Amarte", "EltaMD", "CareCredit"]
+}
