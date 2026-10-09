@@ -26,7 +26,7 @@ export function Hero() {
   const fillRef = useRef<HTMLDivElement>(null)
   const bankRef = useRef<HTMLImageElement>(null)
   const wispsRef = useRef<HTMLDivElement>(null)
-  const emblemRef = useRef<HTMLImageElement>(null)
+  const emblemRef = useRef<HTMLDivElement>(null)
   const wispsFrontRef = useRef<HTMLDivElement>(null)
   const sceneOneRef = useRef<HTMLDivElement>(null)
   const sceneTwoRef = useRef<HTMLDivElement>(null)
@@ -191,14 +191,17 @@ export function Hero() {
           className="absolute -left-[15%] -bottom-[10%] w-[130%] h-[120%] max-w-none object-cover object-bottom opacity-0 pointer-events-none will-change-transform"
           style={{ transform: "translateY(70%)" }}
         />
-        <img
+        <div
           ref={emblemRef}
           data-hero="emblem"
-          src="/biz/syringe.webp"
-          alt=""
           aria-hidden
           className="absolute left-0 top-0 w-[78vw] sm:w-[52vw] lg:w-[34vw] max-w-[620px] opacity-0 pointer-events-none will-change-transform"
-        />
+        >
+          <img src="/biz/syringe.webp" alt="" className="block w-full h-auto" />
+          {/* Gel drips from the bead at the needle tip (97% across, ~5% down the image), on a loop */}
+          <span className="syringe-drip" style={{ left: "97.3%", top: "4.6%" }} />
+          <span className="syringe-drip" style={{ left: "97.3%", top: "4.6%", animationDelay: "1.15s" }} />
+        </div>
         <div
           ref={wispsFrontRef}
           data-hero="wisps-front"
