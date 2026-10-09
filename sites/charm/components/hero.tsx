@@ -11,9 +11,9 @@ const clamp = (v: number, min = 0, max = 1) => Math.min(max, Math.max(min, v))
 const span = (p: number, start: number, end: number) => clamp((p - start) / (end - start))
 
 /**
- * Cinematic hero, "Charm" (and Baltimore, Charm City): Olga sits in a golden-hour studio. On scroll the headline
- * tilts away and the camera settles on her, then champagne mist rolls in, a gold lotus charm (the lotus from
- * the Charm logo) rises through drifting gold dust, and the mist clears straight into the Services section.
+ * Cinematic hero, "Bring out your charm": Olga sits in a golden-hour studio. On scroll the headline tilts away and
+ * the camera settles on her, then a wave of rich skincare cream surges up, a gold filler syringe (their signature
+ * injectables) rises through floating serum droplets and gold shimmer, and the cream clears into Services.
  * Scroll is never hijacked.
  */
 export function Hero() {
@@ -49,7 +49,7 @@ export function Hero() {
       const p = reduce ? 0 : clamp(-rect.top / Math.max(travel, 1))
       const wide = stageW >= 1024
 
-      // Timeline: headline out → settle on Olga → mist rises → charm ascends → white-out → mist clears into the page.
+      // Timeline: headline out → settle on Olga → cream wave rises → syringe ascends → white-out → cream clears into the page.
       // Services overlaps the last 60svh (from p≈0.75), so the white-out must be done by then.
       const out = span(p, 0, 0.22)
       const inn = span(p, 0.2, 0.4)
@@ -87,12 +87,12 @@ export function Hero() {
         wispsRef.current.style.transform = `translateY(${(1 - climb) * 25}%) scale(${1.1 + climb * 0.3 + clear * 0.7})`
       }
       if (fillRef.current) fillRef.current.style.opacity = String(white)
-      // Gold dust drifting past in front of the charm (faster parallax than the back layer)
+      // Gold shimmer drifting past in front of the syringe (faster parallax than the back layer)
       if (wispsFrontRef.current) {
         wispsFrontRef.current.style.opacity = String(0.3 * span(p, 0.6, 0.7) * (1 - span(p, 0.78, 0.92)))
         wispsFrontRef.current.style.transform = `translate3d(0, ${(0.5 - span(p, 0.58, 0.92)) * 30}%, 0) scale(${1.2 + clear * 0.6})`
       }
-      // The charm moment: the lotus charm rises out of the mist to the centre, then lifts away as it clears
+      // The signature moment: the syringe rises out of the cream to the centre, then lifts away as it clears
       if (emblemRef.current) {
         const rise = span(p, 0.56, 0.86)
         const w = emblemRef.current.offsetWidth
@@ -161,7 +161,7 @@ export function Hero() {
         <div className="hero-leak absolute -inset-1/4 pointer-events-none" aria-hidden />
         <div className="hero-grain absolute inset-0 pointer-events-none" aria-hidden />
 
-        {/* Charm moment: page-colored fill (matches Services), gold dust, mist, the lotus charm, then dust in front */}
+        {/* Signature moment: page-colored fill (matches Services), serum droplets, cream wave, the syringe, then gold shimmer in front */}
         <div
           ref={fillRef}
           data-hero="fill"
@@ -175,9 +175,9 @@ export function Hero() {
           className="absolute -inset-[15%] opacity-0 pointer-events-none will-change-transform"
           aria-hidden
         >
-          <img src="/biz/shimmer.webp" alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <img src="/biz/droplets.webp" alt="" className="absolute inset-0 w-full h-full object-cover" />
           <img
-            src="/biz/shimmer.webp"
+            src="/biz/droplets.webp"
             alt=""
             className="absolute inset-0 w-full h-full object-cover -scale-x-100 translate-y-[18%] opacity-70"
           />
@@ -185,7 +185,7 @@ export function Hero() {
         <img
           ref={bankRef}
           data-hero="bank"
-          src="/biz/mist-bank.webp"
+          src="/biz/cream-bank.webp"
           alt=""
           aria-hidden
           className="absolute -left-[15%] -bottom-[10%] w-[130%] h-[120%] max-w-none object-cover object-bottom opacity-0 pointer-events-none will-change-transform"
@@ -194,10 +194,10 @@ export function Hero() {
         <img
           ref={emblemRef}
           data-hero="emblem"
-          src="/biz/charm.webp"
+          src="/biz/syringe.webp"
           alt=""
           aria-hidden
-          className="absolute left-0 top-0 w-[38vw] sm:w-[24vw] lg:w-[15vw] max-w-[300px] opacity-0 pointer-events-none will-change-transform"
+          className="absolute left-0 top-0 w-[78vw] sm:w-[52vw] lg:w-[34vw] max-w-[620px] opacity-0 pointer-events-none will-change-transform"
         />
         <div
           ref={wispsFrontRef}
