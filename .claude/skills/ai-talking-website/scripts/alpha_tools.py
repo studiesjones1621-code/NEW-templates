@@ -8,6 +8,7 @@ Generate the source with gen_images.py first, asking for an isolated subject:
 
 Usage:
   python3 -I alpha_tools.py key-green   <in> <out.webp> [--width 1200]
+  python3 -I alpha_tools.py key-magenta <in> <out.webp> [--width 1200]   (green subjects on #FF00FF)
   python3 -I alpha_tools.py soft-black  <in> <out.webp> [--solid-below] [--tint "#FAF6EB"] [--shadow "#9E9185"] [--warm "#FFDB9E"]
 
 key-green  : chroma key + green despill + crop to the subject. Clean edges on dark and light pages.
@@ -31,12 +32,19 @@ def arg(name, default):
     return sys.argv[sys.argv.index(name) + 1] if name in sys.argv else default
 
 
-def key_green(src, dst, width):
+def key_green(src, dst, width, magenta=False):
     a = np.asarray(Image.open(src).convert("RGB")).astype(np.float32) / 255
     r, g, b = a[..., 0], a[..., 1], a[..., 2]
-    alpha = 1 - np.clip((g - np.maximum(r, b) - 0.08) / 0.25, 0, 1)
+    if magenta:  # for green subjects (plants, leaves): key out #FF00FF instead
+        alpha = 1 - np.clip((np.minimum(r, b) - g - 0.12) / 0.25, 0, 1)
+    else:
+        alpha = 1 - np.clip((g - np.maximum(r, b) - 0.08) / 0.25, 0, 1)
     alpha = np.asarray(Image.fromarray((alpha * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.7))).astype(np.float32) / 255
-    g = np.minimum(g, np.maximum(r, b) + 0.02)  # despill
+    if magenta:  # despill
+        excess = np.clip(np.minimum(r, b) - g + 0.03, 0, None) * (np.minimum(r, b) > g)
+        r, b = r - excess, b - excess
+    else:
+        g = np.minimum(g, np.maximum(r, b) + 0.02)
     img = Image.fromarray((np.clip(np.dstack([r, g, b, alpha]), 0, 1) * 255).astype(np.uint8), "RGBA")
     box = img.getchannel("A").point(lambda v: 255 if v > 20 else 0).getbbox()
     img = img.crop((max(box[0] - 12, 0), max(box[1] - 12, 0), min(box[2] + 12, img.width), min(box[3] + 12, img.height)))
@@ -78,6 +86,8 @@ if __name__ == "__main__":
     mode, src, dst = sys.argv[1:4]
     if mode == "key-green":
         print(key_green(src, dst, int(arg("--width", 1200))))
+    elif mode == "key-magenta":
+        print(key_green(src, dst, int(arg("--width", 1200)), magenta=True))
     elif mode == "soft-black":
         print(soft_black(src, dst, "--solid-below" in sys.argv, hex_rgb(arg("--tint", "#FAF6EB")),
                          hex_rgb(arg("--shadow", "#9E9185")), hex_rgb(arg("--warm", "#FFDB9E"))))
