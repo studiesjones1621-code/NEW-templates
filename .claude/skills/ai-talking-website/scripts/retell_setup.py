@@ -55,11 +55,24 @@ def call(method, path, body=None):
 tools = [{"type": "end_call", "name": "end_call", "description": "End the call when the caller is done or says goodbye."}]
 
 if event_id:
+    if "app_id" not in ids and cfg.get("cal_app_id"):
+        ids["app_id"] = cfg["cal_app_id"]
     if "app_id" not in ids:
-        ids["app_id"] = call("POST", "/create-app", {
+        req = urllib.request.Request(API + "/create-app", method="POST", data=json.dumps({
             "type": "calendar", "provider": "calcom", "name": f"Cal.com - {cfg['agent_name']}", "tenant_url": "cal.com",
             "auth_config": {"type": "api_key", "api_key": os.environ["CAL_API_KEY"]},
-        })["app_id"]
+        }).encode(), headers={"Authorization": f"Bearer {KEY}", "Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req) as r:
+                ids["app_id"] = json.load(r)["app_id"]
+        except urllib.error.HTTPError as e:
+            # One Cal.com key can back only one Retell app; a second business on the same Cal.com account reuses it.
+            body = e.read().decode()
+            m = re.search(r"already used by app .*?\((app_\w+)\)", body)
+            if not m:
+                sys.exit(f"POST /create-app -> {e.code}: {body}")
+            ids["app_id"] = m.group(1)
+            print(f"Reusing existing Cal.com app {ids['app_id']}")
         call("POST", f"/test-app-auth/{ids['app_id']}")
     iso = "local {tz} time, ISO 8601 (YYYY-MM-DDTHH:MM:SS), not converted to UTC".format(tz=tz)
     ev = {"event_type_id": {"type": "string", "const": str(event_id)}}

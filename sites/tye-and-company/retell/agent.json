@@ -1,0 +1,9 @@
+{
+  "agent_name": "Tye & Company - Website Assistant",
+  "prompt_file": "retell/system-prompt.md",
+  "begin_message": "Hi, welcome to Tye and Company! I'm Grace. I can answer questions about hair loss care, services and prices, or get you booked with Ms. Tye. How can I help?",
+  "voice_id": "11labs-Grace",
+  "timezone": "America/New_York",
+  "cal_event_type_id": "7411001",
+  "boosted_keywords": ["Tye", "Ms. Tye", "Tye Bailey", "Tye and Company", "Beauté Bar", "pixie", "relaxer", "sew-in", "quick weave", "alopecia", "thinning", "Liquid Gold"]
+}
