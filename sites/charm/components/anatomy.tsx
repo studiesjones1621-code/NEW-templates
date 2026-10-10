@@ -48,15 +48,15 @@ export function Anatomy() {
           <p className="anatomy-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#d6b77a] mb-4">
             Anatomy of a natural result
           </p>
-          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl leading-[1.02] tracking-tight mb-6 lg:mb-10 text-balance">
+          <h2 className="font-serif text-4xl md:text-5xl lg:text-[clamp(2.4rem,7.5vh,3.75rem)] leading-[1.02] tracking-tight mb-6 lg:mb-[4vh] text-balance">
             Precision, down to <span className="italic text-[#d6b77a]">every detail.</span>
           </h2>
-          <ol className="hidden sm:grid gap-5 max-w-md">
+          <ol className="hidden sm:grid gap-5 lg:gap-[2.2vh] max-w-md">
             {steps.map((s, i) => (
               <li key={s.n} data-step={i + 1} className="anatomy-step">
                 <p className="anatomy-mono text-[11px] tracking-[0.25em] text-[#d6b77a]">{s.n}</p>
                 <p className="font-medium text-lg">{s.title}</p>
-                <p className="text-sm text-[#f3ece0]/60 leading-relaxed">{s.body}</p>
+                <p className="anatomy-body text-sm text-[#f3ece0]/60 leading-relaxed">{s.body}</p>
               </li>
             ))}
           </ol>
@@ -68,7 +68,7 @@ export function Anatomy() {
               </li>
             ))}
           </ol>
-          <div data-step="5" className="anatomy-cta mt-6">
+          <div data-step="5" className="anatomy-cta mt-6 lg:mt-[3.5vh]">
             <TalkButton className="inline-flex items-center justify-center gap-2.5 bg-[#d6b77a] text-[#17241e] font-medium px-7 py-4 text-sm tracking-wide hover:bg-[#e7cf9f] transition-colors">
               Book a free consultation
             </TalkButton>
