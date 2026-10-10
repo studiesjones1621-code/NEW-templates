@@ -12,7 +12,7 @@ const span = (p: number, start: number, end: number) => clamp((p - start) / (end
 
 /**
  * Cinematic hero, "Bring out your charm": Olga sits in a golden-hour studio. On scroll the headline tilts away and
- * the camera settles on her, then a wave of rich skincare cream surges up, a gold filler syringe (their signature
+ * the camera settles on her, then a wave of rich skincare cream surges up, their real Restylane filler syringe (their signature
  * injectables) rises through floating serum droplets and gold shimmer, and the cream clears into Services.
  * Scroll is never hijacked.
  */
@@ -204,11 +204,12 @@ export function Hero() {
           ref={emblemRef}
           data-hero="emblem"
           aria-hidden
-          className="absolute left-0 top-0 w-[78vw] sm:w-[52vw] lg:w-[34vw] max-w-[620px] opacity-0 pointer-events-none will-change-transform"
+          className="absolute left-0 top-0 w-[86vw] sm:w-[60vw] lg:w-[42vw] max-w-[760px] opacity-0 pointer-events-none will-change-transform"
         >
-          <img src="/biz/syringe.webp" alt="" className="block w-full h-auto" />
-          {/* One drop of gel forms at the needle tip (97% across, ~5% down the image) and falls, timed to scroll */}
-          <span data-drip className="syringe-drip" style={{ left: "97.3%", top: "4.6%" }} />
+          <img src="/biz/restylane-syringe.webp" alt="" className="block w-full h-auto" />
+          {/* Charm's real Restylane Kysse filler syringe (cut from their own product photo, needle attached).
+              One drop of gel forms at the needle tip (98.6% across, ~3% down the image) and falls, timed to scroll */}
+          <span data-drip className="syringe-drip" style={{ left: "98.5%", top: "3.4%" }} />
         </div>
         <div
           ref={wispsFrontRef}

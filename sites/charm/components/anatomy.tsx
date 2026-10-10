@@ -8,7 +8,7 @@ import { TalkButton } from "./talk-button"
 const steps = [
   { n: "01", title: "Controlled press", body: "Slow, steady delivery. Every unit placed by a licensed nurse practitioner or RN." },
   { n: "02", title: "Hyaluronic acid gel", body: "A molecule your skin already makes. Most fillers blend in lidocaine for comfort." },
-  { n: "03", title: "Sterile glass barrel", body: "Medical-grade, sterile and single-use. Precise markings, measured doses." },
+  { n: "03", title: "Sterile glass barrel", body: "Sterile, single-use and marked in tenths of a milliliter, so every dose is measured." },
   { n: "04", title: "Ultra-fine needle", body: "Tiny entry points, with topical numbing and distraction devices if you need them." },
 ]
 
@@ -76,9 +76,9 @@ export function Anatomy() {
         </div>
 
         <p className="anatomy-mono absolute top-24 right-5 lg:right-8 text-[10px] tracking-[0.3em] uppercase text-[#f3ece0]/40 text-right">
-          Charm Medical Aesthetics
+          Modeled on Restylane® Kysse · 1 mL
           <br />
-          Rosedale · MD
+          As used at Charm
         </p>
       </div>
     </section>
