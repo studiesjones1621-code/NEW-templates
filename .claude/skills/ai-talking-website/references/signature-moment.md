@@ -53,7 +53,18 @@ with numbered labels pinned to each part, steps lighting up beside it, then reas
   `init(root)` and auto-running on `[data-anatomy]`. The React component only imports it in an effect
   (`import(/* webpackIgnore: true */ "/x.js")`). Mark the section `data-module="/x.js"` and build_artifact.py
   copies and loads it, so it also runs in the artifact preview.
-- Build the object from primitives (Cylinder/Box/Torus/Sphere) when no GLB exists. Each part: resting
+- **Use a real model first** (user preference). Search, in order: Sketchfab (filter "Downloadable" and a
+  CC0/CC-BY license), Poly Haven (CC0), poly.pizza, Smithsonian Open Access 3D (CC0), NASA 3D, Khronos
+  glTF-Sample-Assets, then GitHub for `.glb`/`.gltf` of the object. Check the license per model (commercial
+  use allowed; CC-BY needs a visible credit in the footer or the section), and keep the source URL and
+  author in a comment beside the file. Prefer models already split into parts (meshes per part) so they
+  can explode; otherwise explode by mesh/node groups. Compress big models (gltf-transform: `npx
+  @gltf-transform/cli optimize in.glb out.glb --texture-compress webp`) to keep them under ~3 MB.
+- Loading a GLB needs `GLTFLoader` from three's addons, which imports the bare specifier "three": add an
+  import map (`<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>`)
+  to the page head and to the artifact (build_artifact.py must emit it before the module tags).
+- Only when no usable real model exists: build the object from primitives (Cylinder/Box/Torus/Sphere), and
+  say so in the summary. Each part: resting
   position, offset vector, small delay and wobble; explode e = ease(clamp((e - delay)/0.7)).
 - Avoid addon imports (they need an import map): make the reflection environment by rendering a few
   emissive panels in a box room through PMREMGenerator.
