@@ -43,3 +43,23 @@ The next section (Services) gets `relative z-10`, the hero gets `mb-[-60svh]`, a
 - **Smooth scrolling:** add `smooth-scroll.tsx` (Lenis, `lerp: 0.09`, `anchors: true`, touch stays native, reduced motion opts out) plus `html.lenis { scroll-behavior: auto }`. Don't also pass an anchor offset if sections have `scroll-margin-top`, or the two offsets stack.
 - **Scroll-linked photo unveils** (services.tsx): drive each curtain's `scaleY` from the card's position (`(vh*0.95 - top) / (height*0.7)`, eased). A one-shot IntersectionObserver plus timed transition fires out of view (restored scroll, cards rising under the clouds), and visitors only ever see open photos.
 - Verify with frame captures at several `p` values on desktop and phone, and the actual frame timing (a median of about 16.7ms) while wheel-scrolling.
+
+## 5. Optional: 3D exploded-view section (the "product anatomy" moment)
+For a business with a signature tool or product (med spa syringe, barber clippers, a dental implant, a shoe),
+a second cinematic beat after Services: a real 3D object on a dark studio stage that comes apart on scroll
+with numbered labels pinned to each part, steps lighting up beside it, then reassembles. Reference build:
+`sites/charm/public/anatomy.js` + `components/anatomy.tsx` (pattern from github.com/IRdotAI/pc-exploded).
+- Plain three.js from jsdelivr (`three@0.170.0/build/three.module.min.js`) in `public/<name>.js`, exporting
+  `init(root)` and auto-running on `[data-anatomy]`. The React component only imports it in an effect
+  (`import(/* webpackIgnore: true */ "/x.js")`). Mark the section `data-module="/x.js"` and build_artifact.py
+  copies and loads it, so it also runs in the artifact preview.
+- Build the object from primitives (Cylinder/Box/Torus/Sphere) when no GLB exists. Each part: resting
+  position, offset vector, small delay and wobble; explode e = ease(clamp((e - delay)/0.7)).
+- Avoid addon imports (they need an import map): make the reflection environment by rendering a few
+  emissive panels in a box room through PMREMGenerator.
+- On a dark stage, `transmission` glass renders as dark tinted glass. Use a transparent clear-coated shell
+  (opacity ~0.3, envMapIntensity ~2.4, depthWrite false) for clear glass and liquids.
+- Labels are HTML: project each part's anchor through the camera every frame; fade them in by scroll.
+- Render only while the section is on screen (IntersectionObserver). Cap pixel ratio at 1.5–1.75. Frame
+  the exploded state so every part stays in view at 1440×900 and 390×844 (pull the camera back on phones).
+- Test headless with `--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader`.

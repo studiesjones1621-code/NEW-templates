@@ -259,3 +259,31 @@
 @media (prefers-reduced-motion: reduce) {
   .syringe-drip { animation: none; }
 }
+
+/* Anatomy (3D exploded syringe): techy grid, mono labels, step highlighting */
+.anatomy-bg { background: radial-gradient(ellipse 55% 60% at 68% 50%, #2c4237 0%, #18241f 55%, #111a16 100%); }
+@media (max-width: 1023px) { .anatomy-bg { background: radial-gradient(ellipse 90% 45% at 50% 36%, #2c4237 0%, #18241f 60%, #111a16 100%); } }
+.anatomy-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.anatomy-grid {
+  background-image:
+    linear-gradient(to right, rgb(214 183 122 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(214 183 122 / 0.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at 65% 50%, black 30%, transparent 80%);
+}
+.anatomy-tag {
+  position: absolute; left: 0; top: 0; opacity: 0;
+  display: flex; align-items: center; gap: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #f3ece0; white-space: nowrap; will-change: transform, opacity;
+}
+.anatomy-pin { width: 9px; height: 9px; margin-left: -4.5px; margin-top: -4.5px; border-radius: 50%; background: #d6b77a; box-shadow: 0 0 0 4px rgb(214 183 122 / 0.2); }
+.anatomy-txt { padding: 5px 9px; border: 1px solid rgb(214 183 122 / 0.45); background: rgb(17 26 22 / 0.75); }
+.anatomy-txt b { color: #d6b77a; margin-right: 8px; font-weight: 600; }
+.anatomy-step { opacity: 0.35; transition: opacity 0.4s ease; }
+.anatomy-step[data-active] { opacity: 1; }
+.anatomy-mobile-steps .anatomy-step { opacity: 0; transform: translateY(8px); transition: opacity 0.4s ease, transform 0.4s ease; }
+.anatomy-mobile-steps .anatomy-step[data-active] { opacity: 1; transform: none; }
+.anatomy-cta { opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+.anatomy-cta[data-active] { opacity: 1; pointer-events: auto; }
+@media (max-width: 639px) { .anatomy-tag { font-size: 9px; } .anatomy-txt { padding: 3px 6px; } }

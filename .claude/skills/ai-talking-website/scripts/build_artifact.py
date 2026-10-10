@@ -238,6 +238,11 @@ try { if (window.Lenis && !matchMedia('(prefers-reduced-motion: reduce)').matche
 })();
 """
 
+# Sections that run their own plain-JS module (e.g. a three.js scene) declare it with data-module="/file.js";
+# the module is copied next to the page and loaded after the markup.
+modules = sorted(set(re.findall(r'data-module="/([^"]+)"', body)))
+module_tags = "\n".join(f'<script type="module" src="{m}"></script>' for m in modules)
+
 out = f"""<meta charset="utf-8">
 <title>{page_title}</title>
 <style>{css}
@@ -247,10 +252,13 @@ out = f"""<meta charset="utf-8">
 </div>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
 <script>{js}</script>
+{module_tags}
 """
 dst.mkdir(exist_ok=True)
 (dst/"index.html").write_text(out)
 for d in ("biz","brand"):
     if (dst/d).exists(): shutil.rmtree(dst/d)
     shutil.copytree(src/d, dst/d)
-print(len(out)//1024, "KB")
+for m in modules:
+    shutil.copy(src/m, dst/m)
+print(len(out)//1024, "KB", ("modules: " + ", ".join(modules)) if modules else "")
