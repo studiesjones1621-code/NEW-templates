@@ -1,0 +1,90 @@
+/* Charm Medical Aesthetics extras (copy into globals.css when you use these components) */
+
+/* Charm hero: clear gel swelling at the syringe needle tip, then dripping away (transform + opacity only) */
+.syringe-drip {
+  position: absolute;
+  width: 2.6%;
+  aspect-ratio: 3 / 4;
+  margin-left: -1.3%;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: radial-gradient(circle at 36% 28%, rgb(255 255 255) 0 13%, rgb(255 255 255 / 0.55) 26%, rgb(214 190 140 / 0.55) 62%, rgb(150 120 70 / 0.55) 100%);
+  box-shadow: inset 0 -2px 3px rgb(110 85 45 / 0.45), 0 0 0 1px rgb(140 112 66 / 0.45), 0 2px 6px rgb(110 85 45 / 0.25);
+  transform-origin: 50% 0;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+/* Sunlight catching the drop: a soft halo plus a four-point star glint that gently twinkles */
+.syringe-drip::after {
+  content: "";
+  position: absolute;
+  inset: -70%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 32%, rgb(255 253 244) 0 10%, rgb(255 244 210 / 0.75) 22%, rgb(255 232 180 / 0.3) 40%, transparent 64%);
+  opacity: var(--shine, 0);
+  pointer-events: none;
+}
+.syringe-drip::before {
+  content: "";
+  position: absolute;
+  left: 34%;
+  top: 26%;
+  width: 640%;
+  height: 640%;
+  transform: translate(-50%, -50%) scale(var(--shine, 0));
+  background:
+    linear-gradient(90deg, transparent 48.4%, rgb(255 253 240) 50%, transparent 51.6%),
+    linear-gradient(0deg, transparent 48.4%, rgb(255 253 240) 50%, transparent 51.6%),
+    linear-gradient(45deg, transparent 49.2%, rgb(255 246 222 / 0.7) 50%, transparent 50.8%),
+    linear-gradient(-45deg, transparent 49.2%, rgb(255 246 222 / 0.7) 50%, transparent 50.8%),
+    radial-gradient(circle, rgb(255 255 250) 0 3%, rgb(255 240 200 / 0.5) 7%, transparent 14%);
+  -webkit-mask: radial-gradient(circle, #000 0 6%, transparent 48%);
+  mask: radial-gradient(circle, #000 0 6%, transparent 48%);
+  animation: drip-twinkle 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes drip-twinkle {
+  0%, 100% { rotate: 0deg; opacity: 0.7; }
+  50% { rotate: 22deg; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .syringe-drip::before { animation: none; }
+}
+
+/* Anatomy (3D exploded syringe): techy grid, mono labels, step highlighting */
+.anatomy-bg { background: radial-gradient(ellipse 55% 60% at 68% 50%, #2c4237 0%, #18241f 55%, #111a16 100%); }
+@media (max-width: 1023px) { .anatomy-bg { background: radial-gradient(ellipse 90% 45% at 50% 36%, #2c4237 0%, #18241f 60%, #111a16 100%); } }
+.anatomy-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.anatomy-grid {
+  background-image:
+    linear-gradient(to right, rgb(214 183 122 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(214 183 122 / 0.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at 65% 50%, black 30%, transparent 80%);
+}
+.anatomy-tag {
+  position: absolute; left: 0; top: 0; opacity: 0;
+  display: flex; align-items: center; gap: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #f3ece0; white-space: nowrap; will-change: transform, opacity;
+}
+.anatomy-pin { width: 9px; height: 9px; margin-left: -4.5px; margin-top: -4.5px; border-radius: 50%; background: #d6b77a; box-shadow: 0 0 0 4px rgb(214 183 122 / 0.2); }
+.anatomy-txt { padding: 5px 9px; border: 1px solid rgb(214 183 122 / 0.45); background: rgb(17 26 22 / 0.75); }
+.anatomy-txt b { color: #d6b77a; margin-right: 8px; font-weight: 600; }
+.anatomy-step { opacity: 0.35; transition: opacity 0.4s ease; }
+.anatomy-step[data-active] { opacity: 1; }
+/* Shorter laptop screens: only the current step shows its description, so the booking button always fits */
+@media (min-width: 640px) and (max-height: 880px) {
+  .anatomy-step:not([data-active]) .anatomy-body { display: none; }
+}
+.anatomy-mobile-steps .anatomy-step { opacity: 0; transform: translateY(8px); transition: opacity 0.4s ease, transform 0.4s ease; }
+.anatomy-mobile-steps .anatomy-step[data-active] { opacity: 1; transform: none; }
+/* The booking button is always visible; it just glows once the syringe has reassembled */
+.anatomy-cta > * { transition: box-shadow 0.5s ease; }
+.anatomy-cta[data-active] > * { box-shadow: 0 0 0 6px rgb(214 183 122 / 0.22), 0 0 32px rgb(214 183 122 / 0.35); }
+@media (max-width: 639px) { .anatomy-tag { font-size: 9px; } .anatomy-txt { padding: 3px 6px; } }
+
+/* Keep the 3D anatomy stage clear: the header slides away while it's pinned, and returns after */
+html.anatomy-pinned header { transform: translateY(-140%); opacity: 0; pointer-events: none; }
+/* The "Thinking about Botox?" pop-up steps aside too, so it never covers the section's booking button */
+[data-voice-prompt] { transition: opacity 0.3s ease, transform 0.3s ease; }
+html.anatomy-pinned [data-voice-prompt] { opacity: 0; transform: translateY(8px); pointer-events: none; }

@@ -42,6 +42,7 @@ Gotchas found the hard way:
 - Lazy map iframes look blank in full-page screenshots. Scroll to the map and screenshot the element to confirm it loads.
 - Don't `pkill -f "next dev"` from a shell whose own command line contains that string; it kills the shell. Find the PID instead.
 - Run `npx tsc --noEmit` and `npx next build`. Remove the template's `typescript.ignoreBuildErrors` once types are clean.
+- Check every pinned/sticky section at 1366×657, 1280×720, 1440×900 and 390×664: buttons inside it must be on screen and `elementFromPoint` at their centre must hit them (not the header, the voice pop-up or the launcher wrapper).
 
 ## Going live without the user's Vercel login (cloud session)
 If the Vercel connector can read but gets `403 Not authorized … scope`, use an anonymous temporary deployment the user can claim:
@@ -49,4 +50,5 @@ If the Vercel connector can read but gets `403 Not authorized … scope`, use an
 2. `-b KEY=VALUE` build-env did not reach the build. Write the two browser-safe values to `.env.production` in the deploy copy only (and `!.env.production` in its `.vercelignore`). Never include server secrets.
 3. Node's fetch ignores the agent proxy: run `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt npx vercel@latest deploy --temporary --prod --yes`. Uploads abort intermittently, so retry with backoff (it took 1–3 tries).
 4. Re-running from the same directory updates the same temporary URL. It expires after about an hour unless the user opens the `claimUrl` (tell them the exact expiry time).
-5. Verify on the live URL: no secret prefixes in the JS chunks, `/.env` returns 404, `#retell-widget` has the agent ID and public key, and the create-web-call result. A `401 Public key is not allowed for this domain` means the user must add the `*.vercel.app` domain in Retell → Public Keys.
+5. After the user claims it, further anonymous deploys fail ("This project was claimed successfully. Run `vercel login`"). Have them connect the GitHub repo in that project (Settings → Git → Connect, Root Directory `sites/<slug>`, production branch = working branch); then every push deploys in about a minute. Trigger the first build with a real change (e.g. set `NEXT_PUBLIC_SITE_URL` to the live domain in `.env.production`), never an empty commit.
+6. Verify on the live URL: no secret prefixes in the JS chunks, `/.env` returns 404, `#retell-widget` has the agent ID and public key, and the create-web-call result. A `401 Public key is not allowed for this domain` means the user must add the `*.vercel.app` domain in Retell → Public Keys.

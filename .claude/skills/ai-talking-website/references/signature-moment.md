@@ -12,6 +12,10 @@ Do this when the user asks for "immersive", "cinematic", "more wow", or when the
 | "Rocket" plumbing / HVAC | service van → launch pad | smoke / vapour | rocket |
 | "Royal" / "Crown" salon | chair → throne | gold dust / light | crown or carriage |
 | "Summit" dental / ortho | chair under mountain light | mountain fog | eagle or plane |
+| Tye & Company (hair loss studio, "crowning glory") | owner cutout in a blush-silk set | billowing pink silk + gold shimmer | jeweled crown rising |
+| Evexia ("well-being", leaf logo) | NP cutout in a sunlit clinic | morning mist + dew-light | green sprout rising |
+| Charm Medical Aesthetics (injectables) | owner seated in a golden studio | rich face-cream wave + serum droplets | their real Restylane filler syringe rising, one sunlit drip |
+A **person cutout** (owner/provider) works as well as an edited object: Gemini-edit their real photo onto pure green (keep face, clothes and pose exactly), `key-green`, then use the `subject` layer. The rising business object is the `emblem` layer. Both are supported by `build_artifact.py`.
 Keep it tasteful and on-palette. The real place stays recognisable; only the theme object changes.
 
 ## 2. Make the assets
@@ -32,6 +36,9 @@ One pinned stage (`section` ~340svh with a `sticky top-0 h-[100svh]` child) and 
 | 0.62–0.74 | White-out: a fill in the next section's exact colour (`--sky`) reaches 1 |
 | 0.74–1.00 | Clouds scale up and fade, which "clears" into the page |
 The next section (Services) gets `relative z-10`, the hero gets `mb-[-60svh]`, and Services' background is `linear-gradient(transparent → var(--sky) 38svh)`. Its content then rises through the thinning clouds with no hard edge and no empty screen. The white-out must finish before the overlap starts (p ≈ 0.75 for 60svh over 240svh of travel).
+
+### Subject + emblem variant (assets/components/charm/hero-subject-emblem.tsx)
+Timeline: headline out (0–0.22) → settle on the subject (0.20–0.40) → caption (0.40–0.54) → subject fades (0.48–0.60) as the transition layer rises (0.50–0.66) → the emblem rises from the bottom to the centre with a decelerating ease, slight rotation, then lifts away (0.56–0.86) → white-out and clear. A single drip (`[data-drip]` span positioned at the needle tip in % of the image) is driven by the emblem's rise: forms 0.30–0.46, falls 0.50–0.68, with a `--shine` custom property feeding a halo and a twinkling four-point glint (`.syringe-drip::before/::after` in charm-extras.css). Find the tip in the image by scanning alpha for the extreme pixel.
 
 ## 4. Rules learned the hard way
 - **Measure against the stage, not the window.** Use `stage.offsetHeight/offsetWidth` for travel, the jet path and breakpoints. `window.innerHeight` changes when mobile browser bars show or hide, and the whole hero jolts.
@@ -74,3 +81,7 @@ with numbered labels pinned to each part, steps lighting up beside it, then reas
 - Render only while the section is on screen (IntersectionObserver). Cap pixel ratio at 1.5–1.75. Frame
   the exploded state so every part stays in view at 1440×900 and 390×844 (pull the camera back on phones).
 - Test headless with `--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader`.
+- Load it lazily: the component fetches the module only when the section is ~2.5 screens away, and the module initialises in `requestIdleCallback` ~1.5 screens away, then `renderer.compile()`. Loading three.js at page load made the first scroll stutter.
+- While the stage is pinned, toggle `html.anatomy-pinned` (scroll listener) to slide the header away and hide the voice pop-up; it returns after.
+- The section's booking button is always visible (never gated on JS), with a glow once the object reassembles. On screens ≤880px tall show only the active step's description so the button fits (check 1366×657).
+- Match the real product: Charm's 3D syringe copies the Restylane Kysse they use (navy thumb pad, rod and oval-cut finger grip from an ExtrudeGeometry shape with holes, slim barrel with a CanvasTexture of 0.1–1.0 mL graduations printed in three columns so some face the camera, pink band, black ribbed stopper). Tilt the view (`rotation.x ≈ 0.3`) so flat parts like the grip read. A generic stock model gets rejected as "not a real syringe".

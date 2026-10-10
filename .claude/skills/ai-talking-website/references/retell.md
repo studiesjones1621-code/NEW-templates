@@ -12,6 +12,7 @@ Retell changes fast. Before building, skim https://docs.retellai.com/llms.txt an
 
 ## Cal.com booking (integration, not legacy tools)
 - Legacy `check_availability_cal` / `book_appointment_cal` are rejected since 09/30/2026.
+- One Cal.com API key can back only one Retell app: a second `create-app` fails with `already used by app "…" (app_…)`. `retell_setup.py` parses that id and reuses the app, so several businesses on one Cal account share it; each agent's tools pin its own `event_type_id`.
 - Create the connection: `POST /create-app` with `{"type":"calendar","provider":"calcom","tenant_url":"cal.com","auth_config":{"type":"api_key","api_key":"cal_live_..."}}`. Provider is `calcom` (not `cal_com`); `tenant_url` must be `cal.com` or `cal.eu`. Then `POST /test-app-auth/{app_id}`.
 - Tool templates: `check_calcom_availability`, `book_calcom_appointment` (also list/get/reschedule/cancel bookings).
 - `POST /get-app-tool-schema/{app_id}` with `{"app_tool_template_name": ..., "parameters": [...]}` walks the schema step by step. Step 1 returns `event_type_id` (const). Pass it back and step 2 returns the rest. For booking, step 2 has `time, timezone, name, email, notes, guests, attendee_language`. There is no phone field, so put the phone number in `notes`.

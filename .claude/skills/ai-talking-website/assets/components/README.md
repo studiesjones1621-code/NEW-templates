@@ -8,3 +8,9 @@ Components from the First Class Cutz build. Copy what you need and adapt it; the
 - booksy-button.tsx: secondary "Book on Booksy" link (swap the label/URL for the business's own booking system)
 - header.tsx: nav with call / book online / talk; highlighted-text.tsx: gold underline accent
 - business.ts: single source of truth for real business data
+- visit-locations.tsx: hours & location for one or more offices (tabs only when there are several), per-office hours with open-now badge and map
+- charm/: the Charm Medical Aesthetics build (rewrite its copy too)
+  - hero-subject-emblem.tsx: owner cutout → transition layer → business object rising with a single sunlit drip
+  - anatomy.tsx + anatomy.js: scroll-driven 3D exploded view (three.js from a CDN, lazy-loaded), labels, steps, always-visible CTA
+  - results.tsx: before/after gallery with a "results vary" note
+  - charm-extras.css: drip + glint, anatomy styles, header/pop-up hiding while the 3D stage is pinned
