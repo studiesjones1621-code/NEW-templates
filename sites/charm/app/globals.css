@@ -311,9 +311,13 @@
 .anatomy-step[data-active] { opacity: 1; }
 .anatomy-mobile-steps .anatomy-step { opacity: 0; transform: translateY(8px); transition: opacity 0.4s ease, transform 0.4s ease; }
 .anatomy-mobile-steps .anatomy-step[data-active] { opacity: 1; transform: none; }
-.anatomy-cta { opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
-.anatomy-cta[data-active] { opacity: 1; pointer-events: auto; }
+/* The booking button is always visible; it just glows once the syringe has reassembled */
+.anatomy-cta > * { transition: box-shadow 0.5s ease; }
+.anatomy-cta[data-active] > * { box-shadow: 0 0 0 6px rgb(214 183 122 / 0.22), 0 0 32px rgb(214 183 122 / 0.35); }
 @media (max-width: 639px) { .anatomy-tag { font-size: 9px; } .anatomy-txt { padding: 3px 6px; } }
 
 /* Keep the 3D anatomy stage clear: the header slides away while it's pinned, and returns after */
 html.anatomy-pinned header { transform: translateY(-140%); opacity: 0; pointer-events: none; }
+/* The "Thinking about Botox?" pop-up steps aside too, so it never covers the section's booking button */
+[data-voice-prompt] { transition: opacity 0.3s ease, transform 0.3s ease; }
+html.anatomy-pinned [data-voice-prompt] { opacity: 0; transform: translateY(8px); pointer-events: none; }

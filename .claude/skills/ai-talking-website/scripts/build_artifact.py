@@ -139,6 +139,7 @@ try { if (window.Lenis && !matchMedia('(prefers-reduced-motion: reduce)').matche
   if (launcher) {
     var prompt = document.createElement('div');
     prompt.className = 'relative max-w-[17rem] bg-background text-foreground border border-border shadow-xl shadow-black/15 p-4 pr-9';
+    prompt.setAttribute('data-voice-prompt', '');
     prompt.innerHTML = '<p class="text-sm font-semibold mb-1">Questions? Want to book?</p><p class="text-sm text-muted-foreground leading-relaxed mb-3">Talk to our assistant. It can check openings and book you.</p><button type="button" class="text-sm font-semibold underline decoration-gold underline-offset-4 cursor-pointer">Start talking</button><button type="button" aria-label="Dismiss" class="absolute top-2.5 right-2.5 p-1 text-muted-foreground cursor-pointer">×</button>';
     prompt.hidden = true;
     launcher.parentElement.insertBefore(prompt, launcher);

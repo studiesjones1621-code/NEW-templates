@@ -44,7 +44,7 @@ export function Anatomy() {
         <div className="anatomy-grid absolute inset-0 pointer-events-none" aria-hidden />
         <div data-anatomy-labels className="absolute inset-0 pointer-events-none" aria-hidden />
 
-        <div className="absolute inset-x-0 bottom-0 lg:inset-y-0 lg:right-auto lg:w-[46%] flex flex-col justify-end lg:justify-center px-5 pb-8 lg:pb-0 lg:pl-[7vw] bg-gradient-to-t from-[#111a16] via-[#111a16]/90 to-transparent lg:bg-none">
+        <div className="absolute inset-x-0 bottom-0 lg:inset-y-0 lg:right-auto lg:w-[46%] flex flex-col justify-end lg:justify-center px-5 pb-28 lg:pb-0 lg:pl-[7vw] bg-gradient-to-t from-[#111a16] via-[#111a16]/90 to-transparent lg:bg-none">
           <p className="anatomy-mono text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#d6b77a] mb-4">
             Anatomy of a natural result
           </p>
@@ -68,7 +68,7 @@ export function Anatomy() {
               </li>
             ))}
           </ol>
-          <div data-step="5" className="anatomy-step anatomy-cta mt-6">
+          <div data-step="5" className="anatomy-cta mt-6">
             <TalkButton className="inline-flex items-center justify-center gap-2.5 bg-[#d6b77a] text-[#17241e] font-medium px-7 py-4 text-sm tracking-wide hover:bg-[#e7cf9f] transition-colors">
               Book a free consultation
             </TalkButton>

@@ -217,7 +217,7 @@ export function init(root) {
     // Tilted like a product shot, turning slowly; framed right of the copy on desktop, above it on phones
     pivot.rotation.z = -0.95 + e * 0.35
     model.rotation.y = (reduce ? 0 : time * 0.25) + p * 2.2
-    pivot.position.set(wide ? 3.8 : 0, wide ? 0.2 : 2.6, 0)
+    pivot.position.set(wide ? 3.8 : 0, wide ? 0.2 : 3.6, 0)
     const dist = (wide ? 27 : 46) + e * (wide ? 11 : 10)
     camera.position.set(0, 0.6, dist)
     camera.lookAt(0, wide ? 0 : 1.4, 0)
