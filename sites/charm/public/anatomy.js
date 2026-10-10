@@ -183,6 +183,14 @@ export function init(root) {
   let visible = false
   new IntersectionObserver(([e]) => (visible = e.isIntersecting), { rootMargin: "100px" }).observe(root)
 
+  // Slide the site header away while the stage is pinned full-screen
+  const pinCheck = () => {
+    const r = root.getBoundingClientRect()
+    document.documentElement.classList.toggle("anatomy-pinned", r.top <= 2 && r.bottom >= innerHeight * 0.9)
+  }
+  addEventListener("scroll", pinCheck, { passive: true })
+  pinCheck()
+
   const v = new THREE.Vector3()
   let smoothP = 0, last = performance.now(), time = 0
   const frame = (now) => {
@@ -238,8 +246,26 @@ export function init(root) {
     const active = p < 0.3 ? 0 : p > 0.82 ? 5 : 1 + Math.min(3, Math.floor((p - 0.3) / 0.12))
     steps.forEach((s) => s.toggleAttribute("data-active", Number(s.dataset.step) === active))
   }
+  renderer.compile(scene, camera)
   requestAnimationFrame(frame)
 }
 
+// Start the 3D only as the section approaches (about a screen and a half away), in idle time, so
+// WebGL setup and shader compiling never compete with the page's first scroll.
+export function lazy(root) {
+  if (!root || root.dataset.lazy) return
+  root.dataset.lazy = "1"
+  const io = new IntersectionObserver(
+    ([e]) => {
+      if (!e.isIntersecting) return
+      io.disconnect()
+      const go = () => init(root)
+      "requestIdleCallback" in window ? requestIdleCallback(go, { timeout: 600 }) : setTimeout(go, 50)
+    },
+    { rootMargin: "150% 0px" },
+  )
+  io.observe(root)
+}
+
 const auto = document.querySelector("[data-anatomy]")
-if (auto) init(auto)
+if (auto) lazy(auto)

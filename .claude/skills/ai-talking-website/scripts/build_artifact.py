@@ -178,7 +178,12 @@ try { if (window.Lenis && !matchMedia('(prefers-reduced-motion: reduce)').matche
           ease=1-Math.pow(1-Math.min(1,rise/.6),3), lift=span(rise,.7,1),
           ey=SH*.95-ease*(SH*.95-(SH-eh)/2)-lift*SH*.25;
         emblem.style.transform='translate3d('+((SW-ew)/2)+'px,'+ey+'px,0) rotate('+(Math.sin(rise*Math.PI*2)*3)+'deg) scale('+(.75+ease*.3+lift*.15)+')';
-        emblem.style.opacity=(rise>0&&rise<1)?Math.min(1,rise*8,(1-rise)*6):0; }
+        emblem.style.opacity=(rise>0&&rise<1)?Math.min(1,rise*8,(1-rise)*6):0;
+        var dr=emblem.querySelector('[data-drip]');
+        if (dr) { var fm=span(rise,.3,.46), fl=span(rise,.5,.68);
+          dr.style.opacity=fm*(1-fl);
+          dr.style.transform='translateY('+(fl*fl*1500)+'%) scale('+(.2+fm*.7-fl*.15)+','+(.2+fm*.8+Math.sin(fl*Math.PI)*.35)+')';
+          dr.style.setProperty('--shine', fm*(1-fl*.6)); } }
       one.style.transform='translateY('+(o*-90)+'px) rotateX('+(o*28)+'deg) scale('+(1-o*.12)+')';
       one.style.opacity=1-o; one.style.pointerEvents=o>.6?'none':'auto';
       var tw=i*(1-span(p,.46,.54));

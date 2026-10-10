@@ -18,7 +18,17 @@ export function Anatomy() {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    import(/* webpackIgnore: true */ "/anatomy.js" as string).then((m) => m.init?.(el)).catch(() => {})
+    // Fetch three.js only when the section is getting close, so it never slows the first scroll
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return
+        io.disconnect()
+        import(/* webpackIgnore: true */ "/anatomy.js" as string).then((m) => m.lazy?.(el)).catch(() => {})
+      },
+      { rootMargin: "250% 0px" },
+    )
+    io.observe(el)
+    return () => io.disconnect()
   }, [])
 
   return (

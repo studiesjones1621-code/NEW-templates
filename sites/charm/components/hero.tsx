@@ -103,6 +103,15 @@ export function Hero() {
         const y = stageH * 0.95 - ease * (stageH * 0.95 - (stageH - h) / 2) - lift * stageH * 0.25
         emblemRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${Math.sin(rise * Math.PI * 2) * 3}deg) scale(${0.75 + ease * 0.3 + lift * 0.15})`
         emblemRef.current.style.opacity = String(rise > 0 && rise < 1 ? Math.min(1, rise * 8, (1 - rise) * 6) : 0)
+        // A single drop: swells once the syringe settles in the centre, catches the light, then falls away
+        const drip = emblemRef.current.querySelector<HTMLElement>("[data-drip]")
+        if (drip) {
+          const form = span(rise, 0.3, 0.46)
+          const fall = span(rise, 0.5, 0.68)
+          drip.style.opacity = String(form * (1 - fall))
+          drip.style.transform = `translateY(${fall * fall * 1500}%) scale(${0.2 + form * 0.7 - fall * 0.15}, ${0.2 + form * 0.8 + Math.sin(fall * Math.PI) * 0.35})`
+          drip.style.setProperty("--shine", String(form * (1 - fall * 0.6)))
+        }
       }
     }
     const onScroll = () => {
@@ -198,9 +207,8 @@ export function Hero() {
           className="absolute left-0 top-0 w-[78vw] sm:w-[52vw] lg:w-[34vw] max-w-[620px] opacity-0 pointer-events-none will-change-transform"
         >
           <img src="/biz/syringe.webp" alt="" className="block w-full h-auto" />
-          {/* Gel drips from the bead at the needle tip (97% across, ~5% down the image), on a loop */}
-          <span className="syringe-drip" style={{ left: "97.3%", top: "4.6%" }} />
-          <span className="syringe-drip" style={{ left: "97.3%", top: "4.6%", animationDelay: "1.15s" }} />
+          {/* One drop of gel forms at the needle tip (97% across, ~5% down the image) and falls, timed to scroll */}
+          <span data-drip className="syringe-drip" style={{ left: "97.3%", top: "4.6%" }} />
         </div>
         <div
           ref={wispsFrontRef}
