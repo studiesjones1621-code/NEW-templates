@@ -121,6 +121,19 @@ export function VoiceAssistant() {
     } catch {}
   }, [])
 
+  // Phones: the pop-up sits over page content, so once it's actually visible (past the hero) it steps aside on its
+  // own after a few seconds rather than covering buttons as the visitor keeps scrolling
+  useEffect(() => {
+    if (!showPrompt || !window.matchMedia("(max-width: 1023px)").matches) return
+    let t = 0
+    const check = () => {
+      if (document.documentElement.classList.contains("hero-active")) t = window.setTimeout(check, 500)
+      else t = window.setTimeout(() => setShowPrompt(false), 6000)
+    }
+    check()
+    return () => clearTimeout(t)
+  }, [showPrompt])
+
   // Watch the widget: restyle it once mounted and track whether its window is open
   useEffect(() => {
     if (!enabled) return

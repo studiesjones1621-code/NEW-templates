@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { ArrowUpRight, Mic } from "lucide-react"
 import { openAssistant } from "./talk-button"
 import { BooksyButton } from "./booksy-button"
-import { onLenisScroll } from "@/lib/scroll"
+import { onLenisScroll, supportsScrollTimelines } from "@/lib/scroll"
 
 const services = [
   {
@@ -94,6 +94,26 @@ export function Services() {
     }
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update)
+    }
+    // Phones with scroll-driven animations: the compositor plays each unveil against the scroll, no per-frame JS
+    if (supportsScrollTimelines() && !reduce) {
+      const VT = (window as unknown as { ViewTimeline: new (o: object) => AnimationTimeline }).ViewTimeline
+      const anims = imageRefs.current.flatMap((box, i) => {
+        const curtain = curtainRefs.current[i]
+        if (!box || !curtain) return []
+        curtain.style.transition = "none"
+        curtain.style.removeProperty("transform")
+        return [
+          curtain.animate([{ transform: "scaleY(1)" }, { transform: "scaleY(0)" }], {
+            timeline: new VT({ subject: box, axis: "block" }),
+            rangeStart: "entry 5%",
+            rangeEnd: "entry 75%",
+            easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+            fill: "both",
+          } as KeyframeAnimationOptions),
+        ]
+      })
+      return () => anims.forEach((a) => a.cancel())
     }
     update()
     const offLenis = onLenisScroll(() => {

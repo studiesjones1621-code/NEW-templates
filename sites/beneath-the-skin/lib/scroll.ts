@@ -24,3 +24,13 @@ export function onLenisScroll(fn: () => void) {
     listeners.delete(attach)
   }
 }
+
+/**
+ * Scroll-driven animations (Chrome 115+, Safari 26+) run on the compositor, perfectly in step with the phone's own
+ * native scrolling, with no per-frame JavaScript. Used on touch screens; desktop keeps the proven Lenis + JS path.
+ */
+export const supportsScrollTimelines = () =>
+  typeof window !== "undefined" &&
+  "ViewTimeline" in window &&
+  window.matchMedia("(pointer: coarse)").matches &&
+  !window.matchMedia("(prefers-reduced-motion: reduce)").matches

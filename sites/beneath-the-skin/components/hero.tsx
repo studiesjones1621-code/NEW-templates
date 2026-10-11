@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react"
 import { ArrowDown, Phone } from "lucide-react"
 import { business } from "@/lib/business"
-import { onLenisScroll } from "@/lib/scroll"
+import { onLenisScroll, supportsScrollTimelines } from "@/lib/scroll"
 import { TalkButton } from "./talk-button"
 import { BooksyButton } from "./booksy-button"
 
@@ -14,6 +14,56 @@ const span = (p: number, start: number, end: number) => clamp((p - start) / (end
 const fade = (el: HTMLElement, o: number) => {
   el.style.opacity = String(o)
   el.style.visibility = o > 0.001 ? "visible" : "hidden"
+}
+
+type Layer = "bg" | "subject" | "shade" | "grade" | "one" | "two" | "cue" | "bank" | "wisps" | "fill" | "title" | "front"
+type Frame = Partial<Record<Layer, { transform?: string; opacity?: number }>>
+
+/**
+ * The whole hero timeline as a pure function of scroll progress p (0..1). The JS path applies it every frame;
+ * the scroll-timeline path samples it once into keyframes that the browser's compositor plays against the scroll.
+ */
+function frameAt(p: number, wide: boolean): Frame {
+  // Timeline: headline out → settle on Katrina → collagen fibers rise → glow → the fibers clear into the page.
+  // Services overlaps the last 60svh (from p≈0.75), so the white-out must be done by then.
+  const out = span(p, 0, 0.22)
+  const inn = span(p, 0.2, 0.4)
+  const climb = span(p, 0.5, 0.66)
+  const white = span(p, 0.62, 0.74)
+  const clear = span(p, 0.74, 1)
+  const rise = span(p, 0.56, 0.8)
+  return {
+    bg: { transform: `scale(${(1.12 - inn * 0.08) * (1 + climb * 0.12)})` },
+    // Mobile: Katrina sits softly behind the headline, then comes forward for the reveal
+    subject: {
+      opacity: (wide ? 1 : 0.45 + inn * 0.55) * (1 - span(p, 0.48, 0.6)),
+      transform: `translate3d(${wide ? inn * -4 : 0}%, ${climb * 8}%, 0) scale(${1 + inn * 0.05})`,
+    },
+    shade: { opacity: 0.35 - inn * 0.25 },
+    grade: { opacity: 1 - inn * 0.5 },
+    one: { opacity: 1 - out, transform: `translateY(${out * -90}px) rotateX(${out * 28}deg) scale(${1 - out * 0.12})` },
+    two: { opacity: inn * (1 - span(p, 0.46, 0.54)), transform: `translateY(${(1 - inn) * 60}px)` },
+    cue: { opacity: 1 - span(p, 0, 0.15) },
+    bank: {
+      opacity: Math.min(1, climb * 1.5) * (1 - clear),
+      transform: `translateY(${70 - climb * 75 - clear * 30}%) scale(${1 + climb * 0.15 + clear * 0.5})`,
+    },
+    wisps: {
+      opacity: span(p, 0.54, 0.68) * (1 - clear),
+      transform: `translateY(${(1 - climb) * 25}%) scale(${1.1 + climb * 0.3 + clear * 0.7})`,
+    },
+    fill: { opacity: white },
+    // Title card while we're "beneath the skin": fades in among the fibers, drifts up and out before Services
+    title: {
+      opacity: span(p, 0.56, 0.64) * (1 - span(p, 0.72, 0.8)),
+      transform: `translateY(${(1 - rise) * 40 - 20}px) scale(${0.96 + rise * 0.08})`,
+    },
+    // Cells drifting past in front (faster parallax than the back layer)
+    front: {
+      opacity: 0.3 * span(p, 0.6, 0.7) * (1 - span(p, 0.78, 0.92)),
+      transform: `translate3d(0, ${(0.5 - span(p, 0.58, 0.92)) * 30}%, 0) scale(${1.2 + clear * 0.6})`,
+    },
+  }
 }
 
 /**
@@ -41,73 +91,112 @@ export function Hero() {
     const section = sectionRef.current
     if (!section) return
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    let frame = 0
-    let lastP = -1
-
-    const update = (force = false) => {
-      frame = 0
-      const rect = section.getBoundingClientRect()
-      // Measure against the pinned stage (100svh, fixed), not innerHeight, which jumps when mobile
-      // browser bars show/hide and would make the whole hero jolt.
+    const els: Record<Layer, HTMLElement | null> = {
+      bg: bgRef.current,
+      subject: subjectRef.current,
+      shade: shadeRef.current,
+      grade: gradeRef.current,
+      one: sceneOneRef.current,
+      two: sceneTwoRef.current,
+      cue: cueRef.current,
+      bank: bankRef.current,
+      wisps: wispsRef.current,
+      fill: fillRef.current,
+      title: titleRef.current,
+      front: wispsFrontRef.current,
+    }
+    const measure = () => {
+      // Measure against the pinned stage (100svh), not innerHeight, which jumps when mobile browser bars show/hide
       const stageH = stageRef.current?.offsetHeight || window.innerHeight
       const stageW = stageRef.current?.offsetWidth || window.innerWidth
-      const travel = section.offsetHeight - stageH
-      const p = reduce ? 0 : clamp(-rect.top / Math.max(travel, 1))
-      const wide = stageW >= 1024
+      const p = reduce ? 0 : clamp(-section.getBoundingClientRect().top / Math.max(section.offsetHeight - stageH, 1))
+      return { p, wide: stageW >= 1024 }
+    }
+
+    // Cheap bookkeeping that can't run on the compositor: which scene's buttons can be tapped, and whether the
+    // assistant pop-up should wait (it would cover the hero's buttons on phones)
+    let lastP = -1
+    const interact = (p: number) => {
+      document.documentElement.classList.toggle("hero-active", p < 0.56)
+      if (els.one) els.one.style.pointerEvents = span(p, 0, 0.22) > 0.6 ? "none" : "auto"
+      if (els.two) els.two.style.pointerEvents = span(p, 0.2, 0.4) * (1 - span(p, 0.46, 0.54)) > 0.4 ? "auto" : "none"
+    }
+
+    let frame = 0
+    let cleanupMode = () => {}
+
+    if (supportsScrollTimelines()) {
+      // Sample the timeline into keyframes once; the browser then plays them against the scroll position
+      const build = () => {
+        cleanupMode()
+        const { wide } = measure()
+        const ViewTimelineCtor = (window as unknown as { ViewTimeline: new (o: object) => AnimationTimeline }).ViewTimeline
+        const timeline = new ViewTimelineCtor({ subject: section, axis: "block" })
+        const N = 80
+        const frames = Array.from({ length: N + 1 }, (_, i) => frameAt(i / N, wide))
+        const anims: Animation[] = []
+        for (const key of Object.keys(els) as Layer[]) {
+          const el = els[key]
+          if (!el) continue
+          el.style.removeProperty("transform")
+          el.style.removeProperty("opacity")
+          el.style.removeProperty("visibility")
+          const kf = frames.map((f, i) => ({ offset: i / N, ...f[key] }))
+          anims.push(
+            el.animate(kf as Keyframe[], {
+              timeline,
+              rangeStart: "contain 0%",
+              rangeEnd: "contain 100%",
+              fill: "both",
+              easing: "linear",
+            } as KeyframeAnimationOptions),
+          )
+        }
+        cleanupMode = () => anims.forEach((a) => a.cancel())
+      }
+      build()
+      let wasWide = measure().wide
+      const onResize = () => {
+        const w = measure().wide
+        if (w !== wasWide) {
+          wasWide = w
+          build()
+        }
+      }
+      const onScroll = () => {
+        if (frame) return
+        frame = requestAnimationFrame(() => {
+          frame = 0
+          const { p } = measure()
+          if (p !== lastP) interact((lastP = p))
+        })
+      }
+      interact(measure().p)
+      window.addEventListener("scroll", onScroll, { passive: true })
+      window.addEventListener("resize", onResize)
+      return () => {
+        cleanupMode()
+        window.removeEventListener("scroll", onScroll)
+        window.removeEventListener("resize", onResize)
+        cancelAnimationFrame(frame)
+      }
+    }
+
+    // JS path (desktop with Lenis, and older phones): apply the timeline every frame
+    const update = (force = false) => {
+      frame = 0
+      const { p, wide } = measure()
       // Nothing moved (e.g. scrolling further down the page): skip all style writes
       if (p === lastP && !force) return
       lastP = p
-      // While the hero's own buttons are on screen, the assistant pop-up waits (it would cover them on phones)
-      document.documentElement.classList.toggle("hero-active", p < 0.56)
-
-      // Timeline: headline out → settle on Katrina → collagen fibers rise → glow → the fibers clear into the page.
-      // Services overlaps the last 60svh (from p≈0.75), so the white-out must be done by then.
-      const out = span(p, 0, 0.22)
-      const inn = span(p, 0.2, 0.4)
-      const climb = span(p, 0.5, 0.66)
-      const white = span(p, 0.62, 0.74)
-      const clear = span(p, 0.74, 1)
-
-      if (bgRef.current) bgRef.current.style.transform = `scale(${(1.12 - inn * 0.08) * (1 + climb * 0.12)})`
-      if (subjectRef.current) {
-        // Mobile: Katrina sits softly behind the headline, then comes forward for the reveal
-        const baseOpacity = wide ? 1 : 0.45 + inn * 0.55
-        fade(subjectRef.current, baseOpacity * (1 - span(p, 0.48, 0.6)))
-        subjectRef.current.style.transform = `translate3d(${wide ? inn * -4 : 0}%, ${climb * 8}%, 0) scale(${1 + inn * 0.05})`
-      }
-      if (shadeRef.current) fade(shadeRef.current, 0.35 - inn * 0.25)
-      if (gradeRef.current) fade(gradeRef.current, 1 - inn * 0.5)
-      if (sceneOneRef.current) {
-        sceneOneRef.current.style.transform = `translateY(${out * -90}px) rotateX(${out * 28}deg) scale(${1 - out * 0.12})`
-        fade(sceneOneRef.current, 1 - out)
-        sceneOneRef.current.style.pointerEvents = out > 0.6 ? "none" : "auto"
-      }
-      if (sceneTwoRef.current) {
-        sceneTwoRef.current.style.transform = `translateY(${(1 - inn) * 60}px)`
-        const two = inn * (1 - span(p, 0.46, 0.54))
-        fade(sceneTwoRef.current, two)
-        sceneTwoRef.current.style.pointerEvents = two > 0.4 ? "auto" : "none"
-      }
-      if (cueRef.current) fade(cueRef.current, 1 - span(p, 0, 0.15))
-      if (bankRef.current) {
-        fade(bankRef.current, Math.min(1, climb * 1.5) * (1 - clear))
-        bankRef.current.style.transform = `translateY(${70 - climb * 75 - clear * 30}%) scale(${1 + climb * 0.15 + clear * 0.5})`
-      }
-      if (wispsRef.current) {
-        fade(wispsRef.current, span(p, 0.54, 0.68) * (1 - clear))
-        wispsRef.current.style.transform = `translateY(${(1 - climb) * 25}%) scale(${1.1 + climb * 0.3 + clear * 0.7})`
-      }
-      if (fillRef.current) fade(fillRef.current, white)
-      // Title card while we're "beneath the skin": fades in among the fibers, drifts up and out before Services
-      if (titleRef.current) {
-        const t = span(p, 0.56, 0.64) * (1 - span(p, 0.72, 0.8))
-        fade(titleRef.current, t)
-        titleRef.current.style.transform = `translateY(${(1 - span(p, 0.56, 0.8)) * 40 - 20}px) scale(${0.96 + span(p, 0.56, 0.8) * 0.08})`
-      }
-      // Cells drifting past in front (faster parallax than the back layer)
-      if (wispsFrontRef.current) {
-        fade(wispsFrontRef.current, 0.3 * span(p, 0.6, 0.7) * (1 - span(p, 0.78, 0.92)))
-        wispsFrontRef.current.style.transform = `translate3d(0, ${(0.5 - span(p, 0.58, 0.92)) * 30}%, 0) scale(${1.2 + clear * 0.6})`
+      interact(p)
+      const f = frameAt(p, wide)
+      for (const key of Object.keys(els) as Layer[]) {
+        const el = els[key]
+        const st = f[key]
+        if (!el || !st) continue
+        if (st.transform !== undefined) el.style.transform = st.transform
+        if (st.opacity !== undefined) fade(el, st.opacity)
       }
     }
     const onScroll = () => {

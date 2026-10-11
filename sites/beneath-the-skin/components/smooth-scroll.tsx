@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import Lenis from "lenis"
 import "lenis/dist/lenis.css"
-import { setLenis } from "@/lib/scroll"
+import { setLenis, supportsScrollTimelines } from "@/lib/scroll"
 
 // iOS before 16 handles JS-driven touch scrolling poorly, so those devices keep native touch scrolling
 const oldIOS = () => {
@@ -12,9 +12,12 @@ const oldIOS = () => {
 }
 
 /**
- * Momentum smooth-scrolling for wheel, trackpad and touch. On phones `syncTouch` runs the scroll on the JS
- * thread (the approach GSAP's ScrollSmoother uses with smoothTouch), so the scroll-driven hero and 3D section
- * move in lockstep with the page instead of trailing the native scroll. Reduced motion opts out.
+ * Momentum smooth-scrolling for wheel and trackpad. Touch screens:
+ * - Phones with scroll-driven animations (iOS 26+, Chrome 115+) keep their own native scrolling, with its natural
+ *   speed and momentum; the hero is played by the compositor in step with it.
+ * - Older phones use `syncTouch` (scroll on the JS thread, like GSAP ScrollSmoother's smoothTouch), so the JS-driven
+ *   hero moves in lockstep with the page, with gentle inertia so it never flings too far.
+ * Reduced motion opts out.
  */
 export function SmoothScroll() {
   useEffect(() => {
@@ -22,9 +25,9 @@ export function SmoothScroll() {
     const lenis = new Lenis({
       lerp: 0.09,
       wheelMultiplier: 1,
-      syncTouch: !oldIOS(),
-      syncTouchLerp: 0.1, // a touch snappier than the default so it never feels like it lags the finger
-      touchInertiaExponent: 1.7,
+      syncTouch: !oldIOS() && !supportsScrollTimelines(),
+      syncTouchLerp: 0.085,
+      touchInertiaExponent: 1.3, // gentler fling than the default 1.7, closer to native momentum
       autoRaf: true,
       anchors: true,
       // Let the voice widget's own panels scroll natively
