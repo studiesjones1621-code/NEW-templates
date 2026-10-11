@@ -9,6 +9,11 @@ import { BooksyButton } from "./booksy-button"
 const clamp = (v: number, min = 0, max = 1) => Math.min(max, Math.max(min, v))
 // Maps overall progress p into 0..1 across [start, end]
 const span = (p: number, start: number, end: number) => clamp((p - start) / (end - start))
+// Fully transparent layers are also hidden, so the browser stops compositing them (a big win on phones)
+const fade = (el: HTMLElement, o: number) => {
+  el.style.opacity = String(o)
+  el.style.visibility = o > 0.001 ? "visible" : "hidden"
+}
 
 /**
  * Cinematic hero, "Beneath the Skin": Katrina sits in her real Ellicott City studio. On scroll the headline tilts away
@@ -36,8 +41,9 @@ export function Hero() {
     if (!section) return
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     let frame = 0
+    let lastP = -1
 
-    const update = () => {
+    const update = (force = false) => {
       frame = 0
       const rect = section.getBoundingClientRect()
       // Measure against the pinned stage (100svh, fixed), not innerHeight, which jumps when mobile
@@ -47,6 +53,11 @@ export function Hero() {
       const travel = section.offsetHeight - stageH
       const p = reduce ? 0 : clamp(-rect.top / Math.max(travel, 1))
       const wide = stageW >= 1024
+      // Nothing moved (e.g. scrolling further down the page): skip all style writes
+      if (p === lastP && !force) return
+      lastP = p
+      // While the hero's own buttons are on screen, the assistant pop-up waits (it would cover them on phones)
+      document.documentElement.classList.toggle("hero-active", p < 0.56)
 
       // Timeline: headline out → settle on Katrina → collagen fibers rise → glow → the fibers clear into the page.
       // Services overlaps the last 60svh (from p≈0.75), so the white-out must be done by then.
@@ -60,53 +71,57 @@ export function Hero() {
       if (subjectRef.current) {
         // Mobile: Katrina sits softly behind the headline, then comes forward for the reveal
         const baseOpacity = wide ? 1 : 0.45 + inn * 0.55
-        subjectRef.current.style.opacity = String(baseOpacity * (1 - span(p, 0.48, 0.6)))
+        fade(subjectRef.current, baseOpacity * (1 - span(p, 0.48, 0.6)))
         subjectRef.current.style.transform = `translate3d(${wide ? inn * -4 : 0}%, ${climb * 8}%, 0) scale(${1 + inn * 0.05})`
       }
-      if (shadeRef.current) shadeRef.current.style.opacity = String(0.35 - inn * 0.25)
-      if (gradeRef.current) gradeRef.current.style.opacity = String(1 - inn * 0.5)
+      if (shadeRef.current) fade(shadeRef.current, 0.35 - inn * 0.25)
+      if (gradeRef.current) fade(gradeRef.current, 1 - inn * 0.5)
       if (sceneOneRef.current) {
         sceneOneRef.current.style.transform = `translateY(${out * -90}px) rotateX(${out * 28}deg) scale(${1 - out * 0.12})`
-        sceneOneRef.current.style.opacity = String(1 - out)
+        fade(sceneOneRef.current, 1 - out)
         sceneOneRef.current.style.pointerEvents = out > 0.6 ? "none" : "auto"
       }
       if (sceneTwoRef.current) {
         sceneTwoRef.current.style.transform = `translateY(${(1 - inn) * 60}px)`
         const two = inn * (1 - span(p, 0.46, 0.54))
-        sceneTwoRef.current.style.opacity = String(two)
+        fade(sceneTwoRef.current, two)
         sceneTwoRef.current.style.pointerEvents = two > 0.4 ? "auto" : "none"
       }
-      if (cueRef.current) cueRef.current.style.opacity = String(1 - span(p, 0, 0.15))
+      if (cueRef.current) fade(cueRef.current, 1 - span(p, 0, 0.15))
       if (bankRef.current) {
-        bankRef.current.style.opacity = String(Math.min(1, climb * 1.5) * (1 - clear))
+        fade(bankRef.current, Math.min(1, climb * 1.5) * (1 - clear))
         bankRef.current.style.transform = `translateY(${70 - climb * 75 - clear * 30}%) scale(${1 + climb * 0.15 + clear * 0.5})`
       }
       if (wispsRef.current) {
-        wispsRef.current.style.opacity = String(span(p, 0.54, 0.68) * (1 - clear))
+        fade(wispsRef.current, span(p, 0.54, 0.68) * (1 - clear))
         wispsRef.current.style.transform = `translateY(${(1 - climb) * 25}%) scale(${1.1 + climb * 0.3 + clear * 0.7})`
       }
-      if (fillRef.current) fillRef.current.style.opacity = String(white)
+      if (fillRef.current) fade(fillRef.current, white)
       // Title card while we're "beneath the skin": fades in among the fibers, drifts up and out before Services
       if (titleRef.current) {
         const t = span(p, 0.56, 0.64) * (1 - span(p, 0.72, 0.8))
-        titleRef.current.style.opacity = String(t)
+        fade(titleRef.current, t)
         titleRef.current.style.transform = `translateY(${(1 - span(p, 0.56, 0.8)) * 40 - 20}px) scale(${0.96 + span(p, 0.56, 0.8) * 0.08})`
       }
       // Cells drifting past in front (faster parallax than the back layer)
       if (wispsFrontRef.current) {
-        wispsFrontRef.current.style.opacity = String(0.3 * span(p, 0.6, 0.7) * (1 - span(p, 0.78, 0.92)))
+        fade(wispsFrontRef.current, 0.3 * span(p, 0.6, 0.7) * (1 - span(p, 0.78, 0.92)))
         wispsFrontRef.current.style.transform = `translate3d(0, ${(0.5 - span(p, 0.58, 0.92)) * 30}%, 0) scale(${1.2 + clear * 0.6})`
       }
     }
     const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update)
+      if (!frame) frame = requestAnimationFrame(() => update())
     }
-    update()
+    const onResize = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => update(true))
+    }
+    update(true)
     window.addEventListener("scroll", onScroll, { passive: true })
-    window.addEventListener("resize", onScroll)
+    window.addEventListener("resize", onResize)
     return () => {
       window.removeEventListener("scroll", onScroll)
-      window.removeEventListener("resize", onScroll)
+      window.removeEventListener("resize", onResize)
       cancelAnimationFrame(frame)
     }
   }, [])
@@ -168,14 +183,14 @@ export function Hero() {
           className="absolute -inset-[15%] opacity-0 pointer-events-none will-change-transform"
           aria-hidden
         >
-          <img src="/biz/cells.webp" alt="" className="absolute inset-0 w-full h-full object-cover" />
-          <img
+          <picture><source media="(max-width: 1023px)" srcSet="/biz/cells-m.webp" /><img src="/biz/cells.webp" alt="" className="absolute inset-0 w-full h-full object-cover" /></picture>
+          <picture><source media="(max-width: 1023px)" srcSet="/biz/cells-m.webp" /><img
             src="/biz/cells.webp"
             alt=""
-            className="absolute inset-0 w-full h-full object-cover -scale-x-100 translate-y-[18%] opacity-70"
-          />
+            className="hidden lg:block absolute inset-0 w-full h-full object-cover -scale-x-100 translate-y-[18%] opacity-70"
+          /></picture>
         </div>
-        <img
+        <picture><source media="(max-width: 1023px)" srcSet="/biz/skin-layers-m.webp" /><img
           ref={bankRef}
           data-hero="bank"
           src="/biz/skin-layers.webp"
@@ -183,14 +198,14 @@ export function Hero() {
           aria-hidden
           className="absolute -left-[15%] -bottom-[10%] w-[130%] h-[120%] max-w-none object-cover object-bottom opacity-0 pointer-events-none will-change-transform"
           style={{ transform: "translateY(70%)" }}
-        />
+        /></picture>
         <div
           ref={wispsFrontRef}
           data-hero="wisps-front"
           className="absolute -inset-[20%] opacity-0 pointer-events-none will-change-transform"
           aria-hidden
         >
-          <img src="/biz/cells.webp" alt="" className="absolute inset-0 w-full h-full object-cover -scale-y-100" />
+          <picture><source media="(max-width: 1023px)" srcSet="/biz/cells-m.webp" /><img src="/biz/cells.webp" alt="" className="absolute inset-0 w-full h-full object-cover -scale-y-100" /></picture>
         </div>
 
         <div
@@ -258,7 +273,7 @@ export function Hero() {
         <div
           ref={sceneTwoRef}
           data-hero="two"
-          className="absolute inset-0 flex items-end justify-center px-5 pb-[5vh] lg:items-center lg:justify-start lg:pb-0 lg:pl-[7vw] opacity-0 pointer-events-none"
+          className="absolute inset-0 flex items-end justify-center px-5 pb-24 lg:items-center lg:justify-start lg:pb-0 lg:pl-[7vw] opacity-0 pointer-events-none"
         >
           <div
             className="absolute inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-[#2a211c] via-[#2a211c]/80 to-transparent lg:inset-y-0 lg:left-0 lg:right-auto lg:h-full lg:w-[55%] lg:bg-gradient-to-r"

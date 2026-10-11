@@ -275,3 +275,14 @@ html.anatomy-pinned header { transform: translateY(-140%); opacity: 0; pointer-e
 /* The voice assistant pop-up steps aside too, so it never covers the section's booking button */
 [data-voice-prompt] { transition: opacity 0.3s ease, transform 0.3s ease; }
 html.anatomy-pinned [data-voice-prompt] { opacity: 0; transform: translateY(8px); pointer-events: none; }
+
+/* Phones and tablets: drop the always-running effects that repaint every frame (background drift, light leak,
+   grain, the text sheen and pulse rings), so the GPU is free for scrolling. The scroll-driven motion stays. */
+@media (max-width: 1023px), (pointer: coarse) {
+  .hero-drift, .hero-gold-text, .hero-pulse { animation: none; }
+  .hero-gold-text { background-position: 50% 0; }
+  .hero-leak, .hero-grain { display: none; }
+}
+@media (max-width: 1023px) {
+  html.hero-active [data-voice-prompt] { opacity: 0; transform: translateY(8px); pointer-events: none; }
+}

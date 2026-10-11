@@ -130,6 +130,13 @@ function sideTexture(kind) {
 }
 
 const S = 6 // the sample is a 6 × 6 block
+// Phones and tablets get lighter geometry and materials, and only redraw while the page is scrolling
+const LITE = matchMedia("(max-width: 1023px), (pointer: coarse)").matches
+const Physical = (o) => {
+  if (!LITE) return new THREE.MeshPhysicalMaterial(o)
+  const { sheen, sheenColor, clearcoat, clearcoatRoughness, ...rest } = o
+  return new THREE.MeshStandardMaterial(rest)
+}
 
 function tube(points, radius, material, segments = 64) {
   const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)))
@@ -171,7 +178,7 @@ function buildSkin() {
   // Epidermis: a living surface, fine creases and pores displaced into a real skin texture
   {
     const P = parts.epidermis
-    const geo = new THREE.PlaneGeometry(S, S, 180, 180)
+    const geo = new THREE.PlaneGeometry(S, S, LITE ? 110 : 180, LITE ? 110 : 180)
     geo.rotateX(-Math.PI / 2)
     const pos = geo.attributes.position
     const pores = Array.from({ length: 70 }, () => [between(-2.8, 2.8), between(-2.8, 2.8)])
@@ -190,7 +197,7 @@ function buildSkin() {
     geo.computeVertexNormals()
     const surface = new THREE.Mesh(
       geo,
-      new THREE.MeshPhysicalMaterial({ color: 0xc48b63, roughness: 0.48, sheen: 0.6, sheenColor: 0xffd7bd, clearcoat: 0.25, clearcoatRoughness: 0.5 }),
+      Physical({ color: 0xc48b63, roughness: 0.48, sheen: 0.6, sheenColor: 0xffd7bd, clearcoat: 0.25, clearcoatRoughness: 0.5 }),
     )
     surface.position.y = P.top + 0.002
     P.group.add(surface)
@@ -242,7 +249,7 @@ function buildSkin() {
     const count = 70
     const mesh = new THREE.InstancedMesh(
       new THREE.SphereGeometry(1, 24, 16),
-      new THREE.MeshPhysicalMaterial({ color: 0xf2d38f, roughness: 0.35, sheen: 0.5, sheenColor: 0xfff1cc }),
+      Physical({ color: 0xf2d38f, roughness: 0.35, sheen: 0.5, sheenColor: 0xfff1cc }),
       count,
     )
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3()
@@ -290,7 +297,7 @@ export function init(root) {
   const steps = [...root.querySelectorAll("[data-step]")]
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" })
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !LITE || devicePixelRatio < 2, alpha: true, powerPreference: "high-performance" })
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 1.05
   renderer.outputColorSpace = THREE.SRGBColorSpace
@@ -329,7 +336,7 @@ export function init(root) {
     W = root.clientWidth
     H = Math.min(root.querySelector("[data-anatomy-stage]").clientHeight, innerHeight)
     wide = W >= 1024
-    renderer.setPixelRatio(Math.min(devicePixelRatio, wide ? 1.75 : 1.5))
+    renderer.setPixelRatio(Math.min(devicePixelRatio, wide ? 1.75 : 1.35))
     renderer.setSize(W, H, false)
     camera.aspect = W / H
     camera.fov = wide ? 30 : 38
@@ -350,7 +357,8 @@ export function init(root) {
   pinCheck()
 
   const v = new THREE.Vector3()
-  let smoothP = 0, last = performance.now(), time = 0
+  let smoothP = 0, last = performance.now(), time = 0, drawnP = -1, dirty = true
+  addEventListener("resize", () => (dirty = true))
   const frame = (now) => {
     requestAnimationFrame(frame)
     if (!visible) return
@@ -362,6 +370,10 @@ export function init(root) {
     const goal = clamp(-r.top / Math.max(1, root.offsetHeight - H))
     smoothP += (goal - smoothP) * (reduce ? 1 : 1 - Math.exp(-dt * 6))
     const p = smoothP
+    // On phones there's no idle spin, so once the layers settle there's nothing to redraw
+    if (LITE && !dirty && Math.abs(p - drawnP) < 0.0002) return
+    drawnP = p
+    dirty = false
 
     // Layers part, hold while each one is explained, then settle back together
     const e = span(p, 0.12, 0.42) * (1 - span(p, 0.8, 0.92))
@@ -371,10 +383,10 @@ export function init(root) {
       const w = Math.sin(t * Math.PI)
       part.group.rotation.set(part.wobble.x * w, part.wobble.y * w, part.wobble.z * w)
     }
-    parts.root.glow.emissiveIntensity = 1.2 + Math.sin(time * 2.2) * 0.5 + span(p, 0.6, 0.7) * 1.2
+    parts.root.glow.emissiveIntensity = 1.2 + (LITE ? 0.3 : Math.sin(time * 2.2) * 0.5) + span(p, 0.6, 0.7) * 1.2
 
     pivot.rotation.x = 0.42 - e * 0.12 // look down onto the surface, flatten slightly as the layers part
-    model.rotation.y = -0.6 + (reduce ? 0 : time * 0.18) + p * 1.6
+    model.rotation.y = -0.6 + (reduce || LITE ? 0 : time * 0.18) + p * 1.6
     // Phones: smaller and higher, so the parted layers stay above the copy and the labels fit on the right
     pivot.position.set(wide ? 4.2 : -0.9, wide ? 0 : 6.4 - e * 0.6, 0)
     pivot.scale.setScalar(wide ? 1 : 0.82)
