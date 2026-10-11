@@ -275,6 +275,16 @@ dst.mkdir(exist_ok=True)
 for d in ("biz","brand"):
     if (dst/d).exists(): shutil.rmtree(dst/d)
     shutil.copytree(src/d, dst/d)
-for m in modules:
+# Copy each module plus the local files it pulls in ("./x.js" imports and new URL("./x.js") worker files)
+copied, todo = set(), list(modules)
+while todo:
+    m = todo.pop()
+    if m in copied or not (src/m).exists():
+        continue
+    copied.add(m)
+    (dst/m).parent.mkdir(parents=True, exist_ok=True)
     shutil.copy(src/m, dst/m)
-print(len(out)//1024, "KB", ("modules: " + ", ".join(modules)) if modules else "")
+    base = str(pathlib.PurePosixPath(m).parent)
+    for dep in re.findall(r'["\'](\./[\w./-]+\.js)["\']', (src/m).read_text()):
+        todo.append(str(pathlib.PurePosixPath(base, dep)).lstrip("./") if base != "." else dep[2:])
+print(len(out)//1024, "KB", ("modules: " + ", ".join(sorted(copied))) if copied else "")

@@ -18,17 +18,33 @@ export function Anatomy() {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    // Fetch three.js only when the section is getting close, so it never slows the first scroll
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (!e.isIntersecting) return
-        io.disconnect()
-        import(/* webpackIgnore: true */ "/anatomy.js" as string).then((m) => m.lazy?.(el)).catch(() => {})
-      },
-      { rootMargin: "250% 0px" },
-    )
+    // Download and parse three.js early, but only while the page is still (never mid-swipe), so there's no
+    // hitch when you reach the section. The section getting close forces it as a fallback.
+    let loaded = false
+    let lastScroll = performance.now()
+    let timer = 0
+    const load = () => {
+      if (loaded) return
+      loaded = true
+      cleanup()
+      import(/* webpackIgnore: true */ "/anatomy.js" as string).then((m) => m.lazy?.(el)).catch(() => {})
+    }
+    const onScroll = () => (lastScroll = performance.now())
+    const check = () => {
+      if (performance.now() - lastScroll > 400) load()
+      else timer = window.setTimeout(check, 250)
+    }
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && load(), { rootMargin: "200% 0px" })
+    const cleanup = () => {
+      io.disconnect()
+      clearTimeout(timer)
+      window.removeEventListener("scroll", onScroll)
+    }
+    window.addEventListener("scroll", onScroll, { passive: true })
     io.observe(el)
-    return () => io.disconnect()
+    // Give the hero its intro animation (about 1.8s) to itself
+    timer = window.setTimeout(check, 1800)
+    return cleanup
   }, [])
 
   return (

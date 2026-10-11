@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { ArrowUpRight, Mic } from "lucide-react"
 import { openAssistant } from "./talk-button"
 import { BooksyButton } from "./booksy-button"
+import { onLenisScroll } from "@/lib/scroll"
 
 const services = [
   {
@@ -95,9 +96,14 @@ export function Services() {
       if (!frame) frame = requestAnimationFrame(update)
     }
     update()
+    const offLenis = onLenisScroll(() => {
+      cancelAnimationFrame(frame)
+      update()
+    })
     window.addEventListener("scroll", onScroll, { passive: true })
     window.addEventListener("resize", onScroll)
     return () => {
+      offLenis()
       window.removeEventListener("scroll", onScroll)
       window.removeEventListener("resize", onScroll)
       cancelAnimationFrame(frame)

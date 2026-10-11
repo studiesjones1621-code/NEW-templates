@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ArrowUpRight, CalendarCheck, MapPin, Phone } from "lucide-react"
 import { HighlightedText } from "./highlighted-text"
 import { TalkButton } from "./talk-button"
@@ -29,6 +29,30 @@ const toMinutes = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.
 export function Visit() {
   const today = useClinicToday()
   const [active, setActive] = useState(0)
+  // Google Maps is heavy to start, so it loads only once the page is still near this section (never mid-swipe)
+  const mapRef = useRef<HTMLDivElement>(null)
+  const [showMap, setShowMap] = useState(false)
+  useEffect(() => {
+    const el = mapRef.current
+    if (!el) return
+    let near = false
+    let lastScroll = 0
+    let timer = 0
+    const onScroll = () => (lastScroll = performance.now())
+    const check = () => {
+      if (near && performance.now() - lastScroll > 250) setShowMap(true)
+      else timer = window.setTimeout(check, 150)
+    }
+    const io = new IntersectionObserver(([e]) => (near = e.isIntersecting), { rootMargin: "100% 0px" })
+    io.observe(el)
+    window.addEventListener("scroll", onScroll, { passive: true })
+    check()
+    return () => {
+      io.disconnect()
+      clearTimeout(timer)
+      window.removeEventListener("scroll", onScroll)
+    }
+  }, [])
   const loc = locations[active]
   const todayHours = today ? loc.hours.find((h) => h.day === today.day) : undefined
   const isOpen =
@@ -135,8 +159,18 @@ export function Visit() {
 
           <div>
             <div className="relative">
-              <div className="relative z-10 aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5] w-full overflow-hidden border border-white/10 bg-[#2a211c]">
-                <iframe
+              <div ref={mapRef} className="relative z-10 aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5] w-full overflow-hidden border border-white/10 bg-[#2a211c]">
+                {!showMap && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-6 text-primary-foreground/70">
+                    <MapPin className="w-8 h-8 text-gold" strokeWidth={1.5} aria-hidden />
+                    <p className="text-sm">
+                      {loc.street}
+                      <br />
+                      {loc.city}, {loc.state} {loc.zip}
+                    </p>
+                  </div>
+                )}
+                {showMap && <iframe
                   key={loc.id}
                   title={`Map to ${business.fullName}, ${loc.street}, ${loc.city}, ${loc.state} ${loc.zip}`}
                   src={mapEmbedOf(loc)}
@@ -144,7 +178,7 @@ export function Visit() {
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   allowFullScreen
-                />
+                />}
               </div>
               <div className="absolute -bottom-4 -left-4 w-full h-full border border-gold/40 pointer-events-none hidden md:block" aria-hidden />
             </div>
