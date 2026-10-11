@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import { ArrowDown, Phone } from "lucide-react"
 import { business } from "@/lib/business"
+import { onLenisScroll } from "@/lib/scroll"
 import { TalkButton } from "./talk-button"
 import { BooksyButton } from "./booksy-button"
 
@@ -117,9 +118,15 @@ export function Hero() {
       frame = requestAnimationFrame(() => update(true))
     }
     update(true)
+    // Same-frame updates while Lenis drives the scroll; native scroll events cover everything else
+    const offLenis = onLenisScroll(() => {
+      cancelAnimationFrame(frame)
+      update()
+    })
     window.addEventListener("scroll", onScroll, { passive: true })
     window.addEventListener("resize", onResize)
     return () => {
+      offLenis()
       window.removeEventListener("scroll", onScroll)
       window.removeEventListener("resize", onResize)
       cancelAnimationFrame(frame)
