@@ -156,7 +156,7 @@ try { if (window.Lenis && !matchMedia('(prefers-reduced-motion: reduce)').matche
     var q = function(n){ return sec.querySelector('[data-hero="'+n+'"]') };
     var bg=q('bg'), shade=q('shade'), grade=q('grade'), one=q('one'), two=q('two'), cue=q('cue'),
         fill=q('fill'), bank=q('bank'), wisps=q('wisps'), jet=q('jet'), wf=q('wisps-front'),
-        subject=q('subject'), emblem=q('emblem');
+        subject=q('subject'), emblem=q('emblem'), title=q('title');
     var clamp=function(v){return Math.min(1,Math.max(0,v))}, span=function(p,a,b){return clamp((p-a)/(b-a))};
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches, f=0;
     function upd(){ f=0;
@@ -192,6 +192,8 @@ try { if (window.Lenis && !matchMedia('(prefers-reduced-motion: reduce)').matche
       if (bank) { bank.style.opacity=Math.min(1,climb*1.5)*(1-clear); bank.style.transform='translateY('+(70-climb*75-clear*30)+'%) scale('+(1+climb*.15+clear*.5)+')'; }
       if (wisps) { wisps.style.opacity=span(p,.54,.68)*(1-clear); wisps.style.transform='translateY('+((1-climb)*25)+'%) scale('+(1.1+climb*.3+clear*.7)+')'; }
       if (fill) fill.style.opacity=white;
+      if (title) { var tt=span(p,.56,.64)*(1-span(p,.72,.8)); title.style.opacity=tt;
+        title.style.transform='translateY('+((1-span(p,.56,.8))*40-20)+'px) scale('+(.96+span(p,.56,.8)*.08)+')'; }
       if (wf && emblem) { wf.style.opacity=.3*span(p,.6,.7)*(1-span(p,.78,.92)); wf.style.transform='translate3d(0,'+((.5-span(p,.58,.92))*30)+'%,0) scale('+(1.2+clear*.6)+')'; }
       else if (wf) { wf.style.opacity=.4*span(p,.6,.7)*(1-span(p,.76,.9)); wf.style.transform='translate3d('+((.5-span(p,.58,.9))*30)+'%,0,0) scale('+(1.2+clear*.6)+')'; }
       if (jet) { var fly=span(p,.58,.83), jw=jet.offsetWidth, jx=-jw+fly*(SW+jw*1.1), jy=(.5-fly)*SH*.16;
@@ -232,14 +234,22 @@ try { if (window.Lenis && !matchMedia('(prefers-reduced-motion: reduce)').matche
     var parts = new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'long',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date());
     var get = function(t){ return (parts.find(function(p){return p.type===t})||{}).value };
     var day = get('weekday'), mins = +get('hour')*60 + +get('minute');
-    var hrs = {Monday:[600,1200],Tuesday:[540,1200],Wednesday:[540,1200],Thursday:[540,1200],Friday:[480,1140],Saturday:[480,1200],Sunday:[840,1020]};
+    // Hours come from the page's own table ("10 AM – 6 PM" / "Closed"), so this works for any business
+    var toMin = function(t){ var m = /(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i.exec(t); if (!m) return null;
+      return (+m[1] % 12 + (/pm/i.test(m[3]) ? 12 : 0)) * 60 + (+(m[2] || 0)); };
+    var hrs = {};
+    document.querySelectorAll('#visit dl > div').forEach(function(row){
+      var t = row.querySelector('dd').textContent.split(/[–-]/);
+      var a = toMin(t[0] || ''), b = toMin(t[1] || '');
+      hrs[row.querySelector('dt').textContent.trim()] = (a !== null && b !== null) ? [a, b] : [0, 0];
+    });
     document.querySelectorAll('#visit dl > div').forEach(function(row){
       var isToday = row.querySelector('dt').textContent.trim() === day;
       row.classList.toggle('text-gold-light', isToday); row.classList.toggle('font-medium', isToday);
       row.classList.toggle('text-primary-foreground/80', !isToday);
     });
     var badge = document.querySelector('#visit h3 + span');
-    if (badge) { var o = mins >= hrs[day][0] && mins < hrs[day][1]; badge.textContent = o ? 'Open now' : 'Closed now'; }
+    if (badge && hrs[day]) { var o = mins >= hrs[day][0] && mins < hrs[day][1]; badge.textContent = o ? 'Open now' : 'Closed now'; }
   } catch(e) {}
 })();
 """

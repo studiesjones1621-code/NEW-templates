@@ -1,0 +1,9 @@
+{
+  "agent_name": "Beneath the Skin - Website Assistant",
+  "prompt_file": "retell/system-prompt.md",
+  "begin_message": "Hi, welcome to Beneath the Skin! I'm Amara. I can answer questions about facials, acne treatment or any of our services, share prices, or book your visit with Katrina. How can I help?",
+  "voice_id": "11labs-Marissa",
+  "timezone": "America/New_York",
+  "cal_event_type_id": "7428688",
+  "boosted_keywords": ["Beneath the Skin", "Katrina", "Katrina Parker", "Ellicott City", "Baltimore National Pike", "Clear Path", "Hydra Glow", "SWICH", "microneedling", "dermaplaning", "microderm", "nano infusion", "LED", "Lift and Sculpt", "Refinement Pro", "oncology", "esthetician"]
+}
