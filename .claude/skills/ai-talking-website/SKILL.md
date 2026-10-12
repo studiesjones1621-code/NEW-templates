@@ -65,7 +65,7 @@ Load the matching skill when a build reaches that part. They are copies of third
 - **Loading experience:** `fire-paper-loader` (worker-driven loader pattern), preloader section of `cinematic-scroll-storytelling`. Never cover the LCP hero with a loader; intro ≤1.2 s, once per session.
 - **Micro-interactions:** `cinematic-gsap-lenis-motion-system` (magnetic buttons, custom cursor), `pointer-trail-emitter`, `reveal-hover-effect`. Desktop only (`(hover:hover) and (pointer:fine)`).
 - **3D:** the `threejs-*` skills (renderer, lighting, materials, loaders, shaders, performance, model-optimizer), `build-threejs-scroll-worlds` for 3D scrollytelling.
-- **Sound:** `ui-sound-design` for UI sounds; `threejs-impl-audio` for audio in 3D. Site music: muted by default, opt-in toggle, never autoplay; music needs a license that covers the client's site.
+- **Sound:** `site-music` for background music (the approved setup: on by default, starts as soon as the browser allows, Sound/Muted pill in the header, fades out during assistant calls); `ui-sound-design` for UI sounds; `threejs-impl-audio` for audio in 3D. Music needs a license that covers the client's site.
 These are tools, not rules that override this skill: the business's real photos and objects, the Retell agent, and the user's preferences below still come first.
 
 ## Phase 3: Voice agent (Retell)
