@@ -5,6 +5,7 @@ import Script from "next/script"
 import { Mic, Phone, X } from "lucide-react"
 import { business } from "@/lib/business"
 import { TALK_EVENT } from "./talk-button"
+import { ASSISTANT_EVENT } from "./site-music"
 
 const AGENT_ID = process.env.NEXT_PUBLIC_RETELL_AGENT_ID
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_RETELL_PUBLIC_KEY
@@ -228,6 +229,11 @@ export function VoiceAssistant() {
     return () => window.removeEventListener(TALK_EVENT, handler)
   }, [start])
 
+  // Tell the rest of the page when the assistant is busy (mic check or an open call), so background music steps aside
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent(ASSISTANT_EVENT, { detail: { busy: status !== "idle" } }))
+  }, [status])
+
   const launcherHidden = status === "open"
 
   return (
@@ -251,7 +257,7 @@ export function VoiceAssistant() {
       )}
 
       <div
-        className={`fixed z-[60] bottom-4 right-4 md:bottom-6 md:right-6 flex flex-col items-end gap-3 transition-all duration-300 ${
+        className={`fixed z-[60] bottom-4 right-4 md:bottom-6 md:right-6 flex flex-col items-end gap-3 pointer-events-none [&>*]:pointer-events-auto transition-all duration-300 ${
           launcherHidden ? "opacity-0 pointer-events-none translate-y-2" : "opacity-100"
         }`}
         aria-hidden={launcherHidden}
@@ -280,7 +286,7 @@ export function VoiceAssistant() {
         )}
 
         {showPrompt && !error && (
-          <div className="relative max-w-[17rem] bg-background text-foreground border border-border shadow-xl shadow-black/15 p-4 pr-9 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div data-voice-prompt className="relative max-w-[17rem] bg-background text-foreground border border-border shadow-xl shadow-black/15 p-4 pr-9 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <p className="text-sm font-semibold mb-1">Questions? Want a fresh cut?</p>
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
               Talk to our assistant. It can check Reem&apos;s openings and book you.

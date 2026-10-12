@@ -234,3 +234,55 @@
   }
   .hero-rise, .hero-in, .hero-rule { opacity: 1 !important; transform: none !important; }
 }
+
+/* Music toggle: four equalizer bars that dance while sound is on and rest as a flat line when it is off */
+.site-music-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+.site-music-bars > span { width: 2px; height: 3px; border-radius: 1px; background: currentColor; transition: height 0.3s ease; }
+.site-music[data-sound="on"] .site-music-bars > span { animation: music-bar 0.9s ease-in-out infinite alternate; }
+.site-music[data-sound="on"] .site-music-bars > span:nth-child(2) { animation-delay: -0.3s; animation-duration: 0.7s; }
+.site-music[data-sound="on"] .site-music-bars > span:nth-child(3) { animation-delay: -0.6s; animation-duration: 1.1s; }
+.site-music[data-sound="on"] .site-music-bars > span:nth-child(4) { animation-delay: -0.15s; animation-duration: 0.8s; }
+@keyframes music-bar { from { height: 3px; } to { height: 14px; } }
+@media (prefers-reduced-motion: reduce) {
+  .site-music[data-sound="on"] .site-music-bars > span { animation: none; height: 9px; }
+}
+
+/* Anatomy (3D exploded clipper): techy grid, mono labels, step highlighting */
+.anatomy-bg { background: radial-gradient(ellipse 55% 60% at 68% 50%, #2b2416 0%, #13110d 55%, #0a0908 100%); }
+@media (max-width: 1023px) { .anatomy-bg { background: radial-gradient(ellipse 90% 45% at 50% 36%, #2b2416 0%, #13110d 60%, #0a0908 100%); } }
+.anatomy-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.anatomy-grid {
+  background-image:
+    linear-gradient(to right, rgb(216 178 90 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(216 178 90 / 0.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at 65% 50%, black 30%, transparent 80%);
+}
+.anatomy-tag {
+  position: absolute; left: 0; top: 0; opacity: 0;
+  display: flex; align-items: center; gap: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #f3ece0; white-space: nowrap; will-change: transform, opacity;
+}
+.anatomy-pin { width: 9px; height: 9px; margin-left: -4.5px; margin-top: -4.5px; border-radius: 50%; background: #d8b25a; box-shadow: 0 0 0 4px rgb(216 178 90 / 0.2); }
+.anatomy-txt { padding: 5px 9px; border: 1px solid rgb(216 178 90 / 0.45); background: rgb(12 11 9 / 0.78); }
+.anatomy-txt b { color: #d8b25a; margin-right: 8px; font-weight: 600; }
+.anatomy-step { opacity: 0.35; transition: opacity 0.4s ease; }
+.anatomy-step[data-active] { opacity: 1; }
+/* Shorter laptop screens: only the current step shows its description, so the booking button always fits */
+@media (min-width: 640px) and (max-height: 880px) {
+  .anatomy-step:not([data-active]) .anatomy-body { display: none; }
+}
+.anatomy-mobile-steps .anatomy-step { opacity: 0; transform: translateY(8px); transition: opacity 0.4s ease, transform 0.4s ease; }
+.anatomy-mobile-steps .anatomy-step[data-active] { opacity: 1; transform: none; }
+/* The booking button is always visible; it just glows once the layers have come back together */
+.anatomy-cta > * { transition: box-shadow 0.5s ease; }
+.anatomy-cta[data-active] > * { box-shadow: 0 0 0 6px rgb(216 178 90 / 0.22), 0 0 32px rgb(216 178 90 / 0.35); }
+@media (max-width: 639px) { .anatomy-tag { font-size: 9px; } .anatomy-txt { padding: 3px 6px; } }
+
+/* Keep the 3D anatomy stage clear: the header slides away while it's pinned, and returns after */
+html.anatomy-pinned header { transform: translateY(-140%); opacity: 0; pointer-events: none; }
+/* The voice assistant pop-up steps aside too, so it never covers the section's booking button */
+[data-voice-prompt] { transition: opacity 0.3s ease, transform 0.3s ease; }
+html.anatomy-pinned [data-voice-prompt] { opacity: 0; transform: translateY(8px); pointer-events: none; }
+
