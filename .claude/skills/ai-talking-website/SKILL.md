@@ -58,6 +58,16 @@ Either way:
 - **3D product moment (optional, high impact):** after Services, a scroll-driven exploded view of the business's signature object with numbered labels, like Apple product pages (`references/signature-moment.md` §5, reference build in `assets/components/charm/`). Use a real model or the business's real product as the reference.
 - Show the user the result early (artifact link) and iterate on their visual feedback. Small asks ("can't see the hat", "too much space after the clouds", "it's shaky") are common and quick to fix.
 
+### Companion skills (installed alongside this one)
+Load the matching skill when a build reaches that part. They are copies of third-party skills (license and source in each folder's `SOURCE.md`):
+- **Design quality:** `impeccable` (commands: shape, audit, critique, polish, bolder, delight, animate, typeset, layout). Run `audit`/`polish` before delivering. Its download-and-run engine was removed; do its steps by hand.
+- **Scroll motion & interactivity:** `gsap-core`, `gsap-scrolltrigger`, `gsap-timeline`, `gsap-react`, `gsap-plugins` (SplitText etc., all free now), `gsap-performance`; for the cinematic look `cinematic-gsap-lenis-motion-system`, `cinematic-scroll-storytelling`, `build-awwwards-quality-sites`.
+- **Loading experience:** `fire-paper-loader` (worker-driven loader pattern), preloader section of `cinematic-scroll-storytelling`. Never cover the LCP hero with a loader; intro ≤1.2 s, once per session.
+- **Micro-interactions:** `cinematic-gsap-lenis-motion-system` (magnetic buttons, custom cursor), `pointer-trail-emitter`, `reveal-hover-effect`. Desktop only (`(hover:hover) and (pointer:fine)`).
+- **3D:** the `threejs-*` skills (renderer, lighting, materials, loaders, shaders, performance, model-optimizer), `build-threejs-scroll-worlds` for 3D scrollytelling.
+- **Sound:** `ui-sound-design` for UI sounds; `threejs-impl-audio` for audio in 3D. Site music: muted by default, opt-in toggle, never autoplay; music needs a license that covers the client's site.
+These are tools, not rules that override this skill: the business's real photos and objects, the Retell agent, and the user's preferences below still come first.
+
 ## Phase 3: Voice agent (Retell)
 
 1. Read `references/retell.md`, then check https://docs.retellai.com/llms.txt for anything newer. The API has changed recently: legacy Cal.com tools are gone.
