@@ -56,6 +56,7 @@ Background music that feels automatic without breaking browser rules. Proven on 
 - **Web Audio route:** it runs through a `GainNode` (via `createMediaElementSource`) because iOS ignores `volume` on a plain `<audio>`. That's the only way to fade on iPhones.
 - **Silent switch:** `navigator.audioSession.type = "playback"` makes music play with the iPhone silent switch on. Without it, Web Audio is muted.
 - **Delayed creation:** the audio is created 1.2 s after load, so the 2–3 MB file never competes with the hero image (LCP).
-- **Equalizer bars** animate only while sound is actually audible (`data-sound="on"`). The pill reads SOUND/MUTED from the visitor's choice, so it never shows dancing bars over silence.
+- **Equalizer bars** animate only while sound is actually audible (`data-sound="on"`). Until the first tap has let the music play, the pill reads **Tap for sound** and pulses (`data-pending`), and a tap on it *starts* the music instead of muting it. A real user reported having to tap twice before this. After that it reads SOUND/MUTED.
+- **Scrolling never starts sound.** No phone browser counts a scroll as permission to play audio; only a tap, click or key press does. Say so plainly if the user asks for music "when they scroll".
 - **Pauses** when the tab is hidden and resumes when it returns.
 - **Gesture listeners** are `pointerdown`, `touchend`, `keydown` and `click`, in the capture phase. A first tap on the pill itself is ignored by that listener and handled by the pill's own click, so it can't turn on and off in the same tap.

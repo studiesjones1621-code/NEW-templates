@@ -286,3 +286,19 @@ html.anatomy-pinned header { transform: translateY(-140%); opacity: 0; pointer-e
 [data-voice-prompt] { transition: opacity 0.3s ease, transform 0.3s ease; }
 html.anatomy-pinned [data-voice-prompt] { opacity: 0; transform: translateY(8px); pointer-events: none; }
 
+
+/* Phones and tablets: drop the always-running effects that repaint every frame (background drift, light leak,
+   grain, the text sheen and pulse rings), so the GPU is free for scrolling. The scroll-driven motion stays. */
+@media (max-width: 1023px), (pointer: coarse) {
+  .hero-drift, .hero-gold-text, .hero-pulse { animation: none; }
+  .hero-gold-text { background-position: 50% 0; }
+  .hero-leak, .hero-grain { display: none; }
+}
+@media (max-width: 1023px) {
+  html.hero-active [data-voice-prompt] { opacity: 0; transform: translateY(8px); pointer-events: none; }
+}
+
+/* Until the first tap lets the music play, the pill gently pulses to invite it */
+.site-music[data-pending] { animation: music-invite 2.2s ease-in-out infinite; }
+@keyframes music-invite { 0%, 100% { box-shadow: 0 0 0 0 rgb(216 178 90 / 0); } 50% { box-shadow: 0 0 0 5px rgb(216 178 90 / 0.28); } }
+@media (prefers-reduced-motion: reduce) { .site-music[data-pending] { animation: none; } }

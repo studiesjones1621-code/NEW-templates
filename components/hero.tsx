@@ -5,10 +5,64 @@ import { ArrowDown, Phone, Star } from "lucide-react"
 import { business } from "@/lib/business"
 import { TalkButton } from "./talk-button"
 import { BooksyButton } from "./booksy-button"
+import { onLenisScroll, supportsScrollTimelines } from "@/lib/scroll"
 
 const clamp = (v: number, min = 0, max = 1) => Math.min(max, Math.max(min, v))
 // Maps overall progress p into 0..1 across [start, end]
 const span = (p: number, start: number, end: number) => clamp((p - start) / (end - start))
+// Fully transparent layers are also hidden, so the browser stops compositing them (a big win on phones)
+const fade = (el: HTMLElement, o: number) => {
+  el.style.opacity = String(o)
+  el.style.visibility = o > 0.001 ? "visible" : "hidden"
+}
+
+type Layer = "bg" | "shade" | "grade" | "one" | "two" | "cue" | "bank" | "wisps" | "fill" | "front" | "jet"
+type Frame = Partial<Record<Layer, { transform?: string; opacity?: number }>>
+type Dims = { stageW: number; stageH: number; jetW: number; wide: boolean }
+
+/**
+ * The whole hero timeline as a pure function of scroll progress p (0..1). The JS path applies it every frame; on
+ * phones the scroll-timeline path samples it once into keyframes that the compositor plays against native scrolling.
+ */
+function frameAt(p: number, d: Dims): Frame {
+  // Timeline: headline out → pilot seat reveal → climb into clouds → white-out → clouds clear into the page.
+  // Services overlaps the last 60svh (from p≈0.75), so the white-out must be done by then.
+  const out = span(p, 0, 0.22)
+  const inn = span(p, 0.2, 0.4)
+  const climb = span(p, 0.5, 0.66)
+  const white = span(p, 0.62, 0.74)
+  const clear = span(p, 0.74, 1)
+  const fly = span(p, 0.58, 0.83)
+  return {
+    // The reveal: camera pulls back and the grade lifts so the pilot seat and captain's hat take the frame.
+    // Wide screens slide the seat right so the caption can sit beside it; all screens drop it so the hat clears the nav.
+    bg: { transform: `translate(${d.wide ? inn * 17 : 0}%, ${inn * 15}%) scale(${(1.14 - inn * 0.2) * (1 + climb * 0.15)})` },
+    shade: { opacity: 0.4 - inn * 0.36 },
+    grade: { opacity: 1 - inn * 0.7 },
+    one: { opacity: 1 - out, transform: `translateY(${out * -90}px) rotateX(${out * 28}deg) scale(${1 - out * 0.12})` },
+    two: { opacity: inn * (1 - span(p, 0.46, 0.54)), transform: `translateY(${(1 - inn) * 60}px)` },
+    cue: { opacity: 1 - span(p, 0, 0.15) },
+    bank: {
+      opacity: Math.min(1, climb * 1.5) * (1 - clear),
+      transform: `translateY(${70 - climb * 75 - clear * 30}%) scale(${1 + climb * 0.15 + clear * 0.5})`,
+    },
+    wisps: {
+      opacity: span(p, 0.54, 0.68) * (1 - clear),
+      transform: `translateY(${(1 - climb) * 25}%) scale(${1.1 + climb * 0.3 + clear * 0.7})`,
+    },
+    fill: { opacity: white },
+    // Thin wisps that drift past in front of the jet (faster parallax than the back layer)
+    front: {
+      opacity: 0.4 * span(p, 0.6, 0.7) * (1 - span(p, 0.76, 0.9)),
+      transform: `translate3d(${(0.5 - span(p, 0.58, 0.9)) * 30}%, 0, 0) scale(${1.2 + clear * 0.6})`,
+    },
+    // The jet crosses left to right through the clouds, climbing slightly and growing as it nears
+    jet: {
+      opacity: fly > 0 && fly < 1 ? Math.min(1, fly * 10, (1 - fly) * 10) : 0,
+      transform: `translate3d(${-d.jetW + fly * (d.stageW + d.jetW * 1.1)}px, ${(0.5 - fly) * d.stageH * 0.16}px, 0) rotate(${-2 - fly * 3}deg) scale(${0.85 + fly * 0.3})`,
+    },
+  }
+}
 
 /**
  * Cinematic hero: the section is taller than the screen and its stage stays pinned while you scroll.
@@ -34,78 +88,131 @@ export function Hero() {
     const section = sectionRef.current
     if (!section) return
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    let frame = 0
-
-    const update = () => {
-      frame = 0
-      const rect = section.getBoundingClientRect()
-      // Measure against the pinned stage (100svh, fixed), not innerHeight, which jumps when mobile
-      // browser bars show/hide and would make the whole hero jolt.
+    const els: Record<Layer, HTMLElement | null> = {
+      bg: bgRef.current,
+      shade: shadeRef.current,
+      grade: gradeRef.current,
+      one: sceneOneRef.current,
+      two: sceneTwoRef.current,
+      cue: cueRef.current,
+      bank: bankRef.current,
+      wisps: wispsRef.current,
+      fill: fillRef.current,
+      front: wispsFrontRef.current,
+      jet: jetRef.current,
+    }
+    const measure = () => {
+      // Measure against the pinned stage (100svh), not innerHeight, which jumps when mobile browser bars show/hide
       const stageH = stageRef.current?.offsetHeight || window.innerHeight
       const stageW = stageRef.current?.offsetWidth || window.innerWidth
-      const travel = section.offsetHeight - stageH
-      const p = reduce ? 0 : clamp(-rect.top / Math.max(travel, 1))
+      const p = reduce ? 0 : clamp(-section.getBoundingClientRect().top / Math.max(section.offsetHeight - stageH, 1))
+      return { p, d: { stageW, stageH, jetW: jetRef.current?.offsetWidth || 0, wide: stageW >= 1024 } }
+    }
 
-      // Timeline: headline out → pilot seat reveal → climb into clouds → white-out → clouds clear into the page
-      // Services overlaps the last 60svh (from p≈0.75), so the white-out must be done by then.
-      const out = span(p, 0, 0.22)
-      const inn = span(p, 0.2, 0.4)
-      const climb = span(p, 0.5, 0.66)
-      const white = span(p, 0.62, 0.74)
-      const clear = span(p, 0.74, 1)
+    // Bookkeeping that can't run on the compositor: which scene's buttons can be tapped, and whether the assistant
+    // pop-up should wait (it would cover the hero's buttons on phones)
+    let lastP = -1
+    const interact = (p: number) => {
+      document.documentElement.classList.toggle("hero-active", p < 0.56)
+      if (els.one) els.one.style.pointerEvents = span(p, 0, 0.22) > 0.6 ? "none" : "auto"
+      if (els.two) els.two.style.pointerEvents = span(p, 0.2, 0.4) * (1 - span(p, 0.46, 0.54)) > 0.4 ? "auto" : "none"
+    }
 
-      // The reveal: camera pulls back and the grade lifts so the pilot seat and captain's hat take the frame
-      // Wide screens: slide the seat right so the caption can sit beside it. All screens: drop it so the hat clears the nav.
-      const wide = stageW >= 1024
-      if (bgRef.current)
-        bgRef.current.style.transform = `translate(${wide ? inn * 17 : 0}%, ${inn * 15}%) scale(${(1.14 - inn * 0.2) * (1 + climb * 0.15)})`
-      if (shadeRef.current) shadeRef.current.style.opacity = String(0.4 - inn * 0.36)
-      if (gradeRef.current) gradeRef.current.style.opacity = String(1 - inn * 0.7)
-      if (sceneOneRef.current) {
-        sceneOneRef.current.style.transform = `translateY(${out * -90}px) rotateX(${out * 28}deg) scale(${1 - out * 0.12})`
-        sceneOneRef.current.style.opacity = String(1 - out)
-        sceneOneRef.current.style.pointerEvents = out > 0.6 ? "none" : "auto"
+    let frame = 0
+    let cleanupMode = () => {}
+
+    if (supportsScrollTimelines()) {
+      // Sample the timeline into keyframes once; the browser then plays them against the scroll position
+      const build = () => {
+        cleanupMode()
+        const { d } = measure()
+        const ViewTimelineCtor = (window as unknown as { ViewTimeline: new (o: object) => AnimationTimeline }).ViewTimeline
+        const timeline = new ViewTimelineCtor({ subject: section, axis: "block" })
+        const N = 80
+        const frames = Array.from({ length: N + 1 }, (_, i) => frameAt(i / N, d))
+        const anims: Animation[] = []
+        for (const key of Object.keys(els) as Layer[]) {
+          const el = els[key]
+          if (!el) continue
+          el.style.removeProperty("transform")
+          el.style.removeProperty("opacity")
+          el.style.removeProperty("visibility")
+          const kf = frames.map((f, i) => ({ offset: i / N, ...f[key] }))
+          anims.push(
+            el.animate(kf as Keyframe[], {
+              timeline,
+              rangeStart: "contain 0%",
+              rangeEnd: "contain 100%",
+              fill: "both",
+              easing: "linear",
+            } as KeyframeAnimationOptions),
+          )
+        }
+        cleanupMode = () => anims.forEach((a) => a.cancel())
       }
-      if (sceneTwoRef.current) {
-        sceneTwoRef.current.style.transform = `translateY(${(1 - inn) * 60}px)`
-        const two = inn * (1 - span(p, 0.46, 0.54))
-        sceneTwoRef.current.style.opacity = String(two)
-        sceneTwoRef.current.style.pointerEvents = two > 0.4 ? "auto" : "none"
+      build()
+      let size = `${window.innerWidth}`
+      const onResize = () => {
+        // Rebuild only when the width changes (the jet path depends on it); mobile bar show/hide changes height only
+        if (`${window.innerWidth}` === size) return
+        size = `${window.innerWidth}`
+        build()
       }
-      if (cueRef.current) cueRef.current.style.opacity = String(1 - span(p, 0, 0.15))
-      if (bankRef.current) {
-        bankRef.current.style.opacity = String(Math.min(1, climb * 1.5) * (1 - clear))
-        bankRef.current.style.transform = `translateY(${70 - climb * 75 - clear * 30}%) scale(${1 + climb * 0.15 + clear * 0.5})`
+      const onScroll = () => {
+        if (frame) return
+        frame = requestAnimationFrame(() => {
+          frame = 0
+          const { p } = measure()
+          if (p !== lastP) interact((lastP = p))
+        })
       }
-      if (wispsRef.current) {
-        wispsRef.current.style.opacity = String(span(p, 0.54, 0.68) * (1 - clear))
-        wispsRef.current.style.transform = `translateY(${(1 - climb) * 25}%) scale(${1.1 + climb * 0.3 + clear * 0.7})`
+      interact(measure().p)
+      window.addEventListener("scroll", onScroll, { passive: true })
+      window.addEventListener("resize", onResize)
+      return () => {
+        cleanupMode()
+        window.removeEventListener("scroll", onScroll)
+        window.removeEventListener("resize", onResize)
+        cancelAnimationFrame(frame)
       }
-      if (fillRef.current) fillRef.current.style.opacity = String(white)
-      // Thin wisps that drift past in front of the jet (faster parallax than the back layer)
-      if (wispsFrontRef.current) {
-        wispsFrontRef.current.style.opacity = String(0.4 * span(p, 0.6, 0.7) * (1 - span(p, 0.76, 0.9)))
-        wispsFrontRef.current.style.transform = `translate3d(${(0.5 - span(p, 0.58, 0.9)) * 30}%, 0, 0) scale(${1.2 + clear * 0.6})`
-      }
-      // The jet crosses left to right through the clouds, climbing slightly and growing as it nears
-      if (jetRef.current) {
-        const fly = span(p, 0.58, 0.83)
-        const w = jetRef.current.offsetWidth
-        const x = -w + fly * (stageW + w * 1.1)
-        const y = (0.5 - fly) * stageH * 0.16
-        jetRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${-2 - fly * 3}deg) scale(${0.85 + fly * 0.3})`
-        jetRef.current.style.opacity = String(fly > 0 && fly < 1 ? Math.min(1, fly * 10, (1 - fly) * 10) : 0)
+    }
+
+    // JS path (desktop with Lenis, and older phones): apply the timeline every frame
+    const update = (force = false) => {
+      frame = 0
+      const { p, d } = measure()
+      // Nothing moved (e.g. scrolling further down the page): skip all style writes
+      if (p === lastP && !force) return
+      lastP = p
+      interact(p)
+      const f = frameAt(p, d)
+      for (const key of Object.keys(els) as Layer[]) {
+        const el = els[key]
+        const st = f[key]
+        if (!el || !st) continue
+        if (st.transform !== undefined) el.style.transform = st.transform
+        if (st.opacity !== undefined) fade(el, st.opacity)
       }
     }
     const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update)
+      if (!frame) frame = requestAnimationFrame(() => update())
     }
-    update()
+    const onResize = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => update(true))
+    }
+    update(true)
+    // Same-frame updates while Lenis drives the scroll; native scroll events cover everything else
+    const offLenis = onLenisScroll(() => {
+      cancelAnimationFrame(frame)
+      update()
+    })
     window.addEventListener("scroll", onScroll, { passive: true })
-    window.addEventListener("resize", onScroll)
+    window.addEventListener("resize", onResize)
     return () => {
+      offLenis()
       window.removeEventListener("scroll", onScroll)
-      window.removeEventListener("resize", onScroll)
+      window.removeEventListener("resize", onResize)
       cancelAnimationFrame(frame)
     }
   }, [])
@@ -152,14 +259,14 @@ export function Hero() {
           className="absolute -inset-[15%] opacity-0 pointer-events-none will-change-transform"
           aria-hidden
         >
-          <img src="/biz/cloud-wisps.webp" alt="" className="absolute inset-0 w-full h-full object-cover" />
-          <img
+          <picture><source media="(max-width: 1023px)" srcSet="/biz/cloud-wisps-m.webp" /><img src="/biz/cloud-wisps.webp" alt="" className="absolute inset-0 w-full h-full object-cover" /></picture>
+          <picture><source media="(max-width: 1023px)" srcSet="/biz/cloud-wisps-m.webp" /><img
             src="/biz/cloud-wisps.webp"
             alt=""
-            className="absolute inset-0 w-full h-full object-cover -scale-x-100 translate-y-[18%] opacity-80"
-          />
+            className="hidden lg:block absolute inset-0 w-full h-full object-cover -scale-x-100 translate-y-[18%] opacity-80"
+          /></picture>
         </div>
-        <img
+        <picture><source media="(max-width: 1023px)" srcSet="/biz/cloud-bank-m.webp" /><img
           ref={bankRef}
           data-hero="bank"
           src="/biz/cloud-bank.webp"
@@ -167,7 +274,7 @@ export function Hero() {
           aria-hidden
           className="absolute -left-[15%] -bottom-[10%] w-[130%] h-[120%] max-w-none object-cover object-bottom opacity-0 pointer-events-none will-change-transform"
           style={{ transform: "translateY(70%)" }}
-        />
+        /></picture>
         <img
           ref={jetRef}
           data-hero="jet"
@@ -182,7 +289,7 @@ export function Hero() {
           className="absolute -inset-[20%] opacity-0 pointer-events-none will-change-transform"
           aria-hidden
         >
-          <img src="/biz/cloud-wisps.webp" alt="" className="absolute inset-0 w-full h-full object-cover -scale-y-100" />
+          <picture><source media="(max-width: 1023px)" srcSet="/biz/cloud-wisps-m.webp" /><img src="/biz/cloud-wisps.webp" alt="" className="absolute inset-0 w-full h-full object-cover -scale-y-100" /></picture>
         </div>
 
         <div className="hero-bar absolute inset-x-0 top-0 h-[7vh] bg-black" aria-hidden />
@@ -235,7 +342,7 @@ export function Hero() {
         {/* Scene 2: the assistant pitch, revealed as you scroll */}
         <div
           ref={sceneTwoRef} data-hero="two"
-          className="absolute inset-0 flex items-end justify-center px-5 pb-[5vh] lg:items-center lg:justify-start lg:pb-0 lg:pl-[7vw] opacity-0 pointer-events-none"
+          className="absolute inset-0 flex items-end justify-center px-5 pb-24 lg:items-center lg:justify-start lg:pb-0 lg:pl-[7vw] opacity-0 pointer-events-none"
         >
           {/* Keeps the caption legible while leaving the seat itself clear */}
           <div

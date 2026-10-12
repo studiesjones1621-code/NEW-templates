@@ -9,3 +9,8 @@
 @media (prefers-reduced-motion: reduce) {
   .site-music[data-sound="on"] .site-music-bars > span { animation: none; height: 9px; }
 }
+
+/* Until the first tap lets the music play, the pill gently pulses to invite it */
+.site-music[data-pending] { animation: music-invite 2.2s ease-in-out infinite; }
+@keyframes music-invite { 0%, 100% { box-shadow: 0 0 0 0 rgb(216 178 90 / 0); } 50% { box-shadow: 0 0 0 5px rgb(216 178 90 / 0.28); } }
+@media (prefers-reduced-motion: reduce) { .site-music[data-pending] { animation: none; } }

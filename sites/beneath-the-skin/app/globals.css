@@ -298,3 +298,8 @@ html.anatomy-pinned [data-voice-prompt] { opacity: 0; transform: translateY(8px)
 @media (prefers-reduced-motion: reduce) {
   .site-music[data-sound="on"] .site-music-bars > span { animation: none; height: 9px; }
 }
+
+/* Until the first tap lets the music play, the pill gently pulses to invite it */
+.site-music[data-pending] { animation: music-invite 2.2s ease-in-out infinite; }
+@keyframes music-invite { 0%, 100% { box-shadow: 0 0 0 0 rgb(224 188 152 / 0); } 50% { box-shadow: 0 0 0 5px rgb(224 188 152 / 0.28); } }
+@media (prefers-reduced-motion: reduce) { .site-music[data-pending] { animation: none; } }

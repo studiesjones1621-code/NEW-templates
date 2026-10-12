@@ -25,6 +25,9 @@ type Engine = { ctx: AudioContext; gain: GainNode; el: HTMLAudioElement }
 export function SiteMusic({ className }: { className?: string }) {
   const [on, setOn] = useState(true)
   const [audible, setAudible] = useState(false)
+  // Music is on by default but cannot play until the visitor's first tap; until then the pill invites that tap
+  const [started, setStarted] = useState(false)
+  const startedRef = useRef(false)
   const engine = useRef<Engine | null>(null)
   const wanted = useRef(true) // on unless the visitor turned it off
   const blocked = useRef(false) // assistant busy or tab hidden
@@ -60,7 +63,14 @@ export function SiteMusic({ className }: { className?: string }) {
       void e.ctx
         .resume()
         .then(() => e.el.play())
-        .then(() => setAudible(e.ctx.state === "running"))
+        .then(() => {
+          const running = e.ctx.state === "running"
+          setAudible(running)
+          if (running && !startedRef.current) {
+            startedRef.current = true
+            setStarted(true)
+          }
+        })
         .catch(() => setAudible(false))
     } else {
       setAudible(false)
@@ -141,12 +151,14 @@ export function SiteMusic({ className }: { className?: string }) {
       type="button"
       onClick={(e) => {
         e.stopPropagation()
-        setSound(!wanted.current)
+        // First tap while the music is still waiting for permission starts it; after that the pill toggles
+        setSound(wanted.current && !startedRef.current ? true : !wanted.current)
       }}
       aria-pressed={on}
-      aria-label={on ? "Turn music off" : "Turn music on"}
+      aria-label={on && started ? "Turn music off" : "Turn music on"}
       title={on ? "Music on" : "Music off"}
       data-sound={on && audible ? "on" : "off"}
+      data-pending={on && !started ? "" : undefined}
       className={cn(
         "site-music inline-flex items-center gap-2 rounded-full border border-white/25 px-3 py-1.5 text-white/90 hover:border-gold hover:text-gold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold",
         className,
@@ -158,7 +170,7 @@ export function SiteMusic({ className }: { className?: string }) {
         <span />
         <span />
       </span>
-      <span className="text-[10px] font-medium tracking-[0.2em] uppercase max-[379px]:hidden">{on ? "Sound" : "Muted"}</span>
+      <span className="text-[10px] font-medium tracking-[0.2em] uppercase max-[379px]:hidden">{on ? (started ? "Sound" : "Tap for sound") : "Muted"}</span>
     </button>
   )
 }
