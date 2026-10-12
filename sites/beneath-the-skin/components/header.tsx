@@ -72,7 +72,7 @@ export function Header() {
 
         {/* One music toggle for every screen size, in the header so it never covers page content */}
         <div className="flex items-center gap-4 md:gap-5">
-          <SiteMusic className="p-2 -m-2" />
+          <SiteMusic />
           <div className="hidden md:flex items-center gap-3">
             <BooksyButton
               icon={false}
