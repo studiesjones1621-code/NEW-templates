@@ -5,6 +5,7 @@ import Script from "next/script"
 import { Mic, Phone, X } from "lucide-react"
 import { business } from "@/lib/business"
 import { TALK_EVENT } from "./talk-button"
+import { ASSISTANT_EVENT } from "./site-music"
 
 const AGENT_ID = process.env.NEXT_PUBLIC_RETELL_AGENT_ID
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_RETELL_PUBLIC_KEY
@@ -240,6 +241,11 @@ export function VoiceAssistant() {
     window.addEventListener(TALK_EVENT, handler)
     return () => window.removeEventListener(TALK_EVENT, handler)
   }, [start])
+
+  // Tell the rest of the page when the assistant is busy (mic check or an open call), so background music steps aside
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent(ASSISTANT_EVENT, { detail: { busy: status !== "idle" } }))
+  }, [status])
 
   const launcherHidden = status === "open"
 

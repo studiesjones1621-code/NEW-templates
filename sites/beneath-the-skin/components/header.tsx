@@ -10,6 +10,7 @@ import { business } from "@/lib/business"
 import { TalkButton } from "./talk-button"
 import { BooksyButton } from "./booksy-button"
 import { Wordmark } from "./wordmark"
+import { SiteMusic } from "./site-music"
 
 const navItems = [
   { label: "Services", href: "#services" },
@@ -69,43 +70,47 @@ export function Header() {
           ))}
         </ul>
 
-        <div className="hidden md:flex items-center gap-3">
-          <BooksyButton
-            icon={false}
-            className="hidden xl:inline-flex text-sm text-gold-light hover:text-gold underline-offset-4 hover:underline transition-colors"
-          >
-            Book online
-          </BooksyButton>
-          <a
-            href={business.phoneHref}
-            className="inline-flex items-center gap-2 text-sm px-4 py-2.5 text-white border border-white/25 hover:border-gold hover:text-gold transition-all duration-300"
-          >
-            <Phone className="w-4 h-4" strokeWidth={1.75} aria-hidden />
-            {business.phoneDisplay}
-          </a>
-          <TalkButton className="inline-flex items-center gap-2 text-sm px-5 py-2.5 bg-gold text-primary font-semibold hover:bg-gold-light transition-all duration-300">
-            Talk to us
-          </TalkButton>
-        </div>
+        {/* One music toggle for every screen size, in the header so it never covers page content */}
+        <div className="flex items-center gap-4 md:gap-5">
+          <SiteMusic className="p-2 -m-2" />
+          <div className="hidden md:flex items-center gap-3">
+            <BooksyButton
+              icon={false}
+              className="hidden xl:inline-flex text-sm text-gold-light hover:text-gold underline-offset-4 hover:underline transition-colors"
+            >
+              Book online
+            </BooksyButton>
+            <a
+              href={business.phoneHref}
+              className="inline-flex items-center gap-2 text-sm px-4 py-2.5 text-white border border-white/25 hover:border-gold hover:text-gold transition-all duration-300"
+            >
+              <Phone className="w-4 h-4" strokeWidth={1.75} aria-hidden />
+              {business.phoneDisplay}
+            </a>
+            <TalkButton className="inline-flex items-center gap-2 text-sm px-5 py-2.5 bg-gold text-primary font-semibold hover:bg-gold-light transition-all duration-300">
+              Talk to us
+            </TalkButton>
+          </div>
 
-        <button
-          className="md:hidden z-50 transition-colors duration-300 text-white p-2 -mr-2"
-          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={mobileMenuOpen}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          ) : (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <line x1="4" y1="8" x2="20" y2="8" />
-              <line x1="4" y1="16" x2="20" y2="16" />
-            </svg>
-          )}
-        </button>
+          <button
+            className="md:hidden z-50 transition-colors duration-300 text-white p-2 -mr-2"
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            ) : (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <line x1="4" y1="8" x2="20" y2="8" />
+                <line x1="4" y1="16" x2="20" y2="16" />
+              </svg>
+            )}
+          </button>
+        </div>
       </nav>
 
       <div
