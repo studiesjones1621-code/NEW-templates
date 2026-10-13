@@ -386,6 +386,22 @@ html {
   fill: #fff;
   transition: opacity 0.35s;
 }
+/* A soft pulse on the layer being described */
+.layers-dot.is-active {
+  animation: layer-pulse 1.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes layer-pulse {
+  50% {
+    transform: scale(1.6);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .layers-dot.is-active {
+    animation: none;
+  }
+}
 .tech-cards {
   position: absolute;
   right: 2.5rem;
@@ -417,7 +433,7 @@ html {
 @media (max-width: 1023px) {
   .tech-cards {
     left: 1.25rem;
-    right: 1.25rem;
+    right: 1.6rem;
     top: auto;
     bottom: 1.5rem;
     transform: none;
@@ -435,9 +451,6 @@ html {
   .tech-card[data-active] {
     opacity: 1;
     transform: none;
-  }
-  [data-layers-lines] {
-    display: none;
   }
 }
 

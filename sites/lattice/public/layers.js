@@ -53,27 +53,41 @@ export async function init(root) {
     stageRect = stage.getBoundingClientRect()
     cardPts = cards.map((c) => {
       const r = c.getBoundingClientRect()
-      return [r.left - stageRect.left, r.top - stageRect.top + 22]
+      return [r.left - stageRect.left, r.top - stageRect.top + 22, r.right - stageRect.left, r.top - stageRect.top]
     })
   }
 
   let activeStep = -1
   const apply = ({ labels, active, open }) => {
     if (!cardPts.length) measure()
+    const wide = stageRect.width >= 1024
     labels.forEach(([x, y], i) => {
-      const [cx, cy] = cardPts[i] || [x, y]
+      const [cx, cy, cr, ct] = cardPts[i] || [x, y, x, y]
       const on = i === active ? 1 : 0
       const shown = clamp((open - 0.5) * 4)
-      const mid = cx - 28
-      links[i].line.setAttribute("d", `M${x.toFixed(1)} ${y.toFixed(1)} L${mid.toFixed(1)} ${cy.toFixed(1)} L${cx.toFixed(1)} ${cy.toFixed(1)}`)
-      links[i].line.style.opacity = String(shown * (0.18 + on * 0.82))
+      let d
+      if (wide) {
+        // Desktop: elbow from the layer across to its card on the right
+        const mid = cx - 28
+        d = `M${x.toFixed(1)} ${y.toFixed(1)} L${mid.toFixed(1)} ${cy.toFixed(1)} L${cx.toFixed(1)} ${cy.toFixed(1)}`
+      } else {
+        // Phones: one card at a time under the stack. The line runs out to the right edge (clear of the layers),
+        // down the margin and hooks into the top of the card, so each fact still points at its layer.
+        const edge = Math.min(stageRect.width - 8, cr + 8)
+        d = `M${x.toFixed(1)} ${y.toFixed(1)} L${edge.toFixed(1)} ${y.toFixed(1)} L${edge.toFixed(1)} ${(ct + 22).toFixed(1)} L${cr.toFixed(1)} ${(ct + 22).toFixed(1)}`
+      }
+      links[i].line.setAttribute("d", d)
+      // Phones show only the active pointer; desktop keeps the others faint
+      links[i].line.style.opacity = String(shown * (wide ? 0.18 + on * 0.82 : on))
       links[i].dot.setAttribute("x", (x - 3.5).toFixed(1))
       links[i].dot.setAttribute("y", (y - 3.5).toFixed(1))
-      links[i].dot.style.opacity = String(shown * (0.35 + on * 0.65))
+      links[i].dot.style.opacity = String(shown * (wide ? 0.35 + on * 0.65 : on))
+      links[i].dot.classList.toggle("is-active", !!on)
     })
     if (active !== activeStep) {
       activeStep = active
       cards.forEach((c, i) => c.toggleAttribute("data-active", i === active))
+      measure()
     }
   }
 
