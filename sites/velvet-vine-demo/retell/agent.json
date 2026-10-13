@@ -1,0 +1,8 @@
+{
+  "agent_name": "Velvet & Vine Beauty Bar & Hair Studio - Concept Demo Assistant",
+  "prompt_file": "retell/system-prompt.md",
+  "begin_message": "Hi, welcome to Velvet and Vine! I'm Ivy. I can answer questions about hair loss care, services and prices, or take your details for a callback from Simone. How can I help?",
+  "voice_id": "11labs-Grace",
+  "timezone": "America/New_York",
+  "boosted_keywords": ["Velvet and Vine", "Velvet & Vine", "Simone", "Ivy", "pixie", "relaxer", "sew-in", "quick weave", "alopecia", "thinning", "Golden Shine"]
+}
