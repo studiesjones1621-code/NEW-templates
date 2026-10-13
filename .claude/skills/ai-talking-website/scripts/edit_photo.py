@@ -3,7 +3,10 @@
 into a pilot seat for a business called "First Class Cutz".
 
 Usage (from the project root, GEMINI_API_KEY in .env):
-  python3 edit_photo.py <input.jpg> <output.jpg> "<edit instructions>" [--aspect 16:9]
+  python3 edit_photo.py <input.jpg> <output.jpg> "<edit instructions>" [--aspect 16:9] [--ref logo.png ...]
+
+--ref adds a reference image (repeatable), e.g. the exact logo to embroider or print on a product. Say in the
+instructions what it is ("the second image is the logo: copy its symbol and lettering exactly").
 
 Tips that made the difference in practice:
 - Describe what must STAY exactly as it is (room, camera angle, logo/lettering spelled out letter for letter)
@@ -28,9 +31,13 @@ src, dest, prompt = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]), sys.ar
 aspect = sys.argv[sys.argv.index("--aspect") + 1] if "--aspect" in sys.argv else "16:9"
 mime = "image/png" if src.suffix.lower() == ".png" else "image/jpeg"
 
+refs = [pathlib.Path(sys.argv[i + 1]) for i, a in enumerate(sys.argv) if a == "--ref"]
+img_part = lambda p: {"inlineData": {"mimeType": "image/png" if p.suffix.lower() == ".png" else "image/jpeg",
+                                     "data": base64.b64encode(p.read_bytes()).decode()}}
 body = {
     "contents": [{"parts": [
-        {"inlineData": {"mimeType": mime, "data": base64.b64encode(src.read_bytes()).decode()}},
+        img_part(src),
+        *[img_part(r) for r in refs],
         {"text": prompt + " Photorealistic. No extra text, no watermarks."},
     ]}],
     "generationConfig": {"responseModalities": ["IMAGE"], "imageConfig": {"aspectRatio": aspect}},
