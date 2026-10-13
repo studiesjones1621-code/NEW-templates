@@ -1,0 +1,8 @@
+{
+  "agent_name": "Lumen Skin Studio - Concept Demo Assistant",
+  "prompt_file": "retell/system-prompt.md",
+  "begin_message": "Hi, welcome to Lumen Skin Studio! I'm Nova. I can answer questions about facials, acne treatment or any of our services, share prices, or take your details so the studio can call you back. How can I help?",
+  "voice_id": "11labs-Marissa",
+  "timezone": "America/New_York",
+  "boosted_keywords": ["Lumen", "Lumen Skin Studio", "Maya", "Nova", "Springfield", "Main Street", "Clarity Reset", "Hydrating Glow", "Bright Renewal", "microneedling", "dermaplaning", "microderm", "nano infusion", "LED", "RF Lift and Contour", "esthetician"]
+}
