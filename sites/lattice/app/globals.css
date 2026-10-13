@@ -9,6 +9,8 @@
 }
 
 html {
+  overflow-x: clip; /* bend canvases swing past the card edges; never let that widen the page */
+  color-scheme: dark;
   background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
@@ -101,6 +103,26 @@ footer,
   text-transform: uppercase;
   background: rgba(5, 5, 7, 0.55);
   transition: background 0.25s, color 0.25s;
+}
+:where(a, button):focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
+}
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  background: var(--ink);
+  color: #000;
+  padding: 0.6rem 1rem;
+  font-size: 12px;
+}
+.skip-link:focus-visible {
+  top: 1rem;
+}
+html {
+  scroll-padding-top: 4rem;
 }
 .btn:hover {
   background: var(--ink);
@@ -250,6 +272,23 @@ footer,
 }
 .traveler-body img {
   filter: none;
+}
+
+/* WebGL bending sheet (lib/bend): drawn larger than the box so the sleeves and hem can swing out */
+.bend-canvas {
+  position: absolute;
+  inset: -18%;
+  width: 136%;
+  height: 136%;
+  pointer-events: none;
+  display: none;
+}
+.bend-on > .bend-canvas {
+  display: block;
+}
+.bend-on > .traveler-sway,
+.bend-on > .sway-inner {
+  visibility: hidden;
 }
 
 /* ---------- Need to know ---------- */

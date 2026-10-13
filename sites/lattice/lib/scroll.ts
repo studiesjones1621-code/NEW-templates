@@ -34,3 +34,6 @@ export const supportsScrollTimelines = () =>
   "ViewTimeline" in window &&
   window.matchMedia("(pointer: coarse)").matches &&
   !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
+/** The active Lenis instance, if smooth scrolling is on (e.g. to read its `velocity`). */
+export const getLenis = () => instance

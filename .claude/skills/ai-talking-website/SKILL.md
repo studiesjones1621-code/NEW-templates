@@ -66,6 +66,8 @@ Load the matching skill when a build reaches that part. They are copies of third
 - **Micro-interactions:** `cinematic-gsap-lenis-motion-system` (magnetic buttons, custom cursor), `pointer-trail-emitter`, `reveal-hover-effect`. Desktop only (`(hover:hover) and (pointer:fine)`).
 - **3D:** the `threejs-*` skills (renderer, lighting, materials, loaders, shaders, performance, model-optimizer), `build-threejs-scroll-worlds` for 3D scrollytelling.
 - **Sound:** `site-music` for background music (the approved setup: on by default, starts as soon as the browser allows, Sound/Muted pill in the header, fades out during assistant calls); `ui-sound-design` for UI sounds; `threejs-impl-audio` for audio in 3D. Music needs a license that covers the client's site.
+- **Product sway / bend (proven in `sites/lattice`):** `lib/sway.ts` (pointer-velocity springs; sleeves on looser springs so they swing a beat behind), `lib/bend.ts` (raw WebGL2 sheet that curves a transparent cut-out from its collar, sleeves hinged at the shoulders, no seams), `components/sway-jacket.tsx` (shared loop, hovered card sways fully, others gently), `components/motion-extras.tsx` (magnetic `data-magnetic` buttons, `data-skew` scroll-speed shear). Desktop only; phones and reduced motion keep still images.
+- **Final check:** `web-design-guidelines` (Vercel's Web Interface Guidelines, pinned locally): run it on `app/` and `components/` before delivering and fix what applies.
 These are tools, not rules that override this skill: the business's real photos and objects, the Retell agent, and the user's preferences below still come first.
 
 ## Phase 3: Voice agent (Retell)

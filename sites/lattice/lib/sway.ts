@@ -69,6 +69,15 @@ export function createSway(strength = 1) {
     body: () =>
       `rotate(${(-lean.a).toFixed(3)}deg) skewX(${(lean.a * 0.25).toFixed(3)}deg) ` +
       `rotateX(${(-tip.a).toFixed(3)}deg) translate3d(${(lean.a * 2.5).toFixed(2)}px, 0, 0)`,
+    /** Raw values for the WebGL bend (lib/bend): + means the hem / sleeve swings right */
+    state: (time: number) => ({
+      lean: lean.a,
+      tip: tip.a,
+      armL: clamp(armL.a - lean.a, -12, 12),
+      armR: clamp(armR.a - lean.a, -12, 12),
+      speed: clamp(Math.hypot(pointer.vx, pointer.vy) / 2500),
+      time,
+    }),
     armL: () => -clamp(armL.a - lean.a, -9, 9),
     armR: () => -clamp(armR.a - lean.a, -9, 9),
   }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { clamp, createSway, decayPointer, trackPointer } from "@/lib/sway"
+import { BEND_MARGIN, createBender, loadImage } from "@/lib/bend"
 
 /**
  * The hero jacket travels down the page from one screen to the next. Each section marks where it should sit with
@@ -21,6 +22,7 @@ export function Traveler() {
   const left = useRef<HTMLDivElement>(null)
   const right = useRef<HTMLDivElement>(null)
   const sway = useRef<HTMLDivElement>(null)
+  const canvas = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const el = root.current, B = body.current, L = left.current, R = right.current, S = sway.current
@@ -78,6 +80,18 @@ export function Traveler() {
     }
     if (!coarse && !reduce) addEventListener("pointermove", onMove, { passive: true })
 
+    // Desktop: draw the jacket on a bending WebGL sheet (lib/bend) instead of the three DOM layers
+    const C = canvas.current
+    let bender: ReturnType<typeof createBender> = null
+    let drawnKey = ""
+    if (C && !coarse && !reduce)
+      loadImage(SRC)
+        .then((img) => {
+          bender = createBender(C, img)
+          if (bender) el.classList.add("bend-on")
+        })
+        .catch(() => {})
+
     let last = 0, raf = 0
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame)
@@ -110,6 +124,20 @@ export function Traveler() {
         `translate3d(${(cur.x - BASE / 2).toFixed(2)}px, ${(cur.y - BASE / 2).toFixed(2)}px, 0) ` +
         `scale(${cur.s.toFixed(4)}) rotate(${cur.r.toFixed(2)}deg) ` +
         `rotateY(${(turn.x * 8).toFixed(2)}deg) rotateX(${(-turn.y * 5).toFixed(2)}deg)`
+      if (bender && !bender.lost) {
+        // Size the drawing buffer to what's on screen, then redraw only when the bend has changed
+        bender.resize(BASE * (1 + 2 * BEND_MARGIN) * cur.s)
+        const st = motion.state(now / 1000)
+        st.armL += swing
+        st.armR += swing
+        const key = [st.lean, st.tip, st.armL, st.armR, st.speed, C!.width].map((v) => v.toFixed(2)).join()
+        if (key !== drawnKey || st.speed > 0.01) {
+          drawnKey = key
+          bender.draw(st)
+        }
+        return
+      }
+      if (bender?.lost) el.classList.remove("bend-on")
       // Moving right swings the hem right (counter-clockwise about the collar); the fabric shears a little with it
       S.style.transform = motion.body()
       // Each sleeve hangs from its shoulder: it trails the scroll travel and swings on top of the body's lean
@@ -128,6 +156,7 @@ export function Traveler() {
 
   return (
     <div ref={root} className="traveler" aria-hidden style={{ width: BASE, height: BASE }}>
+      <canvas ref={canvas} className="bend-canvas" />
       <div ref={sway} className="traveler-sway">
         <div ref={left} className="traveler-part traveler-left">
           <img src={SRC} alt="" draggable={false} />

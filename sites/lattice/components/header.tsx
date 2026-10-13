@@ -15,7 +15,7 @@ export function Header() {
             </a>
           ))}
         </nav>
-        <a href="#collections" className="text-[11px] tracking-[0.18em] uppercase whitespace-nowrap">
+        <a href="#collections" className="inline-block text-[11px] tracking-[0.18em] uppercase whitespace-nowrap" data-magnetic>
           Cart <span className="text-white/50">[ 0 ]</span>
         </a>
       </div>

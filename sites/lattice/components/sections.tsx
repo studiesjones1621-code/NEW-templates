@@ -28,9 +28,8 @@ export function Hero() {
           <span className="block" data-decode>{hero.line1}</span>
           <span className="block" data-decode>{hero.line2}</span>
         </p>
-        <a href="#collections" className="btn mt-5" data-decode-trigger>
-          <span data-decode>{hero.cta}</span>
-          <Arrow />
+        <a href="#collections" className="btn mt-5" data-decode-trigger data-magnetic>
+          <span data-magnetic-label className="inline-flex items-center"><span data-decode>{hero.cta}</span><Arrow /></span>
         </a>
       </div>
       <div className="relative z-20 mt-6 hidden sm:flex items-end justify-between gap-6">
@@ -73,13 +72,12 @@ export function Details() {
       <div className="relative z-20 self-start lg:pt-16">
         <h2 className="font-display text-5xl md:text-7xl uppercase leading-[0.95] mb-6" data-decode>{details.title}</h2>
         <p className="mono-small max-w-xs mb-8">{details.intro}</p>
-        <a href="#technology" className="btn" data-decode-trigger>
-          <span data-decode>{details.cta}</span>
-          <Arrow />
+        <a href="#technology" className="btn" data-decode-trigger data-magnetic>
+          <span data-magnetic-label className="inline-flex items-center"><span data-decode>{details.cta}</span><Arrow /></span>
         </a>
       </div>
       <div data-slot data-rot="6" className="details-slot" />
-      <ol className="relative z-20 detail-list">
+      <ol className="relative z-20 detail-list" data-skew>
         {details.items.map((d) => (
           <li key={d.n} data-decode-trigger>
             <span className="text-white/35">{d.n}</span>
@@ -103,7 +101,7 @@ export function Collections() {
           {collection.aside.map((l) => <span key={l} className="block">{l}</span>)}
         </p>
       </div>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4" data-skew>
         {collection.items.map((p) => (
           <article key={p.n} className="product" data-decode-trigger data-sway-card style={{ ["--glow" as string]: p.color }}>
             <div className="flex items-start justify-between gap-3">
@@ -133,9 +131,8 @@ export function Collections() {
         ))}
       </div>
       <div className="text-center mt-12">
-        <a href="#collections" className="btn" data-decode-trigger>
-          <span data-decode>{collection.cta}</span>
-          <Arrow />
+        <a href="#collections" className="btn" data-decode-trigger data-magnetic>
+          <span data-magnetic-label className="inline-flex items-center"><span data-decode>{collection.cta}</span><Arrow /></span>
         </a>
       </div>
     </section>
@@ -145,7 +142,7 @@ export function Collections() {
 export function Footer() {
   return (
     <footer className="relative px-5 md:px-10 pt-16 pb-10 border-t border-white/10">
-      <p className="footer-word font-display uppercase" aria-hidden>{brand.name}</p>
+      <p className="footer-word font-display uppercase" aria-hidden data-skew>{brand.name}</p>
       <div className="mt-8 flex flex-col md:flex-row justify-between gap-4 mono-small">
         <p>{brand.description}</p>
         <p>© {new Date().getFullYear()} {brand.name}</p>

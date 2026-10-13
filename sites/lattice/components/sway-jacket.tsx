@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { createSway, decayPointer, pointer, trackPointer } from "@/lib/sway"
+import { BEND_MARGIN, createBender, loadImage } from "@/lib/bend"
 
 // A product cut-out that sways with the mouse (lib/sway). The card under the cursor sways fully, the others
 // gently. All instances share one animation loop that runs only while something is on screen and moving.
@@ -25,6 +26,7 @@ export function SwayJacket({ src, alt, className = "" }: { src: string; alt: str
   const sway = useRef<HTMLDivElement>(null)
   const left = useRef<HTMLDivElement>(null)
   const right = useRef<HTMLDivElement>(null)
+  const canvas = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const S = sway.current, L = left.current, R = right.current
@@ -33,11 +35,36 @@ export function SwayJacket({ src, alt, className = "" }: { src: string; alt: str
     trackPointer()
     const motion = createSway(1)
     const card = S.closest("[data-sway-card]") ?? S
+    const box = S.parentElement!
+    // Draw on a bending WebGL sheet (lib/bend) when available; the DOM layers stay as the fallback
+    let bender: ReturnType<typeof createBender> = null
+    const C = canvas.current
+    const fit = () => bender?.resize(box.clientWidth * (1 + 2 * BEND_MARGIN) * 1.06)
+    if (C)
+      loadImage(src)
+        .then((img) => {
+          bender = createBender(C, img)
+          if (!bender) return
+          box.classList.add("bend-on")
+          fit()
+          bender.draw(motion.state(0))
+        })
+        .catch(() => {})
+    const ro = new ResizeObserver(() => {
+      fit()
+      bender?.draw(motion.state(performance.now() / 1000))
+    })
+    ro.observe(box)
     const inst: Inst = {
       visible: false,
       hovered: false,
       tick(dt) {
         motion.step(dt, inst.hovered ? 1.5 : 0.35)
+        if (bender && !bender.lost) {
+          bender.draw(motion.state(performance.now() / 1000))
+          return !motion.resting
+        }
+        if (bender?.lost) box.classList.remove("bend-on")
         S.style.transform = motion.body()
         L.style.transform = `rotate(${motion.armL().toFixed(2)}deg)`
         R.style.transform = `rotate(${motion.armR().toFixed(2)}deg)`
@@ -55,14 +82,16 @@ export function SwayJacket({ src, alt, className = "" }: { src: string; alt: str
     return () => {
       all.delete(inst)
       io.disconnect()
+      ro.disconnect()
       card.removeEventListener("pointerenter", enter)
       card.removeEventListener("pointerleave", leave)
       removeEventListener("pointermove", wake)
     }
-  }, [])
+  }, [src])
 
   return (
     <div className={`sway ${className}`}>
+      <canvas ref={canvas} className="bend-canvas" aria-hidden />
       <div ref={sway} className="sway-inner">
         <div ref={left} className="sway-part sway-left" aria-hidden>
           <img src={src} alt="" loading="lazy" draggable={false} />

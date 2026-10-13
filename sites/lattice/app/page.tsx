@@ -4,6 +4,7 @@ import { Lattice } from "@/components/lattice"
 import { Traveler } from "@/components/traveler"
 import { Decode } from "@/components/decode"
 import { SmoothScroll } from "@/components/smooth-scroll"
+import { MotionExtras } from "@/components/motion-extras"
 
 export default function Page() {
   return (
@@ -11,8 +12,10 @@ export default function Page() {
       <SmoothScroll />
       <Lattice />
       <Decode />
+      <MotionExtras />
+      <a href="#specs" className="skip-link">Skip to content</a>
       <Header />
-      <main className="relative">
+      <main className="relative" id="main">
         <Hero />
         <Traveler />
         <Specs />
