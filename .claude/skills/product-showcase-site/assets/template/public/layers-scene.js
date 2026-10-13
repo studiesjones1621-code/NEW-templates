@@ -150,9 +150,9 @@ function buildStack() {
     const count = LITE ? 70 : 150
     const drops = new THREE.InstancedMesh(
       new THREE.SphereGeometry(1, LITE ? 10 : 18, LITE ? 8 : 12),
-      LITE
-        ? new THREE.MeshPhysicalMaterial({ color: 0x9fc4ff, roughness: 0.02, metalness: 0.1, clearcoat: 1, transparent: true, opacity: 0.32, envMapIntensity: 3 })
-        : new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.02, transmission: 1, thickness: 0.25, ior: 1.33, clearcoat: 1, envMapIntensity: 2.6 }),
+      // Glossy clear beads. (A true glass "transmission" material looked marginally better but re-renders the whole
+      // scene every frame, which made scrolling into this section stutter.)
+      new THREE.MeshPhysicalMaterial({ color: 0xbfd6ff, roughness: 0.02, metalness: 0.1, clearcoat: 1, transparent: true, opacity: 0.38, envMapIntensity: 3 }),
       count,
     )
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3()
@@ -256,7 +256,7 @@ export async function createEngine({ canvas, lite, reduce, dpr, step = async () 
     W = w
     H = h
     wide = isWide
-    renderer.setPixelRatio(Math.min(dpr, wide ? 1.75 : 1.5))
+    renderer.setPixelRatio(Math.min(dpr, wide ? 1.5 : 1.5))
     renderer.setSize(W, H, false)
     camera.aspect = W / H
     camera.fov = wide ? 30 : 36
@@ -275,7 +275,9 @@ export async function createEngine({ canvas, lite, reduce, dpr, step = async () 
   for (const g of groups) {
     await step()
     groups.forEach((o) => (o.visible = o === g))
-    renderer.compile(scene, camera)
+    // compileAsync lets the GPU driver build shaders in parallel without blocking (KHR_parallel_shader_compile)
+    if (renderer.compileAsync) await renderer.compileAsync(scene, camera)
+    else renderer.compile(scene, camera)
   }
   groups.forEach((o) => (o.visible = true))
   await step()
@@ -295,8 +297,9 @@ export async function createEngine({ canvas, lite, reduce, dpr, step = async () 
     ptr.y += ((pointer?.[1] ?? 0) - ptr.y) * (reduce ? 1 : 1 - Math.exp(-dt * 4))
     const p = smoothP
     const key = `${p.toFixed(4)}|${ptr.x.toFixed(3)}|${ptr.y.toFixed(3)}`
-    // Phones have no idle sway, so once everything settles there's nothing to redraw
-    if (lite && !dirty && key === drawnKey) return null
+    // Nothing moves on its own: once scroll and pointer settle there's nothing to redraw, so approaching or resting
+    // in this section costs no GPU time (an idle sway that redrew every frame made scrolling here stutter)
+    if (!dirty && key === drawnKey) return null
     drawnKey = key
     dirty = false
 
@@ -311,7 +314,7 @@ export async function createEngine({ canvas, lite, reduce, dpr, step = async () 
     shadow.position.y = parts.lining.group.position.y - 0.9 - e * 0.6
     shadow.material.opacity = 0.9 - e * 0.3
 
-    const sway = reduce || lite ? 0 : Math.sin(time * 0.6) * 0.04
+    const sway = 0
     pivot.rotation.x = 0.5 + ptr.y * 0.12
     model.rotation.y = -Math.PI / 4 + p * 0.5 + ptr.x * 0.35 + sway
     pivot.position.set(wide ? 0.4 : 0, wide ? -0.2 + e * 0.1 : 1.6, 0)

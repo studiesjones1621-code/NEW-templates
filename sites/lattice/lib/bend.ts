@@ -126,13 +126,20 @@ export function createBender(canvas: HTMLCanvasElement, image: HTMLImageElement,
     get lost() {
       return lost
     },
-    /** Match the drawing buffer to the canvas's on-screen size (capped), e.g. after the element is scaled */
+    /**
+     * Match the drawing buffer to the canvas's on-screen size (capped). Reallocating a big canvas is expensive, so
+     * this only happens when the size has changed a lot (it's sharp enough until it's ~25% too small, and fine to
+     * be oversized), and in 128px steps. While the product is shrinking or growing between slots, CSS scales the
+     * existing buffer instead of rebuilding it every frame. Returns true when it resized (then redraw).
+     */
     resize(cssPx: number, dpr = devicePixelRatio || 1) {
-      const px = Math.round(Math.min(2048, cssPx * Math.min(dpr, 2)))
-      if (canvas.width !== px) {
-        canvas.width = canvas.height = px
-        gl.viewport(0, 0, px, px)
-      }
+      const want = Math.min(1536, cssPx * Math.min(dpr, 2))
+      const have = canvas.width
+      if (have >= want * 0.75 && have <= want * 2) return false
+      const px = Math.max(128, Math.min(1536, Math.ceil(want / 128) * 128))
+      canvas.width = canvas.height = px
+      gl.viewport(0, 0, px, px)
+      return true
     },
     draw(s: BendState) {
       if (lost) return

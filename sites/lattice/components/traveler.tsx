@@ -132,7 +132,8 @@ export function Traveler() {
         const st = motion.state(now / 1000)
         st.armL += swing
         st.armR += swing
-        const key = [st.lean, st.tip, st.armL, st.armR, st.speed, C!.width].map((v) => v.toFixed(2)).join()
+        // Redraw only when the bend changes visibly (a tenth of a degree), not on every sub-pixel step of the travel
+        const key = [st.lean, st.tip, st.armL, st.armR, st.speed, C!.width].map((v) => v.toFixed(1)).join()
         if (key !== drawnKey || st.speed > 0.01) {
           drawnKey = key
           bender.draw(st)
