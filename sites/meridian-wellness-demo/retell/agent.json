@@ -1,0 +1,8 @@
+{
+  "agent_name": "Meridian Weight Loss & Wellness Clinic - Concept Demo Assistant",
+  "prompt_file": "retell/system-prompt.md",
+  "begin_message": "Hi, welcome to Meridian Weight Loss and Wellness! I'm Mia. I can answer questions about weight loss, hormone therapy or primary care, or take your details so the clinic can call you back. How can I help?",
+  "voice_id": "11labs-Kate",
+  "timezone": "America/New_York",
+  "boosted_keywords": ["Meridian", "Dana", "Springfield", "Main Street", "Riverside", "semaglutide", "tirzepatide", "GLP-1", "BHRT", "TRT", "testosterone", "perimenopause", "menopause", "PCOS", "NAD", "phentermine", "naltrexone", "bupropion"]
+}
