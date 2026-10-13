@@ -1,5 +1,6 @@
 import { brand, hero, specs, details, collection } from "@/lib/brand"
 import { Technology } from "./technology"
+import { SwayJacket } from "./sway-jacket"
 
 const Arrow = () => <span aria-hidden className="ml-3">→</span>
 
@@ -104,7 +105,7 @@ export function Collections() {
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {collection.items.map((p) => (
-          <article key={p.n} className="product" data-decode-trigger style={{ ["--glow" as string]: p.color }}>
+          <article key={p.n} className="product" data-decode-trigger data-sway-card style={{ ["--glow" as string]: p.color }}>
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] text-white/35 mb-2">{p.n}</p>
@@ -116,7 +117,7 @@ export function Collections() {
               </div>
             </div>
             <div className="product-img">
-              <img src={p.image} alt={p.name} loading="lazy" />
+              <SwayJacket src={p.image} alt={p.name} />
               <span className="product-swatches" aria-hidden><i /><i /><i /></span>
             </div>
             <div className="product-foot">

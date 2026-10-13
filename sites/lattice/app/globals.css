@@ -215,6 +215,12 @@ footer,
   will-change: transform, opacity;
   perspective: 1600px;
 }
+.traveler-sway {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 12%; /* hung from the collar */
+  will-change: transform;
+}
 .traveler-part {
   position: absolute;
   inset: 0;
@@ -431,15 +437,45 @@ footer,
 .product:hover .product-img::before {
   opacity: 0.55;
 }
-.product-img img {
+.product-img .sway {
   position: relative;
   width: 100%;
   height: 100%;
-  object-fit: contain;
   transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.product:hover .product-img img {
-  transform: scale(1.06) rotate(-2deg) translateY(-2%);
+.product:hover .product-img .sway {
+  transform: scale(1.05) translateY(-2%);
+}
+/* A cut-out split into body + sleeves that sways with the mouse (sway-jacket.tsx) */
+.sway-inner {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 12%;
+  will-change: transform;
+}
+.sway-part {
+  position: absolute;
+  inset: 0;
+}
+.sway-part img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+.sway-left {
+  transform-origin: 23% 20%;
+  -webkit-mask-image: linear-gradient(90deg, #000 0 27%, transparent 31%);
+  mask-image: linear-gradient(90deg, #000 0 27%, transparent 31%);
+}
+.sway-right {
+  transform-origin: 77% 20%;
+  -webkit-mask-image: linear-gradient(270deg, #000 0 27%, transparent 31%);
+  mask-image: linear-gradient(270deg, #000 0 27%, transparent 31%);
+}
+.sway-body {
+  -webkit-mask-image: linear-gradient(90deg, transparent 20%, #000 25.5% 74.5%, transparent 80%);
+  mask-image: linear-gradient(90deg, transparent 20%, #000 25.5% 74.5%, transparent 80%);
 }
 .product-swatches {
   position: absolute;
