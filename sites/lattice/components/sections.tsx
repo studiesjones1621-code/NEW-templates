@@ -7,7 +7,7 @@ const Arrow = () => <span aria-hidden className="ml-3">→</span>
 export function Hero() {
   return (
     <section id="top" className="relative min-h-[100svh] flex flex-col justify-between pt-24 pb-8 px-5 md:px-10 overflow-hidden">
-      <img src="/img/wings.webp" alt="" aria-hidden className="hero-wings" />
+      {hero.backdrop && <img src={hero.backdrop} alt="" aria-hidden className="hero-wings" />}
       <div data-slot data-rot="0" className="hero-slot" />
       <div className="flex-1" />
       <div className="hero-sides pointer-events-none">
@@ -115,7 +115,7 @@ export function Collections() {
               </div>
             </div>
             <div className="product-img">
-              <SwayJacket src={p.image} alt={p.name} />
+              <SwayJacket src={p.image} alt={p.name} hinges={collection.hinges} />
               <span className="product-swatches" aria-hidden><i /><i /><i /></span>
             </div>
             <div className="product-foot">

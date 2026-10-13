@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import { clamp, createSway, decayPointer, trackPointer } from "@/lib/sway"
 import { BEND_MARGIN, createBender, loadImage } from "@/lib/bend"
+import { hero } from "@/lib/brand"
 
 /**
  * The hero jacket travels down the page from one screen to the next. Each section marks where it should sit with
@@ -10,7 +11,8 @@ import { BEND_MARGIN, createBender, loadImage } from "@/lib/bend"
  * glides from one box to the other as you scroll, lingering at each. The body follows on a spring, the sleeves
  * follow the body a beat later (so they trail and swing), and the whole jacket turns toward the pointer.
  */
-const SRC = "/img/jacket-hero.webp"
+const SRC = hero.image
+const HINGES = hero.hinges
 const BASE = 1000 // layout width of the jacket element; slots scale it
 
 type Slot = { el: HTMLElement; rot: number; op: number }
@@ -87,7 +89,7 @@ export function Traveler() {
     if (C && !coarse && !reduce)
       loadImage(SRC)
         .then((img) => {
-          bender = createBender(C, img)
+          bender = createBender(C, img, HINGES)
           if (bender) el.classList.add("bend-on")
         })
         .catch(() => {})
@@ -155,7 +157,7 @@ export function Traveler() {
   }, [])
 
   return (
-    <div ref={root} className="traveler" aria-hidden style={{ width: BASE, height: BASE }}>
+    <div ref={root} className={`traveler${HINGES ? "" : " no-hinges"}`} aria-hidden style={{ width: BASE, height: BASE }}>
       <canvas ref={canvas} className="bend-canvas" />
       <div ref={sway} className="traveler-sway">
         <div ref={left} className="traveler-part traveler-left">

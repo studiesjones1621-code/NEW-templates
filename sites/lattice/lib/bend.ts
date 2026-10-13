@@ -18,7 +18,7 @@ export const BEND_MARGIN = 0.18
 
 const VERT = `#version 300 es
 in vec2 uv;
-uniform float lean, tip, armL, armR, speed, time, margin;
+uniform float lean, tip, armL, armR, speed, time, margin, hinge;
 out vec2 vUv;
 const vec2 COLLAR = vec2(0.5, 0.12);
 const vec2 SHOULDER_L = vec2(0.24, 0.21);
@@ -33,8 +33,9 @@ void main() {
   // Work in image space, y down, then flip angles so "+" means the hem swings right
   vec2 p = uv;
   // Sleeves: everything outside the torso, below the shoulder line, hinges at its shoulder
-  float wl = smoothstep(0.31, 0.2, uv.x) * smoothstep(0.1, 0.26, uv.y);
-  float wr = smoothstep(0.69, 0.8, uv.x) * smoothstep(0.1, 0.26, uv.y);
+  // hinge = 0 for rigid products: no sleeves, the whole cut-out bends as one piece
+  float wl = hinge * smoothstep(0.31, 0.2, uv.x) * smoothstep(0.1, 0.26, uv.y);
+  float wr = hinge * smoothstep(0.69, 0.8, uv.x) * smoothstep(0.1, 0.26, uv.y);
   float dl = clamp(distance(uv, SHOULDER_L) / 0.7, 0.0, 1.0);
   float dr = clamp(distance(uv, SHOULDER_R) / 0.7, 0.0, 1.0);
   p = rot(p, SHOULDER_L, -radians(armL) * wl * (0.55 + 0.8 * dl));
@@ -61,7 +62,7 @@ void main() {
   color = texture(img, vUv);
 }`
 
-export function createBender(canvas: HTMLCanvasElement, image: HTMLImageElement) {
+export function createBender(canvas: HTMLCanvasElement, image: HTMLImageElement, hinges = true) {
   const gl = canvas.getContext("webgl2", { premultipliedAlpha: true, alpha: true, antialias: true })
   if (!gl) return null
   const compile = (type: number, src: string) => {
@@ -116,6 +117,7 @@ export function createBender(canvas: HTMLCanvasElement, image: HTMLImageElement)
   const u = (name: string) => gl.getUniformLocation(prog, name)
   const U = { lean: u("lean"), tip: u("tip"), armL: u("armL"), armR: u("armR"), speed: u("speed"), time: u("time"), margin: u("margin") }
   gl.uniform1f(U.margin, BEND_MARGIN)
+  gl.uniform1f(u("hinge"), hinges ? 1 : 0)
 
   let lost = false
   canvas.addEventListener("webglcontextlost", () => (lost = true))

@@ -274,6 +274,19 @@ html {
   filter: none;
 }
 
+/* Rigid products: one piece, no sleeve layers */
+.no-hinges .traveler-left,
+.no-hinges .traveler-right,
+.no-hinges .sway-left,
+.no-hinges .sway-right {
+  display: none;
+}
+.no-hinges .traveler-body,
+.no-hinges .sway-body {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
 /* WebGL bending sheet (lib/bend): drawn larger than the box so the sleeves and hem can swing out */
 .bend-canvas {
   position: absolute;

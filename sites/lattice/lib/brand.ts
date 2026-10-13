@@ -4,6 +4,7 @@ export const brand = {
   tagline: "Technical outerwear",
   description: "Lacquered, insulated outerwear engineered for motion. Oversized fit, limited runs.",
   est: "EST.2024",
+  logo: "/img/wings.webp", // small mark beside the name in the header ("" for none)
   nav: [
     { label: "Shop", href: "#collections" },
     { label: "Collections", href: "#collections" },
@@ -13,6 +14,13 @@ export const brand = {
 }
 
 export const hero = {
+  // The travelling product cut-out (transparent WebP, front view, centred, ~1100px square)
+  image: "/img/jacket-hero.webp",
+  // true for garments with sleeves: the sleeves hinge at the shoulders and swing a beat behind.
+  // false for rigid products (clippers, bottles, devices): the whole cut-out sways and bends as one piece.
+  hinges: true,
+  // Big decorative art behind the hero product (set to "" for none)
+  backdrop: "/img/wings.webp",
   left: ["Engineered", "for motion.", "Built to endure."],
   right: ["Designed", "for the unknown.", "Ready for anything."],
   line1: "Weather-resistant. Thermal insulation.",
@@ -60,6 +68,7 @@ export const technology = {
 }
 
 export const collection = {
+  hinges: true, // same as hero.hinges, for the product cards
   title: "Collections.",
   aside: ["Technical jackets", "for changing weather,", "movement and everyday use."],
   cta: "View all jackets",

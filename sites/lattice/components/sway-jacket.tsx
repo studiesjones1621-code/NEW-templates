@@ -22,7 +22,7 @@ const wake = () => {
   if (!raf) raf = requestAnimationFrame(loop)
 }
 
-export function SwayJacket({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
+export function SwayJacket({ src, alt, className = "", hinges = true }: { src: string; alt: string; className?: string; hinges?: boolean }) {
   const sway = useRef<HTMLDivElement>(null)
   const left = useRef<HTMLDivElement>(null)
   const right = useRef<HTMLDivElement>(null)
@@ -43,7 +43,7 @@ export function SwayJacket({ src, alt, className = "" }: { src: string; alt: str
     if (C)
       loadImage(src)
         .then((img) => {
-          bender = createBender(C, img)
+          bender = createBender(C, img, hinges)
           if (!bender) return
           box.classList.add("bend-on")
           fit()
@@ -87,10 +87,10 @@ export function SwayJacket({ src, alt, className = "" }: { src: string; alt: str
       card.removeEventListener("pointerleave", leave)
       removeEventListener("pointermove", wake)
     }
-  }, [src])
+  }, [src, hinges])
 
   return (
-    <div className={`sway ${className}`}>
+    <div className={`sway${hinges ? "" : " no-hinges"} ${className}`}>
       <canvas ref={canvas} className="bend-canvas" aria-hidden />
       <div ref={sway} className="sway-inner">
         <div ref={left} className="sway-part sway-left" aria-hidden>

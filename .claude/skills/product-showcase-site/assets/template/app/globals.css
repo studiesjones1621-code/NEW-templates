@@ -1,0 +1,637 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #050507;
+  --ink: #ecebf2;
+  --dim: rgba(236, 235, 242, 0.5);
+  --line: rgba(255, 255, 255, 0.14);
+  --accent: #9b8cff;
+}
+
+html {
+  overflow-x: clip; /* bend canvases swing past the card edges; never let that widen the page */
+  color-scheme: dark;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  background: var(--bg);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  overflow-x: clip;
+}
+.font-display {
+  font-family: var(--font-display), ui-monospace, monospace;
+}
+::selection {
+  background: var(--accent);
+  color: #000;
+}
+
+/* ---------- Lattice ---------- */
+.lattice-grid,
+.lattice-glow {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+}
+.lattice-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, #000 40%, rgba(0, 0, 0, 0.45) 100%);
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, #000 40%, rgba(0, 0, 0, 0.45) 100%);
+}
+main,
+footer,
+.site-header {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  position: fixed;
+  background: linear-gradient(to bottom, rgba(5, 5, 7, 0.85), rgba(5, 5, 7, 0));
+}
+.nav-link {
+  position: relative;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+.nav-link:hover {
+  opacity: 1;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* ---------- Shared bits ---------- */
+.mono-small {
+  font-size: 11px;
+  line-height: 1.65;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  padding: 0.7rem 1.1rem;
+  font-family: var(--font-display), monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: rgba(5, 5, 7, 0.55);
+  transition: background 0.25s, color 0.25s;
+}
+:where(a, button):focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
+}
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  background: var(--ink);
+  color: #000;
+  padding: 0.6rem 1rem;
+  font-size: 12px;
+}
+.skip-link:focus-visible {
+  top: 1rem;
+}
+html {
+  scroll-padding-top: 4rem;
+}
+.btn:hover {
+  background: var(--ink);
+  color: #000;
+}
+
+/* ---------- Hero ---------- */
+.hero-wings {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: min(1500px, 132vw);
+  max-width: none;
+  transform: translate(-50%, -50%);
+  opacity: 0.38;
+  pointer-events: none;
+  filter: drop-shadow(0 0 30px rgba(155, 140, 255, 0.12));
+}
+.hero-slot {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: min(58vh, 88vw);
+  height: min(58vh, 88vw);
+  transform: translate(-50%, -50%);
+}
+.hero-sides {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  z-index: 20;
+}
+.bracket {
+  position: relative;
+  font-family: var(--font-display), monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  padding: 1.6rem 0.9rem;
+}
+.bracket::before,
+.bracket::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-left: 1px solid var(--ink);
+}
+.bracket::before {
+  top: 0;
+  border-top: 1px solid var(--ink);
+}
+.bracket::after {
+  bottom: 0;
+  border-bottom: 1px solid var(--ink);
+}
+.bracket-right::before,
+.bracket-right::after {
+  left: auto;
+  right: 0;
+  border-left: 0;
+  border-right: 1px solid var(--ink);
+}
+.badge {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  background: rgba(5, 5, 7, 0.6);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.45;
+}
+.badge > span {
+  padding: 0.7rem 0.9rem;
+}
+.badge-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 18px;
+  border-right: 1px solid var(--line);
+  min-width: 64px;
+}
+.badge-icon small {
+  font-size: 8px;
+}
+@media (max-width: 767px) {
+  .hero-sides {
+    align-items: flex-start;
+    padding-top: 6.5rem;
+  }
+  .bracket {
+    font-size: 9px;
+    padding: 0.9rem 0.6rem;
+  }
+}
+
+/* ---------- Travelling jacket ---------- */
+.traveler {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+  perspective: 1600px;
+}
+.traveler-sway {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 12%; /* hung from the collar */
+  will-change: transform;
+}
+.traveler-part {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.traveler-part img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 40px 60px rgba(0, 0, 0, 0.6));
+  user-select: none;
+}
+/* The sleeves sit under the body, each cut from the same render and hung from its shoulder */
+.traveler-left {
+  transform-origin: 23% 20%;
+  -webkit-mask-image: linear-gradient(90deg, #000 0 27%, transparent 31%);
+  mask-image: linear-gradient(90deg, #000 0 27%, transparent 31%);
+}
+.traveler-right {
+  transform-origin: 77% 20%;
+  -webkit-mask-image: linear-gradient(270deg, #000 0 27%, transparent 31%);
+  mask-image: linear-gradient(270deg, #000 0 27%, transparent 31%);
+}
+.traveler-body {
+  -webkit-mask-image: linear-gradient(90deg, transparent 20%, #000 25.5% 74.5%, transparent 80%);
+  mask-image: linear-gradient(90deg, transparent 20%, #000 25.5% 74.5%, transparent 80%);
+}
+.traveler-body img {
+  filter: none;
+}
+
+/* Rigid products: one piece, no sleeve layers */
+.no-hinges .traveler-left,
+.no-hinges .traveler-right,
+.no-hinges .sway-left,
+.no-hinges .sway-right {
+  display: none;
+}
+.no-hinges .traveler-body,
+.no-hinges .sway-body {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* WebGL bending sheet (lib/bend): drawn larger than the box so the sleeves and hem can swing out */
+.bend-canvas {
+  position: absolute;
+  inset: -18%;
+  width: 136%;
+  height: 136%;
+  pointer-events: none;
+  display: none;
+}
+.bend-on > .bend-canvas {
+  display: block;
+}
+.bend-on > .traveler-sway,
+.bend-on > .sway-inner {
+  visibility: hidden;
+}
+
+/* ---------- Need to know ---------- */
+.specs-slot {
+  position: absolute;
+  left: 2%;
+  bottom: -6%;
+  width: min(84vh, 45vw);
+  height: min(84vh, 45vw);
+}
+.spec-table {
+  border-top: 1px solid var(--line);
+}
+.spec-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 0.25s, padding 0.25s;
+}
+.spec-row dt {
+  color: var(--dim);
+}
+.spec-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  padding-left: 0.6rem;
+}
+@media (max-width: 1023px) {
+  #specs {
+    padding-top: calc(min(92vw, 58vh) + 5rem);
+  }
+  .specs-slot {
+    left: 50%;
+    top: 4rem;
+    bottom: auto;
+    width: min(92vw, 58vh);
+    height: min(92vw, 58vh);
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- Details ---------- */
+.details-slot {
+  position: relative;
+  aspect-ratio: 1;
+  width: 140%;
+  margin-left: -20%;
+}
+.detail-list {
+  border-top: 1px solid var(--line);
+}
+.detail-list li {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  transition: padding 0.25s, background 0.25s;
+}
+.detail-list li:hover {
+  background: rgba(255, 255, 255, 0.04);
+  padding-left: 0.6rem;
+}
+@media (max-width: 1023px) {
+  .details-slot {
+    width: 100%;
+    margin: 0;
+  }
+}
+
+/* ---------- Technology ---------- */
+.tech-slot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22vh;
+  height: 22vh;
+  transform: translate(-50%, -50%);
+}
+.tech-body {
+  max-width: 22rem;
+}
+.layers-link {
+  fill: none;
+  stroke: rgba(236, 235, 242, 0.75);
+  stroke-width: 1;
+  transition: opacity 0.35s;
+}
+.layers-dot {
+  fill: #fff;
+  transition: opacity 0.35s;
+}
+/* A soft pulse on the layer being described */
+.layers-dot.is-active {
+  animation: layer-pulse 1.6s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes layer-pulse {
+  50% {
+    transform: scale(1.6);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .layers-dot.is-active {
+    animation: none;
+  }
+}
+.tech-cards {
+  position: absolute;
+  right: 2.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(23rem, 30vw);
+  display: grid;
+  gap: 0.75rem;
+}
+.tech-card {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  gap: 0.5rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  background: rgba(5, 5, 7, 0.55);
+  opacity: 0.35;
+  transition: opacity 0.4s, border-color 0.4s, background 0.4s;
+}
+.tech-card[data-active] {
+  opacity: 1;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(20, 18, 34, 0.7);
+}
+.tech-card-n {
+  font-size: 10px;
+  color: var(--dim);
+}
+@media (max-width: 1023px) {
+  .tech-cards {
+    left: 1.25rem;
+    right: 1.6rem;
+    top: auto;
+    bottom: 1.5rem;
+    transform: none;
+    width: auto;
+    height: 7.5rem;
+    display: block;
+  }
+  .tech-card {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .tech-card[data-active] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Collections ---------- */
+.product {
+  position: relative;
+  border: 1px solid var(--line);
+  background: rgba(8, 8, 12, 0.7);
+  padding: 0.9rem 0.9rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.3s, background 0.3s;
+}
+.product:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(14, 14, 20, 0.85);
+}
+.product-plus {
+  font-size: 16px;
+  line-height: 1;
+}
+.product-img {
+  position: relative;
+  aspect-ratio: 1 / 1.02;
+  margin: 0.5rem -0.4rem 0.8rem;
+}
+.product-img::before {
+  content: "";
+  position: absolute;
+  inset: 18% 12%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--glow) 45%, transparent), transparent);
+  filter: blur(28px);
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.product:hover .product-img::before {
+  opacity: 0.55;
+}
+.product-img .sway {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.product:hover .product-img .sway {
+  transform: scale(1.05) translateY(-2%);
+}
+/* A cut-out split into body + sleeves that sways with the mouse (sway-jacket.tsx) */
+.sway-inner {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 12%;
+  will-change: transform;
+}
+.sway-part {
+  position: absolute;
+  inset: 0;
+}
+.sway-part img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+.sway-left {
+  transform-origin: 23% 20%;
+  -webkit-mask-image: linear-gradient(90deg, #000 0 27%, transparent 31%);
+  mask-image: linear-gradient(90deg, #000 0 27%, transparent 31%);
+}
+.sway-right {
+  transform-origin: 77% 20%;
+  -webkit-mask-image: linear-gradient(270deg, #000 0 27%, transparent 31%);
+  mask-image: linear-gradient(270deg, #000 0 27%, transparent 31%);
+}
+.sway-body {
+  -webkit-mask-image: linear-gradient(90deg, transparent 20%, #000 25.5% 74.5%, transparent 80%);
+  mask-image: linear-gradient(90deg, transparent 20%, #000 25.5% 74.5%, transparent 80%);
+}
+.product-swatches {
+  position: absolute;
+  right: 0.2rem;
+  top: 50%;
+  display: grid;
+  gap: 4px;
+  transform: translateY(-50%);
+}
+.product-swatches i {
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+.product-swatches i:nth-child(2) {
+  background: #fff;
+}
+.product-foot {
+  position: relative;
+  min-height: 2.1rem;
+  margin-top: auto;
+}
+.product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  transition: opacity 0.25s;
+}
+.product-tags span {
+  border: 1px solid var(--line);
+  padding: 0.35rem 0.55rem;
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.product-shop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #fff;
+  padding: 0 0.75rem;
+  font-family: var(--font-display), monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s, transform 0.25s, background 0.25s, color 0.25s;
+}
+.product-shop:hover {
+  background: #fff;
+  color: #000;
+}
+.product:hover .product-shop,
+.product:focus-within .product-shop {
+  opacity: 1;
+  transform: none;
+}
+.product:hover .product-tags,
+.product:focus-within .product-tags {
+  opacity: 0;
+}
+/* Touch screens have no hover, so the button is always there */
+@media (hover: none) {
+  .product-shop {
+    position: static;
+    opacity: 1;
+    transform: none;
+    height: 2.1rem;
+    margin-top: 0.6rem;
+  }
+}
+
+/* ---------- Footer ---------- */
+.footer-word {
+  font-size: clamp(3.5rem, 17vw, 16rem);
+  line-height: 0.85;
+  letter-spacing: 0.04em;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.05));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
