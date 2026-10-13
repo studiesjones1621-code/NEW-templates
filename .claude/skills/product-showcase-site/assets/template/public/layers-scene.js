@@ -152,7 +152,7 @@ function buildStack() {
       new THREE.SphereGeometry(1, LITE ? 10 : 18, LITE ? 8 : 12),
       // Glossy clear beads. (A true glass "transmission" material looked marginally better but re-renders the whole
       // scene every frame, which made scrolling into this section stutter.)
-      new THREE.MeshPhysicalMaterial({ color: 0xbfd6ff, roughness: 0.02, metalness: 0.1, clearcoat: 1, transparent: true, opacity: 0.38, envMapIntensity: 3 }),
+      new THREE.MeshPhysicalMaterial({ color: 0xeaf3ff, roughness: 0, metalness: 0, clearcoat: 1, clearcoatRoughness: 0, specularIntensity: 1, transparent: true, opacity: 0.22, depthWrite: false, envMapIntensity: 5 }),
       count,
     )
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3()
