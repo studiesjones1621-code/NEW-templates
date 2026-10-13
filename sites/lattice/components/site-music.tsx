@@ -6,8 +6,8 @@ const cn = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).jo
 /** Fired by the voice assistant with `{ busy: boolean }` while its mic check or call is open. */
 export const ASSISTANT_EVENT = "site:assistant"
 
-// "Dark Trap Beat Atmosphere" by echoes_of_lumen, Pixabay (pixabay.com/music/trap-dark-trap-beat-atmosphere-583431/),
-// free for commercial use under the Pixabay Content License. Encoded per the site-music skill.
+// "Never Play" (free Lil Durk type beat) by EchoBeats, Pixabay (track 367485), free for commercial use under the
+// Pixabay Content License; chosen by the site owner. Encoded per the site-music skill.
 const SRC = "/audio/ambient.mp3"
 const VOLUME = 0.32
 const FADE_S = 1.6
