@@ -1,0 +1,8 @@
+{
+  "agent_name": "Aurelle Medical Aesthetics - Concept Demo Assistant",
+  "prompt_file": "retell/system-prompt.md",
+  "begin_message": "Hi, welcome to Aurelle Medical Aesthetics! I'm Clara. I can answer questions about Botox, fillers, skin treatments or weight loss, share prices, or arrange a callback for a free consultation. How can I help?",
+  "voice_id": "11labs-Marissa",
+  "timezone": "America/New_York",
+  "boosted_keywords": ["Aurelle", "Nadia", "Elise", "Maren", "Springfield", "Main Street", "Botox", "neurotoxin", "filler", "biostimulator", "PRF", "microneedling", "dermaplaning", "semaglutide", "tirzepatide", "GLP-1"]
+}
