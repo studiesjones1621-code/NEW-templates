@@ -8,7 +8,7 @@ export function Header() {
           {brand.logo && <img src={brand.logo} alt="" className="h-6 w-auto opacity-90" />}
           <span className="font-display text-[13px] tracking-[0.32em]">{brand.name}</span>
         </a>
-        <nav className="hidden md:flex items-center gap-10 text-[11px] tracking-[0.18em] uppercase" aria-label="Main">
+        <nav className="hidden lg:flex items-center gap-8 xl:gap-10 text-[11px] tracking-[0.18em] uppercase" aria-label="Main">
           {brand.nav.map((n) => (
             <a key={n.label} href={n.href} className="nav-link" data-decode="hover">
               {n.label}

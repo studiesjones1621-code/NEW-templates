@@ -58,6 +58,7 @@ footer,
 /* ---------- Header ---------- */
 .site-header {
   position: fixed;
+  z-index: 50; /* above the page content so the nav and cart can be tapped */
   background: linear-gradient(to bottom, rgba(5, 5, 7, 0.85), rgba(5, 5, 7, 0));
 }
 .nav-link {

@@ -1,10 +1,10 @@
 // Everything a new client changes lives here: name, copy, products and specs. Swap the images in /public/img to match.
 export const brand = {
-  name: "NULLFORM",
+  name: "ONDUTY",
   tagline: "Technical outerwear",
   description: "Lacquered, insulated outerwear engineered for motion. Oversized fit, limited runs.",
   est: "EST.2024",
-  logo: "/img/wings.webp", // small mark beside the name in the header ("" for none)
+  logo: "/img/onduty-mark.png", // small mark beside the name in the header ("" for none)
   nav: [
     { label: "Shop", href: "#collections" },
     { label: "Collections", href: "#collections" },

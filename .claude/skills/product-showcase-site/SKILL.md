@@ -76,3 +76,10 @@ The user's standing rules still apply:
 - Don't animate anything but `transform` and `opacity`. Don't run the sway, bend, magnetic or skew effects on phones or under reduced motion; the code already checks.
 - Don't put `overflow: hidden` on product cards to "fix" swing overlap. The bend canvases extend 18% past the box on purpose, and `html { overflow-x: clip }` prevents sideways scrolling.
 - Don't load three.js on page load. `technology.tsx` waits for a quiet moment, and the worker compiles shaders between scroll gestures.
+
+## Music
+
+For background music, use the `site-music` skill. The live ONDUTY site (`sites/lattice`) shows the wiring:
+- `components/site-music.tsx`, with `cn` inlined since the template has no `lib/utils`;
+- the square mono pill, placed in the header's right-hand group beside Cart;
+- a "Sound" label under 460px wide, so the pill fits on one line on phones.
