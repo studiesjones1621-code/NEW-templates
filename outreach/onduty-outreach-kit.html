@@ -1,0 +1,376 @@
+<title>OnDuty Outreach Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a sticky prospect card on the left feeds a column of ready-to-send scripts on the right; one column on phones. */
+:root {
+  --bg: #f3f5ef; --panel: #ffffff; --ink: #11161b; --dim: #5a636b; --line: rgba(17,22,27,0.12);
+  --lime: #5f7d00; --lime-fill: #c8f04a; --on-lime: #0d1014; --red: #c4283a; --field: #f7f9f3;
+  --display: "Host Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body: "Host Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1014; --panel: #161b21; --ink: #f4f6f2; --dim: rgba(244,246,242,0.62); --line: rgba(255,255,255,0.12);
+  --lime: #c8f04a; --lime-fill: #c8f04a; --on-lime: #0d1014; --red: #ff4d5e; --field: #0f1317; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0d1014; --panel: #161b21; --ink: #f4f6f2; --dim: rgba(244,246,242,0.62); --line: rgba(255,255,255,0.12);
+  --lime: #c8f04a; --lime-fill: #c8f04a; --on-lime: #0d1014; --red: #ff4d5e; --field: #0f1317; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.55 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px }
+.wrap { max-width: 1180px; margin: 0 auto }
+.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim) }
+
+header { padding-block: 48px 36px; display: grid; gap: 14px; border-bottom: 1px solid var(--line) }
+.brand { display: flex; align-items: center; gap: 10px; font: 600 15px var(--mono); letter-spacing: .2em }
+.dot { width: 10px; height: 10px; border-radius: 99px; background: var(--lime-fill); box-shadow: 0 0 0 4px color-mix(in srgb, var(--lime-fill) 25%, transparent) }
+h1 { font: 800 clamp(38px, 6vw, 72px)/1 var(--display); letter-spacing: -0.035em; margin: 0; text-wrap: balance; max-width: 15ch }
+h1 em { font-style: normal; color: var(--lime) }
+.lede { max-width: 62ch; color: var(--dim); margin: 0; font-size: 18px }
+
+.grid { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 32px; padding-top: 32px; align-items: start }
+@media (max-width: 880px) { .grid { grid-template-columns: minmax(0, 1fr) } aside { position: static !important } }
+
+aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: grid; gap: 14px }
+aside h2 { font: 700 20px var(--display); margin: 0 }
+label { display: grid; gap: 6px; font-size: 13px; font-weight: 600 }
+input, select, textarea { font: inherit; font-size: 15px; font-weight: 400; color: var(--ink); background: var(--field); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100% }
+input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.sub { border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 14px }
+.hint { font-size: 12px; color: var(--dim); font-weight: 400 }
+
+main { display: grid; gap: 40px; min-width: 0 }
+nav.tabs { display: flex; flex-wrap: wrap; gap: 8px }
+nav.tabs a { font: 500 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink); text-decoration: none; border: 1px solid var(--line); border-radius: 99px; padding: 8px 14px }
+nav.tabs a:hover { border-color: var(--lime); color: var(--lime) }
+
+section { display: grid; gap: 16px; scroll-margin-top: 24px }
+section > h2 { font: 700 28px/1.1 var(--display); letter-spacing: -0.02em; margin: 0 }
+section > p { margin: 0; color: var(--dim); max-width: 64ch }
+
+.script { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden }
+.script-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line) }
+.script-head .t { font-weight: 700 }
+.script-head .when { font: 500 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--lime) }
+.subject { padding: 12px 18px 0; font-size: 14px; color: var(--dim) }
+.subject b { color: var(--ink) }
+.body { padding: 14px 18px 18px; white-space: pre-wrap; overflow-wrap: anywhere; max-width: 72ch }
+.body mark { background: color-mix(in srgb, var(--lime-fill) 28%, transparent); color: inherit; border-radius: 4px; padding: 0 2px }
+.body mark.miss { background: color-mix(in srgb, var(--red) 18%, transparent) }
+button.copy { font: 600 13px var(--body); background: var(--lime-fill); color: var(--on-lime); border: 0; border-radius: 99px; padding: 8px 16px; cursor: pointer }
+button.copy:hover { filter: brightness(1.05) }
+button.copy.done { background: var(--ink); color: var(--bg) }
+
+.seq { display: grid; gap: 14px; counter-reset: step }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px }
+
+details.obj { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 0 18px }
+details.obj summary { cursor: pointer; padding: 16px 0; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 12px }
+details.obj summary::after { content: "+"; font-family: var(--mono); color: var(--lime) }
+details.obj[open] summary::after { content: "–" }
+details.obj p { margin: 0 0 16px; max-width: 66ch }
+
+.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px }
+.checklist li { display: flex; gap: 12px; align-items: flex-start; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px }
+.checklist input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--lime-fill); flex: none }
+.checklist label { display: block; font-weight: 400; font-size: 15px }
+.proof a { color: var(--lime); font-weight: 600; overflow-wrap: anywhere }
+footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--dim); font-size: 13px }
+@media (prefers-reduced-motion: no-preference) { button.copy { transition: background .2s, color .2s } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="dot"></span>ONDUTY</div>
+    <h1>Outreach kit for <em>always-on</em> websites</h1>
+    <p class="lede">Fill in one prospect on the left. Every email, DM, call script and follow-up below rewrites itself for that business, ready to copy and send. Highlighted words came from the card; red ones still need filling in.</p>
+  </header>
+
+  <div class="grid">
+    <aside aria-label="Prospect">
+      <h2>Prospect</h2>
+      <div class="pair">
+        <label for="f-owner">Owner first name<input id="f-owner" placeholder="Reem" value="Reem"></label>
+        <label for="f-city">City<input id="f-city" placeholder="Baltimore" value="Baltimore"></label>
+      </div>
+      <label for="f-biz">Business name<input id="f-biz" placeholder="First Class Cutz" value="First Class Cutz"></label>
+      <label for="f-type">Business type
+        <select id="f-type">
+          <option value="barber" selected>Barbershop</option>
+          <option value="salon">Hair or nail salon</option>
+          <option value="medspa">Med spa / aesthetics</option>
+          <option value="skin">Skin or lash studio</option>
+          <option value="clinic">Wellness clinic</option>
+          <option value="dentist">Dental office</option>
+          <option value="contractor">Contractor / home services</option>
+          <option value="restaurant">Restaurant</option>
+          <option value="retail">Product brand / boutique</option>
+        </select>
+      </label>
+      <label for="f-pain">What you noticed <span class="hint">One honest detail from their page or a test call.</span>
+        <select id="f-pain">
+          <option value="voicemail">Calls went to voicemail</option>
+          <option value="dm" selected>Booking only through DMs</option>
+          <option value="nosite">No real website, just a listing</option>
+          <option value="oldsite">Website is dated or slow on phones</option>
+          <option value="hours">Phone only answered during open hours</option>
+        </select>
+      </label>
+      <label for="f-hook">Compliment <span class="hint">Something specific you liked: their reviews, a photo, their work.</span>
+        <input id="f-hook" placeholder="your fades on Instagram" value="the fades on your Instagram">
+      </label>
+      <div class="sub">
+        <span class="mono">You</span>
+        <div class="pair">
+          <label for="f-me">Your name<input id="f-me" placeholder="Your name"></label>
+          <label for="f-phone">Your phone<input id="f-phone" placeholder="(555) 555-0100"></label>
+        </div>
+        <label for="f-demo">Demo link to send <span class="hint">A mock-up for them, or one of your live sites.</span>
+          <input id="f-demo" value="https://zippy-indigo-jsm6s2u.vercel.app">
+        </label>
+      </div>
+    </aside>
+
+    <main>
+      <nav class="tabs" aria-label="Sections">
+        <a href="#first">First touch</a><a href="#sequence">Follow-up sequence</a><a href="#call">Phone &amp; walk-in</a><a href="#objections">Objections</a><a href="#prep">Before you send</a>
+      </nav>
+
+      <section id="first">
+        <h2>First touch</h2>
+        <p>Pick the channel the owner actually uses. Small-business owners read Instagram DMs faster than email.</p>
+        <div id="out-first" class="seq"></div>
+      </section>
+
+      <section id="sequence">
+        <h2>Follow-up sequence</h2>
+        <p>Four touches over ten days. Stop the moment they reply, and move the conversation to a quick call.</p>
+        <div id="out-seq" class="seq"></div>
+      </section>
+
+      <section id="call">
+        <h2>Phone &amp; walk-in</h2>
+        <p>Call between appointments: mid-morning or right after lunch. Walk in only when the shop is quiet.</p>
+        <div id="out-call" class="seq"></div>
+      </section>
+
+      <section id="objections">
+        <h2>Objections</h2>
+        <p>Short answers that keep the conversation going. Agree first, then reframe.</p>
+        <div id="out-obj" style="display:grid;gap:10px"></div>
+      </section>
+
+      <section id="prep">
+        <h2>Before you send</h2>
+        <p>Your checkmarks stay in this browser so you can work down a list of prospects.</p>
+        <ul class="checklist" id="checklist"></ul>
+        <div class="script proof">
+          <div class="script-head"><span class="t">Proof to attach</span><span class="when">Assets</span></div>
+          <div class="body">• Live demo: <a id="demo-a" href="https://zippy-indigo-jsm6s2u.vercel.app" target="_blank" rel="noopener">zippy-indigo-jsm6s2u.vercel.app</a> (the ONDUTY jacket site)
+• The 53-second OnDuty commercial: commercials/onduty-ad, render to out/onduty-commercial.mp4 and attach it to DMs
+• Concept demos for the portfolio: Lumen Skin Studio, Aurelle Medical Aesthetics, Meridian Wellness, Velvet &amp; Vine
+• Only show a real client's site after that owner has said yes.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer>OnDuty · cinematic websites with an AI receptionist that answers and books, live in two weeks or less.</footer>
+</div>
+
+<script>
+const IND = {
+  barber:     { label: "barbershop", client: "clients", appt: "a cut", q: "\"Got anything Saturday morning?\"", during: "with a client in the chair" },
+  salon:      { label: "salon", client: "clients", appt: "an appointment", q: "\"How much is a silk press and when are you free?\"", during: "in the middle of a service" },
+  medspa:     { label: "med spa", client: "clients", appt: "a consultation", q: "\"How much is Botox, and do you have anything this week?\"", during: "with a patient" },
+  skin:       { label: "studio", client: "clients", appt: "a facial", q: "\"Which facial is right for acne, and when can I come in?\"", during: "with a client on the table" },
+  clinic:     { label: "clinic", client: "patients", appt: "a visit", q: "\"Do you take new patients, and what's your first visit like?\"", during: "with a patient" },
+  dentist:    { label: "practice", client: "patients", appt: "a cleaning", q: "\"Can I get a cleaning next week?\"", during: "chairside" },
+  contractor: { label: "business", client: "customers", appt: "an estimate", q: "\"Can someone come look at my roof this week?\"", during: "on a job site" },
+  restaurant: { label: "restaurant", client: "guests", appt: "a table", q: "\"Do you have a table for six on Friday?\"", during: "in the middle of service" },
+  retail:     { label: "brand", client: "customers", appt: "an order", q: "\"Is the black jacket back in a medium?\"", during: "packing orders" },
+};
+const PAIN = {
+  voicemail: { saw: "I called around lunch and got voicemail", fix: "every call gets answered, even when you're busy" },
+  dm:        { saw: "it looks like booking happens mostly through DMs", fix: "people can ask questions and book by voice right on the site" },
+  nosite:    { saw: "I couldn't find a website for you, just your listing", fix: "you'd have a real website that also answers and books" },
+  oldsite:   { saw: "your website is hard to use on a phone", fix: "you'd get a fast, cinematic site that also books appointments" },
+  hours:     { saw: "the phone is only picked up during open hours", fix: "someone answers at 11pm on a Sunday too" },
+};
+const ids = ["owner","city","biz","type","pain","hook","me","phone","demo"];
+const el = id => document.getElementById("f-" + id);
+
+function load() {
+  try { const s = JSON.parse(localStorage.getItem("onduty-kit") || "{}"); ids.forEach(k => { if (s[k] != null) el(k).value = s[k]; }); } catch (e) {}
+}
+function save() {
+  try { const s = {}; ids.forEach(k => s[k] = el(k).value); localStorage.setItem("onduty-kit", JSON.stringify(s)); } catch (e) {}
+}
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function state() {
+  const v = {}; ids.forEach(k => v[k] = el(k).value.trim());
+  const i = IND[v.type], p = PAIN[v.pain];
+  // Each slot: [text, wasFilled]. Missing fields fall back to a bracketed placeholder shown in red.
+  const f = (val, ph) => val ? [val, true] : ["[" + ph + "]", false];
+  return {
+    owner: f(v.owner, "owner"), biz: f(v.biz, "business"), city: f(v.city, "city"), hook: f(v.hook, "compliment"),
+    me: f(v.me, "your name"), phone: f(v.phone, "your phone"), demo: f(v.demo, "demo link"),
+    label: [i.label, true], client: [i.client, true], appt: [i.appt, true], q: [i.q, true], during: [i.during, true],
+    saw: [p.saw, true], fix: [p.fix, true],
+  };
+}
+
+// Templates use {slot} markers; render() produces highlighted HTML and plain copy text from the same source.
+const FIRST = [
+  { t: "Instagram / Facebook DM", when: "Day 1", body:
+`Hey {owner}! I came across {biz} and loved {hook}.
+
+Quick one: {saw}. I build websites for {label}s in {city} with a built-in AI receptionist that talks to {client}, answers questions and books {appt} for you, so {fix}.
+
+I made a short demo so you can hear it. Want me to send it over?
+
+{me}` },
+  { t: "Cold email", when: "Day 1", subject: "{biz}: a site that books while you're busy", body:
+`Hi {owner},
+
+I came across {biz} and loved {hook}.
+
+One thing I noticed: {saw}. When someone texts or calls with {q} and nobody picks up, they usually book with whoever answers first.
+
+I'm {me}. I build cinematic websites for local businesses with an AI receptionist built in. It answers {client} by voice, knows your services and prices, and books straight into your calendar, so {fix}.
+
+Here's one I built: {demo}
+Tap "Talk to us" and try booking.
+
+I can have a version for {biz} live in two weeks or less. Open to a 10-minute call this week?
+
+{me}
+{phone}` },
+];
+const SEQ = [
+  { t: "Bump", when: "Day 3", subject: "Re: {biz}: a site that books while you're busy", body:
+`Hi {owner}, bumping this up in case it got buried. Here's the demo again: {demo}
+
+It takes about 30 seconds to try. Ask it {q} and watch it book.
+
+{me}` },
+  { t: "Value follow-up", when: "Day 6", body:
+`{owner}, one more thought. Most calls to a {label} come while you're {during}. Those are the {client} most likely to go somewhere else.
+
+The receptionist on your site would pick those up, answer the usual questions, and put the booking on your calendar. You'd just see a confirmation.
+
+Happy to mock up the homepage for {biz} for free so you can see it with your own photos. Want me to?
+
+{me}` },
+  { t: "Close the loop", when: "Day 10", body:
+`Hi {owner}, I'll stop reaching out after this one. If a site that answers and books for {biz} is ever useful, just reply "yes" and I'll send over a free mock-up.
+
+Either way, keep up the great work.
+
+{me}
+{phone}` },
+];
+const CALL = [
+  { t: "Phone opener", when: "Live call", body:
+`Hi, is this {owner}? This is {me}. I'll be quick, I know you're probably {during}.
+
+I build websites for {label}s in {city} that come with an AI receptionist. It answers {client}, tells them prices, and books {appt} for you, even after hours.
+
+I noticed {saw}, so I thought it might help. Could I text you a demo you can try in 30 seconds?
+
+(Yes) → Great, what's the best number? I'll send it now.
+(Busy) → No problem. When's a better time, after lunch or end of day?` },
+  { t: "Voicemail", when: "No answer", body:
+`Hi {owner}, this is {me}. I build websites for {label}s with an AI receptionist that answers and books {appt} for you. I'm sending a quick demo by text so you can hear it. My number is {phone}. Talk soon.` },
+  { t: "Text after the call", when: "Same day", body:
+`Hi {owner}, it's {me}. Here's the demo I mentioned: {demo}
+Tap "Talk to us" and ask it {q}. Let me know what you think!` },
+  { t: "Walk-in", when: "In person", body:
+`Hi, is {owner} around? I'll only take a minute.
+
+I'm {me}, I build websites for local {label}s. Yours would have an assistant that answers {client} and books {appt} while you're {during}.
+
+Can I show you on my phone? It's 30 seconds.
+(Play the demo, let them ask it a question, then leave your number.)` },
+];
+const OBJ = [
+  { q: "\"I already have a website.\"", a: "That makes sense. This one would also pick up {client} who'd otherwise call or DM and wait. I can keep your branding and simply add the booking assistant, or rebuild it if the current one isn't working on phones." },
+  { q: "\"My clients like talking to a real person.\"", a: "Agreed, and the assistant doesn't replace you. It only covers the times you can't answer, like when you're {during} or after close. Anything unusual gets passed to you." },
+  { q: "\"How much is it?\"", a: "It depends on how many pages and services you have. Let me mock up the homepage for {biz} first, free, and I'll give you an exact number on a 10-minute call." },
+  { q: "\"I don't have time for this.\"", a: "That's the point of it. I handle everything: photos, writing, setup, the calendar link. You'd spend about 20 minutes with me in total, and it can be live in two weeks or less." },
+  { q: "\"Will it mess up my booking app?\"", a: "No. It books into the calendar you already use, so your schedule stays in one place." },
+  { q: "\"Send me some info.\"", a: "Of course. I'll text you the demo now: {demo}. Try asking it {q}. Can I check back with you on Thursday?" },
+];
+const CHECKS = [
+  "Called or messaged the business once yourself to confirm the gap you mention",
+  "Looked at their Instagram, Google or Booksy page and picked one real compliment",
+  "Opened the demo link on a phone and tried \"Talk to us\"",
+  "Used the owner's first name and spelled the business name exactly as they do",
+  "Logged the date so the follow-ups land on days 3, 6 and 10",
+  "Did not mention any real client by name without their permission",
+];
+
+function render(tpl, s) {
+  let html = "", text = "";
+  tpl.split(/(\{\w+\})/).forEach(part => {
+    const m = part.match(/^\{(\w+)\}$/);
+    if (m && s[m[1]]) { const [v, ok] = s[m[1]]; text += v; html += `<mark${ok ? "" : ' class="miss"'}>${esc(v)}</mark>`; }
+    else { text += part; html += esc(part); }
+  });
+  return { html, text };
+}
+
+function card(item, s, n) {
+  const b = render(item.body, s), sub = item.subject ? render(item.subject, s) : null;
+  const copyText = (sub ? "Subject: " + sub.text + "\n\n" : "") + b.text;
+  return `<article class="script">
+    <div class="script-head"><span><span class="when">${esc(item.when)}</span> &nbsp;<span class="t">${esc(item.t)}</span></span>
+    <button class="copy" type="button" data-copy="${esc(copyText)}">Copy</button></div>
+    ${sub ? `<div class="subject">Subject: <b>${sub.html}</b></div>` : ""}
+    <div class="body">${b.html}</div></article>`;
+}
+
+function update() {
+  const s = state();
+  document.getElementById("out-first").innerHTML = `<div class="cols">${FIRST.map(x => card(x, s)).join("")}</div>`;
+  document.getElementById("out-seq").innerHTML = SEQ.map(x => card(x, s)).join("");
+  document.getElementById("out-call").innerHTML = `<div class="cols">${CALL.map(x => card(x, s)).join("")}</div>`;
+  document.getElementById("out-obj").innerHTML = OBJ.map(o => `<details class="obj"><summary>${esc(o.q)}</summary><p>${render(o.a, s).html}</p></details>`).join("");
+  const d = el("demo").value.trim(), a = document.getElementById("demo-a");
+  if (/^https?:\/\//.test(d)) { a.href = d; a.textContent = d.replace(/^https?:\/\//, ""); }
+  save();
+}
+
+function buildChecklist() {
+  let done = {};
+  try { done = JSON.parse(localStorage.getItem("onduty-kit-checks") || "{}"); } catch (e) {}
+  document.getElementById("checklist").innerHTML = CHECKS.map((c, i) =>
+    `<li><input type="checkbox" id="chk-${i}" ${done[i] ? "checked" : ""}><label for="chk-${i}">${esc(c)}</label></li>`).join("");
+  document.getElementById("checklist").addEventListener("change", e => {
+    const i = e.target.id.replace("chk-", ""); done[i] = e.target.checked;
+    try { localStorage.setItem("onduty-kit-checks", JSON.stringify(done)); } catch (err) {}
+  });
+}
+
+document.addEventListener("click", e => {
+  const btn = e.target.closest("button.copy"); if (!btn) return;
+  const text = btn.dataset.copy;
+  const ok = () => { btn.textContent = "Copied"; btn.classList.add("done"); setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("done"); }, 1600); };
+  const fallback = () => {
+    const body = btn.closest(".script").querySelector(".body"), r = document.createRange();
+    r.selectNodeContents(body); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    btn.textContent = "Selected, press Ctrl+C";
+  };
+  try { navigator.clipboard.writeText(text).then(ok, fallback); } catch (err) { fallback(); }
+});
+
+load();
+ids.forEach(k => el(k).addEventListener("input", update));
+buildChecklist();
+update();
+</script>
