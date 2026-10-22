@@ -120,7 +120,8 @@ export function Hero() {
       setTimeout(more, 400)
     }
 
-    const sounds = [new Audio("/dog/bark.mp3"), new Audio("/dog/bark2.mp3")]
+    // A real large dog (Labrador recording) to match the big dog on screen
+    const sounds = [new Audio("/dog/bark.mp3"), new Audio("/dog/bark3.mp3"), new Audio("/dog/bark2.mp3")]
     sounds.forEach((a) => {
       a.preload = "auto"
       a.volume = 0.7

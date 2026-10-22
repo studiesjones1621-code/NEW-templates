@@ -16,7 +16,7 @@ export function Footer() {
             </a>
           </p>
           <p className="text-primary-foreground/50">
-            © {new Date().getFullYear()} {business.fullName}. Grooming footage and dog clip: Mixkit (free license).
+            © {new Date().getFullYear()} {business.fullName}. Grooming footage and dog clip: Mixkit (free license). Bark: &ldquo;Labrador Barking Dog&rdquo; by Daniel Simion, SoundBible, CC BY 3.0.
           </p>
         </div>
       </div>
