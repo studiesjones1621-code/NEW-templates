@@ -7,21 +7,21 @@ import { TalkButton } from "./talk-button"
 
 /*
   The signature moment: a real dog (Mixkit stock footage, free license, cut out frame by frame)
-  lies on the hero floor. Scrolling scrubs him up onto his feet; once he's standing he barks, and
-  after that every quick move of the mouse (or a tap on him) makes him bark again. Layers of soap
+  lies on the hero floor. Scrolling scrubs him up onto his feet; standing, he barks where the footage
+  does, and every quick move of the mouse (or a tap on him) makes him bark again. Layers of soap
   bubbles, the giant "LUCKY 3" lettering and the dog sit at different depths and drift with the
-  pointer. He stays on his feet while the page scrolls on into a rim of bath foam.
+  pointer. It's one continuous take, so he gets up and stays on his feet for the whole scroll.
 */
 
-const RISE_FRAMES = 51
-const BARK_FRAMES = 63
-const BARK_FROM = 16 // frame where the bark clip starts (mouth closed)
-const BARK_TO = 36 // mouth open around 24–28
-const BARK_FPS = 14
+// Frames of one continuous take (exported by the build script): 0–RISE_END he gets up, then he stands
+const FRAMES = 253
+const RISE_END = 50
+const RISE_AT = 0.3 // share of the scroll spent getting up
+const STAND_FRAME = 160
+const BARK_AT = [166, 178, 198, 216, 242] // frames where his mouth opens in the footage
 const SOUND_KEY = "lucky3_sound"
 
-const rise = (i: number) => `/dog/rise-${String(i).padStart(3, "0")}.webp`
-const bark = (i: number) => `/dog/bark-${String(i).padStart(3, "0")}.webp`
+const frameSrc = (i: number) => `/dog/f-${String(i).padStart(3, "0")}.webp`
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 const ramp = (p: number, a: number, b: number) => clamp((p - a) / (b - a))
@@ -32,9 +32,9 @@ const BUBBLES = [
   [18, 70, 34, 0.6, 7],
   [30, 30, 22, 0.2, 11],
   [44, 12, 46, 0.5, 8],
-  [52, 78, 90, 0.9, 10],
+  [30, 82, 90, 0.9, 10],
   [63, 22, 28, 0.4, 6],
-  [72, 60, 54, 0.7, 9],
+  [40, 64, 54, 0.7, 9],
   [84, 14, 72, 0.35, 12],
   [91, 48, 30, 0.8, 7],
   [96, 82, 110, 1.2, 11],
@@ -48,7 +48,7 @@ export function Hero() {
   const layersRef = useRef<HTMLDivElement>(null)
   const textARef = useRef<HTMLDivElement>(null)
   const textBRef = useRef<HTMLDivElement>(null)
-    const floorRef = useRef<HTMLDivElement>(null)
+  const floorRef = useRef<HTMLDivElement>(null)
   const [woof, setWoof] = useState(0)
   const [sound, setSound] = useState(true)
   const [unlocked, setUnlocked] = useState(false)
@@ -99,25 +99,25 @@ export function Hero() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches
 
-    // Frames: the rise first (it's what you see on load), the bark clip right after
-    const riseImgs: HTMLImageElement[] = []
-    const barkImgs: HTMLImageElement[] = []
-    const load = (src: string) => {
+    // One continuous take: the getting-up frames load first, the rest stream in behind them
+    const imgs: HTMLImageElement[] = []
+    const load = (i: number) => {
+      if (imgs[i]) return
       const img = new Image()
       img.decoding = "async"
-      img.src = src
+      img.src = frameSrc(i)
       img.decode?.().catch(() => {})
-      return img
+      imgs[i] = img
     }
-    if (reduced) {
-      barkImgs[0] = load(bark(0))
-    } else {
-      for (let i = 0; i < RISE_FRAMES; i++) riseImgs[i] = load(rise(i))
-      const loadBark = () => {
-        for (let i = 0; i < BARK_FRAMES; i++) barkImgs[i] = load(bark(i))
+    if (reduced) load(STAND_FRAME)
+    else {
+      for (let i = 0; i <= RISE_END; i++) load(i)
+      let next = RISE_END + 1
+      const more = () => {
+        for (let k = 0; k < 24 && next < FRAMES; k++) load(next++)
+        if (next < FRAMES) setTimeout(more, 120)
       }
-      if ("requestIdleCallback" in window) requestIdleCallback(loadBark, { timeout: 1500 })
-      else setTimeout(loadBark, 600)
+      setTimeout(more, 400)
     }
 
     const sounds = [new Audio("/dog/bark.mp3"), new Audio("/dog/bark2.mp3")]
@@ -126,148 +126,139 @@ export function Hero() {
       a.volume = 0.7
     })
 
-    // Canvas sized to its box (DPR capped at 2)
+    // Canvas sized to its box (DPR capped at 1.5: plenty for a photo, half the pixels of 2x)
     let cw = 0
     let ch = 0
     const resize = () => {
       const r = canvas.getBoundingClientRect()
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
       cw = Math.round(r.width * dpr)
       ch = Math.round(r.height * dpr)
       canvas.width = cw
       canvas.height = ch
-      lastKey = ""
+      drawn = -1
     }
 
     let progress = 0
     let smoothP = 0
     let lastT = performance.now()
-    let barkStart = -1
     let lastBark = 0
-    let barkedOnScroll = false
+    let lastFrame = 0
     let soundIndex = 0
     let pointerX = 0
     let pointerY = 0
     let smoothX = 0
     let smoothY = 0
+    let lastLayerKey = ""
     let travel = 0
     let lastMove = { x: 0, y: 0, t: 0 }
-    let lastKey = ""
+    let drawn = -1
     let raf = 0
 
     const ready = (img?: HTMLImageElement) => !!img && img.complete && img.naturalWidth > 0
 
+    const playBark = () => {
+      if (!soundRef.current) return
+      if (!unlockedRef.current) {
+        setHint(true)
+        return
+      }
+      const a = sounds[soundIndex++ % sounds.length]
+      try {
+        a.currentTime = 0
+        void a.play().catch(() => {})
+      } catch {}
+    }
+
+    // A bark on demand: the woof, the speech bubble and a little recoil, without leaving the pose he's in
     const startBark = () => {
       const now = performance.now()
-      if (now - lastBark < 1500) return
-      if (smoothP < 0.4 && !reduced) return // still getting up
+      if (now - lastBark < 1200) return
+      if (smoothP < 0.26 && !reduced) return // still getting up
       lastBark = now
-      barkStart = now
       setWoof((w) => w + 1)
-      if (soundRef.current && unlockedRef.current) {
-        const a = sounds[soundIndex++ % sounds.length]
-        // The mouth opens ~0.45s into the clip; line the woof up with it
-        setTimeout(() => {
-          try {
-            a.currentTime = 0
-            void a.play().catch(() => {})
-          } catch {}
-        }, reduced ? 0 : 420)
-      } else if (!unlockedRef.current) {
-        setHint(true)
-      }
+      playBark()
+      canvas.classList.remove("dog-bark")
+      void canvas.offsetWidth
+      canvas.classList.add("dog-bark")
     }
     barkRef.current = startBark
 
-    const draw = (a: HTMLImageElement | undefined, b?: HTMLImageElement, mix = 0) => {
-      const key = `${a?.src}|${b?.src}|${mix.toFixed(2)}|${cw}`
-      if (key === lastKey) return
-      lastKey = key
+    const paint = (i: number) => {
+      // Nearest loaded frame at or before i, so a slow connection never shows a gap
+      let k = i
+      while (k > 0 && !ready(imgs[k])) k--
+      if (k === drawn || !ready(imgs[k])) return
+      drawn = k
+      const img = imgs[k]
       ctx.clearRect(0, 0, cw, ch)
-      // contain, bottom-aligned so his feet stay on the floor
-      const paint = (img: HTMLImageElement, alpha: number) => {
-        if (!ready(img) || alpha <= 0) return
-        const s = Math.min(cw / img.naturalWidth, ch / img.naturalHeight)
-        const w = img.naturalWidth * s
-        const h = img.naturalHeight * s
-        ctx.globalAlpha = alpha
-        ctx.drawImage(img, (cw - w) / 2, ch - h, w, h)
-      }
-      if (a) paint(a, 1 - mix)
-      if (b) paint(b, mix)
-      ctx.globalAlpha = 1
+      const s = Math.min(cw / img.naturalWidth, ch / img.naturalHeight)
+      const w = img.naturalWidth * s
+      const h = img.naturalHeight * s
+      ctx.drawImage(img, (cw - w) / 2, ch - h, w, h)
     }
 
     const frame = (now: number) => {
       const rect = section.getBoundingClientRect()
       const vh = window.innerHeight
-      const span = Math.max(1, rect.height - vh)
-      progress = clamp(-rect.top / span)
+      progress = clamp(-rect.top / Math.max(1, rect.height - vh))
       const visible = rect.bottom > 0 && rect.top < vh
-      // Ease toward the scroll position (frame-rate independent) so the dog never jumps between frames
+      // Ease toward the scroll position (frame-rate independent) so the footage glides between frames
       const dt = Math.min(64, now - lastT)
       lastT = now
-      smoothP = reduced ? progress : smoothP + (progress - smoothP) * (1 - Math.pow(1 - 0.16, dt / 16.7))
+      smoothP = reduced ? 1 : smoothP + (progress - smoothP) * (1 - Math.pow(1 - 0.18, dt / 16.7))
+      if (Math.abs(progress - smoothP) < 0.0004) smoothP = progress
 
       if (visible) {
-        // Dog: lying → standing as you scroll, then the standing/bark clip
-        if (reduced) {
-          draw(barkImgs[0])
-        } else if (barkStart >= 0 && now - barkStart < ((BARK_TO - BARK_FROM) / BARK_FPS) * 1000) {
-          const i = BARK_FROM + Math.floor(((now - barkStart) / 1000) * BARK_FPS)
-          const img = ready(barkImgs[i]) ? barkImgs[i] : barkImgs[0]
-          draw(img)
-        } else {
-          // Fractional frame: crossfade the two nearest frames for a smooth get-up
-          const f = ramp(smoothP, 0.02, 0.42) * (RISE_FRAMES - 1)
-          const i0 = Math.floor(f)
-          const i1 = Math.min(RISE_FRAMES - 1, i0 + 1)
-          const blend = ramp(smoothP, 0.38, 0.46)
-          const a0 = ready(riseImgs[i0]) ? riseImgs[i0] : riseImgs.find(ready)
-          if (blend > 0 && ready(barkImgs[0])) draw(a0, barkImgs[0], blend)
-          else {
-            // Nearest frame (blending two poses of a moving dog reads as a double image)
-            const near = f - i0 < 0.5 ? i0 : i1
-            draw(ready(riseImgs[near]) ? riseImgs[near] : a0)
+        // Getting up over the first stretch, then standing for the rest of the scroll
+        const fi = reduced
+          ? STAND_FRAME
+          : Math.round(smoothP < RISE_AT ? ramp(smoothP, 0.01, RISE_AT) * RISE_END : RISE_END + ramp(smoothP, RISE_AT, 0.98) * (FRAMES - 1 - RISE_END))
+        paint(fi)
+
+        // The footage barks on its own at these frames: add the sound and the bubble when you scroll into them
+        if (fi > lastFrame) {
+          for (const b of BARK_AT) {
+            if (lastFrame < b && fi >= b && fi - lastFrame < 12) {
+              lastBark = now
+              setWoof((w) => w + 1)
+              playBark()
+              break
+            }
           }
         }
+        lastFrame = fi
 
-        // He barks once on his own when he's up
-        if (!barkedOnScroll && smoothP > 0.5) {
-          barkedOnScroll = true
-          startBark()
+        // Depth: pointer parallax (desktop) + scroll drift; only touch the DOM when something moved
+        smoothX += (pointerX - smoothX) * 0.08
+        smoothY += (pointerY - smoothY) * 0.08
+        const layerKey = `${smoothX.toFixed(3)}|${smoothY.toFixed(3)}|${smoothP.toFixed(4)}`
+        if (layerKey !== lastLayerKey) {
+          lastLayerKey = layerKey
+          const layers = layersRef.current?.querySelectorAll<HTMLElement>("[data-depth]") ?? []
+          layers.forEach((el) => {
+            const d = Number(el.dataset.depth)
+            el.style.transform = `translate3d(${(-smoothX * 26 * d).toFixed(1)}px, ${(-smoothY * 18 * d - smoothP * 120 * d).toFixed(1)}px, 0)`
+          })
+          const dogScale = 0.94 + ramp(smoothP, 0, RISE_AT) * 0.06
+          if (canvas.parentElement) {
+            canvas.parentElement.style.transform = `translate3d(${(-smoothX * 14).toFixed(1)}px, ${(-smoothY * 8).toFixed(1)}px, 0) rotateY(${(smoothX * 6).toFixed(2)}deg) scale(${dogScale.toFixed(3)})`
+          }
+          // Copy: the welcome, then the assistant pitch (stays up while he stands)
+          const a = 1 - ramp(smoothP, 0.3, 0.4)
+          const b = ramp(smoothP, 0.42, 0.52)
+          if (textARef.current) {
+            textARef.current.style.opacity = String(a)
+            textARef.current.style.transform = `translate3d(0, ${(-(1 - a) * 40).toFixed(1)}px, 0)`
+            textARef.current.style.pointerEvents = a > 0.5 ? "auto" : "none"
+          }
+          if (textBRef.current) {
+            textBRef.current.style.opacity = String(b)
+            textBRef.current.style.transform = `translate3d(0, ${((1 - b) * 40).toFixed(1)}px, 0)`
+            textBRef.current.style.pointerEvents = b > 0.5 ? "auto" : "none"
+          }
+          if (floorRef.current) floorRef.current.style.opacity = String(0.55 + ramp(smoothP, 0.01, RISE_AT) * 0.45)
         }
-        if (progress < 0.2) barkedOnScroll = false
-
-        // Depth: pointer parallax (desktop) + scroll drift
-        smoothX += (pointerX - smoothX) * 0.06
-        smoothY += (pointerY - smoothY) * 0.06
-        const layers = layersRef.current?.querySelectorAll<HTMLElement>("[data-depth]") ?? []
-        layers.forEach((el) => {
-          const d = Number(el.dataset.depth)
-          const sy = -smoothP * 160 * d
-          el.style.transform = `translate3d(${(-smoothX * 26 * d).toFixed(1)}px, ${(-smoothY * 18 * d + sy).toFixed(1)}px, 0)`
-        })
-        const dogScale = 0.94 + ramp(smoothP, 0, 0.45) * 0.06
-        if (canvas.parentElement) {
-          canvas.parentElement.style.transform = `translate3d(${(-smoothX * 14).toFixed(1)}px, ${(-smoothY * 8).toFixed(1)}px, 0) rotateY(${(smoothX * 6).toFixed(2)}deg) scale(${dogScale.toFixed(3)})`
-        }
-
-        // Copy: the welcome, then the assistant pitch
-        const a = 1 - ramp(smoothP, 0.44, 0.54)
-        const b = ramp(smoothP, 0.56, 0.66)
-        if (textARef.current) {
-          textARef.current.style.opacity = String(a)
-          textARef.current.style.transform = `translate3d(0, ${(-(1 - a) * 40).toFixed(1)}px, 0)`
-          textARef.current.style.pointerEvents = a > 0.5 ? "auto" : "none"
-        }
-        if (textBRef.current) {
-          textBRef.current.style.opacity = String(b)
-          textBRef.current.style.transform = `translate3d(0, ${((1 - b) * 40).toFixed(1)}px, 0)`
-          textBRef.current.style.pointerEvents = b > 0.5 ? "auto" : "none"
-        }
-
-        if (floorRef.current) floorRef.current.style.opacity = String(0.55 + ramp(smoothP, 0.02, 0.42) * 0.45)
       }
       raf = requestAnimationFrame(frame)
     }
@@ -281,7 +272,7 @@ export function Hero() {
       // Only brisk movement counts, and it decays, so slow reading doesn't set him off
       travel = t - lastMove.t > 160 ? dist : travel + dist
       lastMove = { x: e.clientX, y: e.clientY, t }
-      if (travel > 420 && progress < 0.85 && section.getBoundingClientRect().top < window.innerHeight * 0.5) {
+      if (travel > 420 && section.getBoundingClientRect().bottom > window.innerHeight * 0.5) {
         travel = 0
         startBark()
       }
@@ -307,7 +298,7 @@ export function Hero() {
   }, [hint, woof])
 
   return (
-    <section ref={sectionRef} id="top" data-pin-stage className="relative h-[250svh] motion-reduce:h-svh" aria-label="Welcome">
+    <section ref={sectionRef} id="top" data-pin-stage className="relative h-[360svh] motion-reduce:h-svh" aria-label="Welcome">
       <div className="sticky top-0 h-svh overflow-hidden bg-[radial-gradient(120%_90%_at_70%_100%,oklch(0.93_0.06_215)_0%,var(--background)_55%)] grain">
         <div ref={layersRef} className="absolute inset-0" style={{ perspective: "1200px" }}>
           {/* Deepest layer: the logo's lettering, huge and quiet */}
@@ -330,7 +321,7 @@ export function Hero() {
 
           {/* The dog, standing on a soft floor shadow */}
           <div className="absolute inset-x-0 bottom-[7svh] md:bottom-[5svh] flex justify-center md:justify-end md:pr-[4vw]">
-            <div className="relative w-[min(100vw,560px,calc(44svh*1.32))] md:w-[min(60vw,880px,calc((100svh-170px)*1.32))] aspect-[720/544] [transform-style:preserve-3d] will-change-transform origin-bottom">
+            <div className="relative w-[min(100vw,560px,calc(46svh*1.267))] md:w-[min(60vw,880px,calc((100svh-150px)*1.267))] aspect-[684/540] [transform-style:preserve-3d] will-change-transform origin-bottom">
               <div
                 ref={floorRef}
                 className="absolute left-[14%] right-[10%] bottom-[1%] h-[9%] rounded-[50%] bg-[radial-gradient(closest-side,oklch(0.3_0.03_235/0.35),transparent)] blur-[2px]"

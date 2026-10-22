@@ -90,24 +90,29 @@
   color: transparent;
 }
 
-/* Soap bubbles: a thin iridescent rim with a highlight, transparent in the middle */
+/* Soap bubbles: one pre-rendered image (rim, tint, highlight) so floating them is pure compositing */
 .bubble {
   position: absolute;
-  border-radius: 9999px;
-  background-image:
-    radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.95) 0 7%, rgb(255 255 255 / 0) 13%),
-    radial-gradient(circle at 70% 78%, rgb(255 255 255 / 0.5) 0 4%, rgb(255 255 255 / 0) 9%),
-    radial-gradient(circle, rgb(255 255 255 / 0.06) 55%, rgb(150 220 245 / 0.35) 68%, rgb(255 205 120 / 0.35) 76%, rgb(255 255 255 / 0.85) 79%, rgb(255 255 255 / 0) 81%);
-  box-shadow: inset 0 0 18px rgb(255 255 255 / 0.35);
+  background: url("/biz/bubble.webp") center / contain no-repeat;
   will-change: transform;
+  backface-visibility: hidden;
 }
 .bubble-float {
   animation: bubble-float var(--dur, 9s) ease-in-out var(--delay, 0s) infinite alternate;
 }
 @keyframes bubble-float {
-  from { translate: 0 0; }
-  to { translate: var(--dx, 12px) var(--dy, -26px); }
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(var(--dx, 12px), var(--dy, -26px), 0); }
 }
+
+/* A bark: a quick recoil of the whole dog */
+@keyframes dog-bark {
+  0% { transform: none; }
+  25% { transform: translate3d(0, -1.6%, 0) scale(1.025) rotate(-0.6deg); }
+  55% { transform: translate3d(0, 0.4%, 0) scale(0.995); }
+  100% { transform: none; }
+}
+.dog-bark { animation: dog-bark 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.2); transform-origin: 60% 100%; }
 
 /* Foam that washes up over the hero into the next section */
 .foam-edge {
