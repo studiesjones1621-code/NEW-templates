@@ -40,7 +40,7 @@ export function Header() {
       className={cn(
         "fixed z-50 transition-all duration-500",
         scrolled || open
-          ? "top-3 left-3 right-3 md:top-4 md:left-4 md:right-4 rounded-2xl bg-background/90 backdrop-blur-md shadow-lg shadow-primary/10 py-3"
+          ? "top-3 left-3 right-3 md:top-4 md:left-4 md:right-4 rounded-2xl bg-background/95 shadow-lg shadow-primary/10 py-3"
           : "top-0 left-0 right-0 py-5",
       )}
     >

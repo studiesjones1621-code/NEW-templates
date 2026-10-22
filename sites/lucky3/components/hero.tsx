@@ -10,7 +10,7 @@ import { TalkButton } from "./talk-button"
   lies on the hero floor. Scrolling scrubs him up onto his feet; once he's standing he barks, and
   after that every quick move of the mouse (or a tap on him) makes him bark again. Layers of soap
   bubbles, the giant "LUCKY 3" lettering and the dog sit at different depths and drift with the
-  pointer, then a wave of bath foam washes up and clears into the next section.
+  pointer. He stays on his feet while the page scrolls on into a rim of bath foam.
 */
 
 const RISE_FRAMES = 51
@@ -48,8 +48,7 @@ export function Hero() {
   const layersRef = useRef<HTMLDivElement>(null)
   const textARef = useRef<HTMLDivElement>(null)
   const textBRef = useRef<HTMLDivElement>(null)
-  const foamRef = useRef<HTMLDivElement>(null)
-  const floorRef = useRef<HTMLDivElement>(null)
+    const floorRef = useRef<HTMLDivElement>(null)
   const [woof, setWoof] = useState(0)
   const [sound, setSound] = useState(true)
   const [unlocked, setUnlocked] = useState(false)
@@ -107,6 +106,7 @@ export function Hero() {
       const img = new Image()
       img.decoding = "async"
       img.src = src
+      img.decode?.().catch(() => {})
       return img
     }
     if (reduced) {
@@ -140,6 +140,8 @@ export function Hero() {
     }
 
     let progress = 0
+    let smoothP = 0
+    let lastT = performance.now()
     let barkStart = -1
     let lastBark = 0
     let barkedOnScroll = false
@@ -158,7 +160,7 @@ export function Hero() {
     const startBark = () => {
       const now = performance.now()
       if (now - lastBark < 1500) return
-      if (progress < 0.38 && !reduced) return // still getting up
+      if (smoothP < 0.4 && !reduced) return // still getting up
       lastBark = now
       barkStart = now
       setWoof((w) => w + 1)
@@ -202,6 +204,10 @@ export function Hero() {
       const span = Math.max(1, rect.height - vh)
       progress = clamp(-rect.top / span)
       const visible = rect.bottom > 0 && rect.top < vh
+      // Ease toward the scroll position (frame-rate independent) so the dog never jumps between frames
+      const dt = Math.min(64, now - lastT)
+      lastT = now
+      smoothP = reduced ? progress : smoothP + (progress - smoothP) * (1 - Math.pow(1 - 0.16, dt / 16.7))
 
       if (visible) {
         // Dog: lying → standing as you scroll, then the standing/bark clip
@@ -212,17 +218,22 @@ export function Hero() {
           const img = ready(barkImgs[i]) ? barkImgs[i] : barkImgs[0]
           draw(img)
         } else {
-          const riseP = ramp(progress, 0.03, 0.4)
-          const ri = Math.round(riseP * (RISE_FRAMES - 1))
-          const blend = ramp(progress, 0.36, 0.44)
-          const r = riseImgs[ri]
-          const r2 = ready(r) ? r : riseImgs.find(ready)
-          if (blend > 0 && ready(barkImgs[0])) draw(r2, barkImgs[0], blend)
-          else draw(r2)
+          // Fractional frame: crossfade the two nearest frames for a smooth get-up
+          const f = ramp(smoothP, 0.02, 0.42) * (RISE_FRAMES - 1)
+          const i0 = Math.floor(f)
+          const i1 = Math.min(RISE_FRAMES - 1, i0 + 1)
+          const blend = ramp(smoothP, 0.38, 0.46)
+          const a0 = ready(riseImgs[i0]) ? riseImgs[i0] : riseImgs.find(ready)
+          if (blend > 0 && ready(barkImgs[0])) draw(a0, barkImgs[0], blend)
+          else {
+            // Nearest frame (blending two poses of a moving dog reads as a double image)
+            const near = f - i0 < 0.5 ? i0 : i1
+            draw(ready(riseImgs[near]) ? riseImgs[near] : a0)
+          }
         }
 
         // He barks once on his own when he's up
-        if (!barkedOnScroll && progress > 0.47) {
+        if (!barkedOnScroll && smoothP > 0.5) {
           barkedOnScroll = true
           startBark()
         }
@@ -234,17 +245,17 @@ export function Hero() {
         const layers = layersRef.current?.querySelectorAll<HTMLElement>("[data-depth]") ?? []
         layers.forEach((el) => {
           const d = Number(el.dataset.depth)
-          const sy = -progress * 160 * d
+          const sy = -smoothP * 160 * d
           el.style.transform = `translate3d(${(-smoothX * 26 * d).toFixed(1)}px, ${(-smoothY * 18 * d + sy).toFixed(1)}px, 0)`
         })
-        const dogScale = 0.92 + ramp(progress, 0, 0.5) * 0.1
+        const dogScale = 0.94 + ramp(smoothP, 0, 0.45) * 0.06
         if (canvas.parentElement) {
           canvas.parentElement.style.transform = `translate3d(${(-smoothX * 14).toFixed(1)}px, ${(-smoothY * 8).toFixed(1)}px, 0) rotateY(${(smoothX * 6).toFixed(2)}deg) scale(${dogScale.toFixed(3)})`
         }
 
         // Copy: the welcome, then the assistant pitch
-        const a = 1 - ramp(progress, 0.42, 0.52)
-        const b = ramp(progress, 0.52, 0.6) * (1 - ramp(progress, 0.82, 0.9))
+        const a = 1 - ramp(smoothP, 0.44, 0.54)
+        const b = ramp(smoothP, 0.56, 0.66)
         if (textARef.current) {
           textARef.current.style.opacity = String(a)
           textARef.current.style.transform = `translate3d(0, ${(-(1 - a) * 40).toFixed(1)}px, 0)`
@@ -256,10 +267,7 @@ export function Hero() {
           textBRef.current.style.pointerEvents = b > 0.5 ? "auto" : "none"
         }
 
-        // Bath foam washes up over everything at the end
-        const f = ramp(progress, 0.72, 1)
-        if (foamRef.current) foamRef.current.style.transform = `translate3d(0, ${((1 - f) * 105).toFixed(2)}%, 0)`
-        if (floorRef.current) floorRef.current.style.opacity = String(0.55 + ramp(progress, 0.03, 0.4) * 0.45)
+        if (floorRef.current) floorRef.current.style.opacity = String(0.55 + ramp(smoothP, 0.02, 0.42) * 0.45)
       }
       raf = requestAnimationFrame(frame)
     }
@@ -299,7 +307,7 @@ export function Hero() {
   }, [hint, woof])
 
   return (
-    <section ref={sectionRef} id="top" data-pin-stage className="relative h-[300svh] motion-reduce:h-svh" aria-label="Welcome">
+    <section ref={sectionRef} id="top" data-pin-stage className="relative h-[250svh] motion-reduce:h-svh" aria-label="Welcome">
       <div className="sticky top-0 h-svh overflow-hidden bg-[radial-gradient(120%_90%_at_70%_100%,oklch(0.93_0.06_215)_0%,var(--background)_55%)] grain">
         <div ref={layersRef} className="absolute inset-0" style={{ perspective: "1200px" }}>
           {/* Deepest layer: the logo's lettering, huge and quiet */}
@@ -322,7 +330,7 @@ export function Hero() {
 
           {/* The dog, standing on a soft floor shadow */}
           <div className="absolute inset-x-0 bottom-[7svh] md:bottom-[5svh] flex justify-center md:justify-end md:pr-[4vw]">
-            <div className="relative w-[min(118vw,560px)] translate-x-[6vw] md:translate-x-0 md:w-[min(60vw,880px)] aspect-[720/544] [transform-style:preserve-3d] will-change-transform origin-bottom">
+            <div className="relative w-[min(100vw,560px,calc(44svh*1.32))] md:w-[min(60vw,880px,calc((100svh-170px)*1.32))] aspect-[720/544] [transform-style:preserve-3d] will-change-transform origin-bottom">
               <div
                 ref={floorRef}
                 className="absolute left-[14%] right-[10%] bottom-[1%] h-[9%] rounded-[50%] bg-[radial-gradient(closest-side,oklch(0.3_0.03_235/0.35),transparent)] blur-[2px]"
@@ -359,12 +367,12 @@ export function Hero() {
         </div>
 
         {/* Copy */}
-        <div className="relative z-10 h-full container mx-auto px-5 md:px-8 pt-28 md:pt-0 md:flex md:items-center pointer-events-none">
+        <div className="relative z-10 h-full container mx-auto px-5 md:px-8 pt-28 md:pt-16 md:flex md:items-center pointer-events-none">
           <div ref={textARef} className="max-w-xl will-change-transform pointer-events-auto">
             <p className="fade-up text-xs md:text-sm font-semibold uppercase tracking-[0.18em] text-sky-deep" style={{ ["--d" as string]: "100ms" }}>
               Dog &amp; cat grooming · Baltimore
             </p>
-            <h1 className="mt-4 font-display font-extrabold tracking-tight text-[11.5vw] leading-[0.9] md:text-7xl lg:text-8xl">
+            <h1 className="mt-4 font-display font-extrabold tracking-tight text-[11.5vw] leading-[0.9] md:text-[clamp(3rem,min(6.4vw,10.5svh),6rem)]">
               <span className="block overflow-hidden pb-1">
                 <span className="rise-in block" style={{ ["--d" as string]: "150ms" }}>
                   <span className="lucky-text">Lucky</span> dogs
@@ -388,7 +396,7 @@ export function Hero() {
               <TalkButton className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3.5 text-sm font-semibold shadow-lg shadow-primary/25 hover:bg-tangerine hover:text-primary transition-colors" />
               <a
                 href={business.phoneHref}
-                className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 backdrop-blur px-5 py-3.5 text-sm font-semibold hover:border-tangerine transition-colors"
+                className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/90 px-5 py-3.5 text-sm font-semibold hover:border-tangerine transition-colors"
               >
                 <Phone className="w-4 h-4" aria-hidden /> {business.phoneDisplay}
               </a>
@@ -425,14 +433,14 @@ export function Hero() {
             type="button"
             onClick={toggleSound}
             aria-pressed={sound}
-            className="inline-flex items-center gap-2 rounded-full bg-background/80 backdrop-blur border border-primary/15 px-4 py-2 text-xs font-semibold hover:border-tangerine transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-full bg-background/90 border border-primary/15 px-4 py-2 text-xs font-semibold hover:border-tangerine transition-colors cursor-pointer"
           >
             {sound ? <Volume2 className="w-4 h-4" aria-hidden /> : <VolumeX className="w-4 h-4" aria-hidden />}
             {sound ? "Bark: on" : "Bark: muted"}
           </button>
           {hint && sound && !unlocked && (
             <span className="fade-up rounded-full bg-primary text-primary-foreground px-3 py-2 text-xs font-semibold">
-              Tap anywhere to hear him
+              Click or tap to hear him
             </span>
           )}
         </div>
@@ -440,14 +448,6 @@ export function Hero() {
           Scroll · move your mouse
         </p>
 
-        {/* Bath foam wash */}
-        <div ref={foamRef} className="absolute inset-x-0 bottom-0 h-[115%] z-30 will-change-transform pointer-events-none" style={{ transform: "translate3d(0, 105%, 0)" }} aria-hidden>
-          <div className="foam-edge absolute inset-x-0 -top-[78px] h-[80px]" />
-          <div className="absolute inset-0 bg-foam" />
-          {[12, 30, 55, 71, 88].map((x, i) => (
-            <span key={x} className="bubble" style={{ left: `${x}%`, top: `${-60 - (i % 2) * 50}px`, width: 40 + i * 12, height: 40 + i * 12 }} />
-          ))}
-        </div>
       </div>
     </section>
   )

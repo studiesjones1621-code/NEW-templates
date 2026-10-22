@@ -23,6 +23,8 @@ function untilt(e: React.PointerEvent<HTMLElement>) {
 export function Services() {
   return (
     <section id="services" className="relative bg-foam pt-10 md:pt-16 pb-24 md:pb-32">
+      {/* Bath-foam rim the hero scrolls into */}
+      <div className="foam-edge absolute inset-x-0 -top-[78px] h-[80px] pointer-events-none" aria-hidden />
       {/* New-customer offer, straight from the shop's homepage */}
       <div className="overflow-hidden border-y border-primary/10 bg-marigold/90 text-primary">
         <div className="marquee flex w-max gap-10 py-3 font-display font-bold text-sm md:text-base whitespace-nowrap">
