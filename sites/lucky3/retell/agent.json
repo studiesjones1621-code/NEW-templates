@@ -1,0 +1,8 @@
+{
+  "agent_name": "Lucky 3 Dog & Cat Grooming - Website Assistant",
+  "prompt_file": "retell/system-prompt.md",
+  "begin_message": "Hi, thanks for calling Lucky 3 Dog and Cat Grooming! I'm Penny. I can answer questions about grooming your dog or cat, or take an appointment request for David. How can I help?",
+  "voice_id": "11labs-Marissa",
+  "timezone": "America/New_York",
+  "boosted_keywords": ["Lucky 3", "David", "David Walter", "Beverly", "Conkling", "Highlandtown", "Canton", "matted", "dematting", "Lhasa Apso", "Bichon", "Shih Tzu", "poodle", "Yorkie", "Maltese", "groom", "sedative"]
+}
