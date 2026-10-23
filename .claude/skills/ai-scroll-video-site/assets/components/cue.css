@@ -1,0 +1,16 @@
+/* Scene overlays read the stage's eased scroll progress (--p) */
+.cue {
+  --in-a: 0;
+  --in-b: 0.1;
+  --out-a: 2;
+  --out-b: 3;
+  opacity: min(
+    clamp(0, calc((var(--p) - var(--in-a)) / (var(--in-b) - var(--in-a))), 1),
+    clamp(0, calc((var(--out-b) - var(--p)) / (var(--out-b) - var(--out-a))), 1)
+  );
+  translate: 0 calc((1 - clamp(0, calc((var(--p) - var(--in-a)) / (var(--in-b) - var(--in-a))), 1)) * 28px);
+  will-change: opacity, translate;
+}
+/* Overlays never block the page; only their links and buttons take clicks */
+.cue { pointer-events: none; }
+.cue a, .cue button { pointer-events: auto; }
