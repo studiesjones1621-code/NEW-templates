@@ -69,10 +69,13 @@ export function GavelHit() {
       if (name !== SCENE) return
       const prev = lastFrame
       lastFrame = frame
-      if (prev < 0 || frame <= prev || frame - prev > 12) return // only when scrolling forward through it
+      if (prev < 0 || frame <= prev || frame - prev > 40) return // only when scrolling forward through it (not a jump from a nav link)
+      // If one scroll step passes both strikes, play them as a quick "dun dun" instead of a single hit
+      let delay = 0.01
       HITS.forEach((h, i) => {
         if (prev < h && frame >= h && ctx && ctx.state === "running" && soundOn()) {
-          thud(ctx, ctx.currentTime + 0.01, i === 0 ? 92 : 78, i === 0 ? 0.55 : 0.6)
+          thud(ctx, ctx.currentTime + delay, i === 0 ? 92 : 78, i === 0 ? 0.55 : 0.6)
+          delay += 0.42
         }
       })
     }
