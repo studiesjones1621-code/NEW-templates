@@ -113,6 +113,7 @@ export function ScrubScene({
     let raf = 0
     let p = 0
     let last = -1
+    let lastFi = -1
     let lastP = -1
     let t0 = performance.now()
     const resize = () => {
@@ -132,9 +133,12 @@ export function ScrubScene({
         p = reduced ? target : p + (target - p) * (1 - Math.pow(1 - 0.16, dt / 16.7))
         if (Math.abs(target - p) < 0.0005) p = target
         const fi = Math.round(clamp((p - from) / (to - from)) * (frames - 1))
-        const drawn = drawFrame(canvas, imgs.current, reduced ? frames - 1 : fi, last)
-        if (drawn !== last) window.dispatchEvent(new CustomEvent(SCRUB_FRAME_EVENT, { detail: { name, frame: drawn } }))
-        last = drawn
+        last = drawFrame(canvas, imgs.current, reduced ? frames - 1 : fi, last)
+        // Report the frame the scroll has reached (even if its image is still loading) so sound stays in sync
+        if (fi !== lastFi) {
+          lastFi = fi
+          window.dispatchEvent(new CustomEvent(SCRUB_FRAME_EVENT, { detail: { name, frame: fi } }))
+        }
         if (Math.abs(p - lastP) > 0.0005) {
           lastP = p
           stage.style.setProperty("--p", p.toFixed(4))
