@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils"
 /** Fired by the voice assistant with `{ busy: boolean }` while its mic check or call is open. */
 export const ASSISTANT_EVENT = "site:assistant"
 
-// "Hitman" by Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0
+// "Investigations" by Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0
 // (credited in the footer). Encoded per the site-music skill.
-const SRC = "/audio/ambient.mp3"
+const SRC = "/audio/investigations.mp3"
 const VOLUME = 0.32
 const FADE_S = 1.6
 const PREF_KEY = "calderreyes-sound" // remembers a visitor who muted it; rename per site if two sites share a domain

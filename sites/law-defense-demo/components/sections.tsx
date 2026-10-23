@@ -176,7 +176,7 @@ export function Footer() {
           <p>
             Courthouse photo: Clarence M. Mitchell Jr. Courthouse and Battle Monument, HABS (Library of Congress), public domain. Courtroom
             photo: Carol M. Highsmith Archive, Library of Congress, public domain. Scenes generated with Google Gemini. Music:
-            &ldquo;Hitman&rdquo; by Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0.
+            &ldquo;Investigations&rdquo; by Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0.
           </p>
         </div>
       </div>
