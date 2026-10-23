@@ -1,0 +1,177 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Saffra Skin: sunlit cream, espresso ink and saffron orange, taken from the amber bottle and the serum itself.
+   Token names kept from the earlier scroll builds: "ember" = saffron accent, "frost" = pale apricot, "ink" = espresso. */
+:root {
+  color-scheme: light;
+  --background: oklch(0.975 0.014 75);
+  --foreground: oklch(0.26 0.035 45);
+  --card: oklch(0.995 0.006 80);
+  --card-foreground: oklch(0.26 0.035 45);
+  --popover: oklch(0.995 0.006 80);
+  --popover-foreground: oklch(0.26 0.035 45);
+  --primary: oklch(0.27 0.04 42);
+  --primary-foreground: oklch(0.975 0.014 75);
+  --secondary: oklch(0.93 0.035 70);
+  --secondary-foreground: oklch(0.26 0.035 45);
+  --muted: oklch(0.94 0.02 72);
+  --muted-foreground: oklch(0.47 0.035 45);
+  --accent: oklch(0.93 0.035 70);
+  --accent-foreground: oklch(0.26 0.035 45);
+  --ink: oklch(0.24 0.04 42);
+  --ember: oklch(0.66 0.175 48);
+  --ember-soft: oklch(0.74 0.15 55);
+  --frost: oklch(0.92 0.06 70);
+  --destructive: oklch(0.58 0.2 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.26 0.035 45 / 0.12);
+  --input: oklch(0.26 0.035 45 / 0.18);
+  --ring: oklch(0.66 0.175 48);
+  --radius: 1rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans-brand), system-ui, sans-serif;
+  --font-display: var(--font-display-brand), var(--font-sans-brand), system-ui, sans-serif;
+  --color-ink: var(--ink);
+  --color-ember: var(--ember);
+  --color-ember-soft: var(--ember-soft);
+  --color-frost: var(--frost);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  html.lenis {
+    scroll-behavior: auto;
+  }
+  section[id] {
+    scroll-margin-top: 90px;
+  }
+}
+
+/* Scene overlays read the stage's eased scroll progress (--p) */
+.cue {
+  --in-a: 0;
+  --in-b: 0.1;
+  --out-a: 2;
+  --out-b: 3;
+  opacity: min(
+    clamp(0, calc((var(--p) - var(--in-a)) / (var(--in-b) - var(--in-a))), 1),
+    clamp(0, calc((var(--out-b) - var(--p)) / (var(--out-b) - var(--out-a))), 1)
+  );
+  translate: 0 calc((1 - clamp(0, calc((var(--p) - var(--in-a)) / (var(--in-b) - var(--in-a))), 1)) * 28px);
+  will-change: opacity, translate;
+}
+
+/* Warm light washes so espresso type reads over the bright orange footage */
+.scrim-left {
+  background-image: linear-gradient(90deg, oklch(0.97 0.03 75 / 0.88) 0%, oklch(0.97 0.03 75 / 0.55) 40%, transparent 66%);
+}
+.scrim-bottom {
+  background-image: linear-gradient(0deg, oklch(0.97 0.02 75 / 0.92) 0%, oklch(0.97 0.02 75 / 0.4) 32%, transparent 58%);
+}
+
+.ember-text {
+  background-image: linear-gradient(180deg, oklch(0.72 0.17 60), oklch(0.58 0.18 40));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.frost-text {
+  background-image: linear-gradient(180deg, oklch(0.95 0.05 200), var(--frost));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+.reveal.is-in { opacity: 1; transform: none; }
+
+/* Range inputs styled as instrument sliders */
+input[type="range"].dial-range {
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--frost), var(--ember));
+  outline: none;
+}
+input[type="range"].dial-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--foreground);
+  border: 3px solid var(--ink);
+  box-shadow: 0 0 0 2px var(--ember);
+  cursor: grab;
+}
+input[type="range"].dial-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--foreground);
+  border: 3px solid var(--ink);
+  box-shadow: 0 0 0 2px var(--ember);
+  cursor: grab;
+}
+input[type="range"].dial-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px var(--ember);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .cue { opacity: 1; translate: none; }
+}
+
+/* Overlays never block the page; only their links and buttons take clicks */
+.cue { pointer-events: none; }
+.cue a, .cue button { pointer-events: auto; }
+
+/* Top and bottom wash for bright scenes with copy at both ends */
+.scrim-both {
+  background-image:
+    linear-gradient(180deg, oklch(0.97 0.03 75 / 0.85) 0%, oklch(0.97 0.03 75 / 0.45) 24%, transparent 44%),
+    linear-gradient(0deg, oklch(0.97 0.02 75 / 0.9) 0%, oklch(0.97 0.02 75 / 0.35) 32%, transparent 56%);
+}
+.text-shade { text-shadow: 0 1px 14px oklch(0.98 0.02 75 / 0.9), 0 0 2px oklch(0.98 0.02 75 / 0.7); }
+
+/* Cart drawer slides in from the right */
+@keyframes drawer-in { from { translate: 100% 0; } to { translate: 0 0; } }
+.drawer-in { animation: drawer-in 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+@media (prefers-reduced-motion: reduce) { .drawer-in { animation: none; } }
+
+/* Gradient-clipped text can't carry a text shadow (it paints over the letters), so drop it inside shaded headings */
+.text-shade .ember-text { text-shadow: none; filter: drop-shadow(0 1px 10px oklch(0.98 0.02 75 / 0.75)); }

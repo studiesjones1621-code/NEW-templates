@@ -1,0 +1,8 @@
+{
+  "agent_name": "Saffra Skin - Concept Demo Skincare Advisor",
+  "prompt_file": "retell/system-prompt.md",
+  "begin_message": "Hi, this is Amber from Saffra Skin. I can help you figure out if Golden Hour Serum suits your skin and how to fit it into your routine. What's your skin like?",
+  "voice_id": "11labs-Marissa",
+  "timezone": "America/New_York",
+  "boosted_keywords": ["Saffra", "Golden Hour", "vitamin C", "sea buckthorn", "saffron", "hyaluronic acid", "retinol", "SPF", "serum"]
+}
