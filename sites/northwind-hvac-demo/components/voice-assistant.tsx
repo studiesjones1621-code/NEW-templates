@@ -282,7 +282,7 @@ export function VoiceAssistant() {
           data-voice-public-key={PUBLIC_KEY}
           data-voice-agent-id={AGENT_ID}
           data-title={business.fullName}
-          data-bot-name="Nora"
+          data-bot-name="Kate"
           data-logo-url="/brand/logo-square.png"
           data-theme-color="#14171a"
           data-component-color="#ff6b2c"
