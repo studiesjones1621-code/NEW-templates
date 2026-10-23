@@ -13,6 +13,7 @@ export const business = {
   email: "intake@calderreyes.example",
   address: "Saint Paul Street, Downtown Baltimore",
   city: "Baltimore",
+  area: "Baltimore City and Baltimore County",
   hours: "Calls answered 24/7 · Office Mon–Fri, 8:30 AM – 6 PM",
   demoNote: "Concept template · fictional firm",
 } as const

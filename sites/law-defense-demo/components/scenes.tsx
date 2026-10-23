@@ -11,13 +11,14 @@ const cue = (inA: number, inB: number, outA = 2, outB = 3) =>
 const eyebrow = "text-[11px] md:text-xs font-semibold uppercase tracking-[0.24em]"
 const display = "font-display font-semibold tracking-tight leading-[0.95]"
 
-/** From the real Clarence M. Mitchell Jr. Courthouse on Calvert Street, up the steps and into the courtroom. */
+/** One continuous move: a zoom into the real Mitchell Courthouse photo (Calvert St entrance), then through the doors into the courtroom. */
 export function HeroScene() {
   return (
     <ScrubScene
       name="enter"
-      height="400svh"
-      from={0.04}
+      frames={179}
+      height="460svh"
+      from={0.03}
       to={0.86}
       label="Moving from Baltimore's Mitchell Courthouse and Battle Monument, up the steps and into a wood-paneled courtroom"
       overlayClassName="scrim-left"
@@ -60,12 +61,12 @@ export function HeroScene() {
 /** The gavel comes down as you scroll; the firm's record lands with it. */
 export function GavelScene() {
   return (
-    <ScrubScene name="gavel" height="280svh" from={0.05} to={0.7} label="A judge's gavel striking the sound block in slow motion" overlayClassName="scrim-bottom">
+    <ScrubScene name="gavel" height="280svh" from={0.05} to={0.7} label="A judge's gavel striking the sound block in slow motion" overlayClassName="scrim-both">
       <div className="cue absolute inset-x-0 top-24 md:top-28" style={cue(-1, -0.5, 0.25, 0.35)}>
         <div className="container mx-auto px-5 md:px-10">
-          <p className={`${eyebrow} text-ember`}>Ready for trial</p>
-          <h2 className={`mt-3 ${display} text-5xl md:text-7xl max-w-[12ch]`}>
-            Prepared for <span className="ember-text italic">the verdict.</span>
+          <p className={`${eyebrow} text-ember text-shade`}>Ready for trial</p>
+          <h2 className={`mt-3 ${display} text-5xl md:text-7xl max-w-[12ch] text-shade`}>
+            Prepared for <span className="text-ember italic">the verdict.</span>
           </h2>
         </div>
       </div>
@@ -109,13 +110,16 @@ export function PrepScene() {
 /** Sunrise over the Inner Harbor: back to your life. */
 export function DawnScene() {
   return (
-    <ScrubScene name="dawn" height="260svh" from={0.02} to={0.9} label="Sunrise over Baltimore's Inner Harbor" overlayClassName="scrim-bottom">
+    <ScrubScene name="dawn" height="260svh" from={0.02} to={0.9} label="Sunrise over Baltimore's Inner Harbor" overlayClassName="scrim-both">
       <div className="cue absolute inset-x-0 bottom-0 pb-14 md:pb-20" style={cue(0.35, 0.5)}>
         <div className="container mx-auto px-5 md:px-10">
-          <p className={`${eyebrow} text-ember`}>After</p>
-          <h2 className={`mt-3 ${display} text-5xl md:text-7xl max-w-[13ch]`}>
-            Get back to <span className="ember-text italic">your life.</span>
+          <p className={`${eyebrow} text-ember text-shade`}>Where we practice</p>
+          <h2 className={`mt-3 ${display} text-5xl md:text-7xl max-w-[16ch] text-shade`}>
+            Serving Baltimore City <span className="text-ember italic">&amp; Baltimore County.</span>
           </h2>
+          <p className="mt-4 max-w-xl text-base md:text-lg text-white/85 leading-relaxed text-shade">
+            District and Circuit Courts across Baltimore City and Baltimore County, from bail review to jury trial.
+          </p>
           <TalkButton className="mt-7 inline-flex items-center gap-2 rounded-full bg-ember text-ink px-6 py-3.5 text-sm font-bold hover:bg-ember-soft transition-colors">
             Start a free consultation
           </TalkButton>

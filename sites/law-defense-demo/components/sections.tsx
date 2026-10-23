@@ -151,7 +151,9 @@ export function Contact() {
           </li>
           <li className="flex gap-4 rounded-2xl bg-card p-5 ring-1 ring-white/5">
             <MapPin className="w-5 h-5 text-ember shrink-0 mt-0.5" aria-hidden />
-            <span className="text-sm text-white/85">{business.address}, steps from the Mitchell Courthouse</span>
+            <span className="text-sm text-white/85">
+              {business.address}, steps from the Mitchell Courthouse. Serving {business.area}.
+            </span>
           </li>
         </ul>
       </div>
