@@ -3,7 +3,6 @@ import { Phone } from "lucide-react"
 import { business, stats } from "@/lib/business"
 import { ScrubScene } from "./scrub-scene"
 import { TalkButton } from "./talk-button"
-import { GavelHit } from "./gavel-hit"
 
 /** Overlay timing on the scene's scroll progress: fades in over [inA, inB], out over [outA, outB]. */
 const cue = (inA: number, inB: number, outA = 2, outB = 3) =>
@@ -63,7 +62,6 @@ export function HeroScene() {
 export function GavelScene() {
   return (
     <ScrubScene name="gavel" height="280svh" from={0.05} to={0.7} label="A judge's gavel striking the sound block in slow motion" overlayClassName="scrim-both">
-      <GavelHit />
       <div className="cue absolute inset-x-0 top-24 md:top-28" style={cue(-1, -0.5, 0.25, 0.35)}>
         <div className="container mx-auto px-5 md:px-10">
           <p className={`${eyebrow} text-ember text-shade`}>Ready for trial</p>
