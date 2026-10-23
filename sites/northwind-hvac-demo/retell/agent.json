@@ -1,8 +1,8 @@
 {
-  "agent_name": "Northwind Heating & Air - Concept Demo Assistant",
+  "agent_name": "Prime Air Heating & Cooling - Concept Demo Assistant",
   "prompt_file": "retell/system-prompt.md",
-  "begin_message": "Hi, thanks for calling Northwind Heating and Air. I'm Nora. Are you having a problem with your heat or air, or can I help with something else?",
+  "begin_message": "Hi, thanks for calling Prime Air Heating and Cooling. I'm Nora. Are you having a problem with your heat or air, or can I help with something else?",
   "voice_id": "11labs-Marissa",
   "timezone": "America/New_York",
-  "boosted_keywords": ["Northwind", "furnace", "heat pump", "mini-split", "ductless", "thermostat", "condenser", "compressor", "carbon monoxide", "tune-up", "duct sealing"]
+  "boosted_keywords": ["Prime Air", "furnace", "heat pump", "mini-split", "ductless", "thermostat", "condenser", "compressor", "carbon monoxide", "tune-up", "duct sealing"]
 }

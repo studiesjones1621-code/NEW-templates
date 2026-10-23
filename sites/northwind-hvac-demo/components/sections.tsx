@@ -21,7 +21,7 @@ export function Wordmark() {
       <span className="relative flex w-7 h-7 items-center justify-center rounded-lg bg-ember text-ink">
         <Wind className="w-4 h-4" strokeWidth={2.5} aria-hidden />
       </span>
-      <span className="font-display font-extrabold text-lg tracking-tight">Northwind</span>
+      <span className="font-display font-extrabold text-lg tracking-tight">Prime Air</span>
     </span>
   )
 }

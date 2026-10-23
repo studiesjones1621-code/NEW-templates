@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Northwind: night-charcoal like the inside of a dark mechanical room, ember orange for heat,
+/* Prime Air: night-charcoal like the inside of a dark mechanical room, ember orange for heat,
    frost cyan for cooling and the x-ray. One dark look by design. */
 :root {
   color-scheme: dark;

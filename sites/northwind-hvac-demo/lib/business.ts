@@ -1,9 +1,9 @@
-// Northwind Heating & Air is a FICTIONAL business: this site is a concept demo, so the name, address and
+// Prime Air Heating & Cooling is a FICTIONAL business: this site is a concept demo, so the name, address and
 // phone number below are made up (555 numbers are reserved for fiction). The HVAC facts are real.
 
 export const business = {
-  name: "Northwind",
-  fullName: "Northwind Heating & Air",
+  name: "Prime Air",
+  fullName: "Prime Air Heating & Cooling",
   type: "Heating, Cooling & Air Quality",
   phoneDisplay: "(555) 010-0144",
   phoneHref: "tel:+15550100144",

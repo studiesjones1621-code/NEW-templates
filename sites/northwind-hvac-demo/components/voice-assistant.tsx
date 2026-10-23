@@ -9,10 +9,10 @@ import { TALK_EVENT } from "./talk-button"
 const AGENT_ID = process.env.NEXT_PUBLIC_RETELL_AGENT_ID
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_RETELL_PUBLIC_KEY
 const PROMPT_DELAY_MS = 4000
-const PROMPT_DISMISSED_KEY = "northwind_prompt_dismissed"
+const PROMPT_DISMISSED_KEY = "primeair_prompt_dismissed"
 
 // Hides Retell's stock launcher (we render our own) while leaving its call window intact.
-const WIDGET_STYLE_ID = "northwind-widget-overrides"
+const WIDGET_STYLE_ID = "primeair-widget-overrides"
 const WIDGET_CSS = `[class*="_fabWrapBase"], [class*="_poweredByBase"] { display: none !important; }`
 
 type Status = "idle" | "checking" | "open"
