@@ -90,7 +90,7 @@ export function GavelScene() {
 /** Late-night case prep: the work clients don't see. */
 export function PrepScene() {
   return (
-    <ScrubScene name="prep" height="260svh" from={0.02} to={0.9} label="A lamp-lit attorney's desk with case files at night" overlayClassName="scrim-left">
+    <ScrubScene name="prep" frames={98} height="260svh" from={0.02} to={0.9} label="A lamp-lit attorney's desk with case files at night" overlayClassName="scrim-left">
       <div className="cue absolute inset-0 flex items-center" style={cue(0.2, 0.34)}>
         <div className="container mx-auto px-5 md:px-10 max-w-3xl md:ml-0">
           <p className={`${eyebrow} text-ember`}>Before court</p>
@@ -110,7 +110,7 @@ export function PrepScene() {
 /** Sunrise over the Inner Harbor: back to your life. */
 export function DawnScene() {
   return (
-    <ScrubScene name="dawn" height="260svh" from={0.02} to={0.9} label="Sunrise over Baltimore's Inner Harbor" overlayClassName="scrim-both">
+    <ScrubScene name="dawn" frames={77} height="260svh" from={0.02} to={0.9} label="Sunrise over Baltimore's Inner Harbor" overlayClassName="scrim-both">
       <div className="cue absolute inset-x-0 bottom-0 pb-14 md:pb-20" style={cue(0.35, 0.5)}>
         <div className="container mx-auto px-5 md:px-10">
           <p className={`${eyebrow} text-ember text-shade`}>Where we practice</p>
