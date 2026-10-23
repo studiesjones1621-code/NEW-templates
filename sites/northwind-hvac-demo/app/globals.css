@@ -1,0 +1,160 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Northwind: night-charcoal like the inside of a dark mechanical room, ember orange for heat,
+   frost cyan for cooling and the x-ray. One dark look by design. */
+:root {
+  color-scheme: dark;
+  --background: oklch(0.17 0.008 250);
+  --foreground: oklch(0.96 0.005 80);
+  --card: oklch(0.22 0.01 250);
+  --card-foreground: oklch(0.96 0.005 80);
+  --popover: oklch(0.22 0.01 250);
+  --popover-foreground: oklch(0.96 0.005 80);
+  --primary: oklch(0.69 0.19 42);
+  --primary-foreground: oklch(0.16 0.01 250);
+  --secondary: oklch(0.26 0.012 250);
+  --secondary-foreground: oklch(0.96 0.005 80);
+  --muted: oklch(0.26 0.012 250);
+  --muted-foreground: oklch(0.72 0.012 250);
+  --accent: oklch(0.86 0.1 195);
+  --accent-foreground: oklch(0.16 0.01 250);
+  --ink: oklch(0.13 0.008 250);
+  --ember: oklch(0.69 0.19 42);
+  --ember-soft: oklch(0.8 0.13 60);
+  --frost: oklch(0.86 0.1 195);
+  --destructive: oklch(0.6 0.22 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.14);
+  --ring: oklch(0.69 0.19 42);
+  --radius: 0.9rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans-brand), system-ui, sans-serif;
+  --font-display: var(--font-display-brand), var(--font-sans-brand), system-ui, sans-serif;
+  --color-ink: var(--ink);
+  --color-ember: var(--ember);
+  --color-ember-soft: var(--ember-soft);
+  --color-frost: var(--frost);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  html.lenis {
+    scroll-behavior: auto;
+  }
+  section[id] {
+    scroll-margin-top: 90px;
+  }
+}
+
+/* Scene overlays read the stage's eased scroll progress (--p) */
+.cue {
+  --in-a: 0;
+  --in-b: 0.1;
+  --out-a: 2;
+  --out-b: 3;
+  opacity: min(
+    clamp(0, calc((var(--p) - var(--in-a)) / (var(--in-b) - var(--in-a))), 1),
+    clamp(0, calc((var(--out-b) - var(--p)) / (var(--out-b) - var(--out-a))), 1)
+  );
+  translate: 0 calc((1 - clamp(0, calc((var(--p) - var(--in-a)) / (var(--in-b) - var(--in-a))), 1)) * 28px);
+  will-change: opacity, translate;
+}
+
+.scrim-left {
+  background-image: linear-gradient(90deg, oklch(0.12 0.008 250 / 0.85) 0%, oklch(0.12 0.008 250 / 0.45) 38%, transparent 62%);
+}
+.scrim-bottom {
+  background-image: linear-gradient(0deg, oklch(0.12 0.008 250 / 0.9) 0%, oklch(0.12 0.008 250 / 0.3) 35%, transparent 60%);
+}
+
+.ember-text {
+  background-image: linear-gradient(180deg, oklch(0.85 0.13 70), var(--ember));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.frost-text {
+  background-image: linear-gradient(180deg, oklch(0.95 0.05 200), var(--frost));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+.reveal.is-in { opacity: 1; transform: none; }
+
+/* Range inputs styled as instrument sliders */
+input[type="range"].dial-range {
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--frost), var(--ember));
+  outline: none;
+}
+input[type="range"].dial-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--foreground);
+  border: 3px solid var(--ink);
+  box-shadow: 0 0 0 2px var(--ember);
+  cursor: grab;
+}
+input[type="range"].dial-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--foreground);
+  border: 3px solid var(--ink);
+  box-shadow: 0 0 0 2px var(--ember);
+  cursor: grab;
+}
+input[type="range"].dial-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px var(--ember);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .cue { opacity: 1; translate: none; }
+}
+
+/* Overlays never block the page; only their links and buttons take clicks */
+.cue { pointer-events: none; }
+.cue a, .cue button { pointer-events: auto; }
