@@ -5,6 +5,7 @@ import { Clock, MapPin, Phone, Scale } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { attorneys, business } from "@/lib/business"
 import { TalkButton } from "./talk-button"
+import { SiteMusic } from "./site-music"
 
 const eyebrow = "text-[11px] md:text-xs font-semibold uppercase tracking-[0.24em]"
 const display = "font-display font-semibold tracking-tight leading-[0.95]"
@@ -20,7 +21,7 @@ export function Wordmark() {
   return (
     <span className="flex items-center gap-2.5">
       <Scale className="w-5 h-5 text-ember" aria-hidden />
-      <span className="font-display font-semibold text-xl tracking-tight">
+      <span className="font-display font-semibold text-xl tracking-tight whitespace-nowrap">
         Calder <span className="text-ember">&amp;</span> Reyes
       </span>
     </span>
@@ -56,10 +57,11 @@ export function Header() {
           ))}
         </ul>
         <div className="flex items-center gap-2">
+          <SiteMusic />
           <a href={business.phoneHref} className="hidden sm:inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold hover:border-ember transition-colors">
             <Phone className="w-4 h-4" aria-hidden /> {business.phoneDisplay}
           </a>
-          <TalkButton className="inline-flex items-center gap-2 rounded-full bg-ember text-ink px-4 py-2 text-sm font-bold hover:bg-ember-soft transition-colors">
+          <TalkButton className="inline-flex items-center gap-2 rounded-full bg-ember text-ink px-4 py-2 text-sm font-bold whitespace-nowrap hover:bg-ember-soft transition-colors">
             Talk to us
           </TalkButton>
         </div>
@@ -173,7 +175,8 @@ export function Footer() {
           </p>
           <p>
             Courthouse photo: Clarence M. Mitchell Jr. Courthouse and Battle Monument, HABS (Library of Congress), public domain. Courtroom
-            photo: Carol M. Highsmith Archive, Library of Congress, public domain. Scenes generated with Google Gemini.
+            photo: Carol M. Highsmith Archive, Library of Congress, public domain. Scenes generated with Google Gemini. Music:
+            &ldquo;Hitman&rdquo; by Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0.
           </p>
         </div>
       </div>
