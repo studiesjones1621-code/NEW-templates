@@ -13,6 +13,9 @@ import { cn } from "@/lib/utils"
 
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 
+/** Fired on window whenever a scene shows a new frame: `{ name, frame }`. Used to sync sound to footage. */
+export const SCRUB_FRAME_EVENT = "scrub:frame"
+
 export function frameUrl(name: string, i: number) {
   return `/seq/${name}/${String(i + 1).padStart(3, "0")}.webp`
 }
@@ -129,7 +132,9 @@ export function ScrubScene({
         p = reduced ? target : p + (target - p) * (1 - Math.pow(1 - 0.16, dt / 16.7))
         if (Math.abs(target - p) < 0.0005) p = target
         const fi = Math.round(clamp((p - from) / (to - from)) * (frames - 1))
-        last = drawFrame(canvas, imgs.current, reduced ? frames - 1 : fi, last)
+        const drawn = drawFrame(canvas, imgs.current, reduced ? frames - 1 : fi, last)
+        if (drawn !== last) window.dispatchEvent(new CustomEvent(SCRUB_FRAME_EVENT, { detail: { name, frame: drawn } }))
+        last = drawn
         if (Math.abs(p - lastP) > 0.0005) {
           lastP = p
           stage.style.setProperty("--p", p.toFixed(4))
@@ -143,7 +148,7 @@ export function ScrubScene({
       cancelAnimationFrame(raf)
       ro.disconnect()
     }
-  }, [frames, from, to, imgs])
+  }, [name, frames, from, to, imgs])
 
   return (
     <section ref={sectionRef} data-pin-stage className={cn("relative motion-reduce:!h-svh", className)} style={{ height }} aria-label={label}>
