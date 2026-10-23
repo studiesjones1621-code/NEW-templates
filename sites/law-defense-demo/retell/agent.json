@@ -1,0 +1,8 @@
+{
+  "agent_name": "Calder & Reyes Law - Concept Demo Intake",
+  "prompt_file": "retell/system-prompt.md",
+  "begin_message": "Hi, you've reached Calder and Reyes. I'm Claire, the firm's intake assistant. Everything you share stays confidential. How can we help?",
+  "voice_id": "11labs-Marissa",
+  "timezone": "America/New_York",
+  "boosted_keywords": ["Calder", "Reyes", "DUI", "DWI", "MVA", "probation", "parole", "Circuit Court", "District Court", "Baltimore", "Central Booking", "personal injury"]
+}
