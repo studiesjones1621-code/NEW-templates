@@ -29,6 +29,9 @@ The look: a dark, cinematic page where each section is a short AI-generated film
 8. **Retell domain:** the user adds the new domain under Retell → API Keys → Public Keys → allowed domains (dashboard only). Then test: Playwright with fake mic, click the launcher, tap start, and expect `create-web-call 201`.
 
 ## Gotchas learned
+- **Generated clips often hide a cut or a dissolve** (the model jumps to a new angle or a different building partway through). Before exporting, measure frame-to-frame change (`scale=64:36,format=gray` → mean abs diff). A spike far above the median (e.g. 14 vs 0.5) is a hard cut; a run of 2–3× is a dissolve. Keep only the continuous stretch (`trim=start_frame=…:end_frame=…`) and set that scene's `frames` prop to the new count. Users notice every cut.
+- **Start on a real photo with no cut:** first zoom into the real photo (render a 60-frame zoom from the full-res file with Pillow, eased, with log-scale width so the zoom feels even). Then generate the clip with the zoom's **last frame as its first image** and join the two sequences (drop the clip's duplicate first frame). Write "one single continuous unbroken camera move with no cuts" in the prompt, make two variants, and keep the one with the lower max jump. Proven on the law template (Mitchell Courthouse → doors → courtroom).
+- Headlines over bright footage (windows, sky) need the `scrim-both` gradient plus a soft text shadow, not just a bottom scrim.
 - Tailwind v4 `translate-*` classes use the CSS `translate` property, which **stacks** with an inline `transform`. Don't mix them on one element you animate from JS.
 - Fixed UI must not cover pinned stages: the voice pop-up hides while any `[data-pin-stage]` fills the screen (ai-talking-website `voice-assistant.tsx`).
 - `.cue` overlays are `pointer-events: none` with links and buttons re-enabled, so invisible layers never block clicks.
