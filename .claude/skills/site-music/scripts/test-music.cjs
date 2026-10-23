@@ -13,6 +13,6 @@ const { chromium } = require(require('child_process').execSync('npm root -g').to
   console.log(label,'after load', JSON.stringify(await st()));
   await p.touchscreen.tap(200,500); await p.waitForTimeout(2500); console.log(label,'after first tap on page', JSON.stringify(await st()));
   await p.locator('.site-music').tap(); await p.waitForTimeout(2200); console.log(label,'tap toggle', JSON.stringify(await st()), errs);
-  if(label==='autoplay-blocked'){ await p.screenshot({path:'music3-m.png',clip:{x:0,y:0,width:390,height:90}}); await p.reload({waitUntil:'load'}); await p.waitForTimeout(2000); await p.touchscreen.tap(200,500); await p.waitForTimeout(2000); console.log(label,'reload after muting, tap', JSON.stringify(await st())); }
+  if(label==='autoplay-blocked'){ await p.screenshot({path:require('path').join(require('os').tmpdir(),'music3-m.png'),clip:{x:0,y:0,width:390,height:90}}); await p.reload({waitUntil:'load'}); await p.waitForTimeout(2000); await p.touchscreen.tap(200,500); await p.waitForTimeout(2000); console.log(label,'reload after muting, tap', JSON.stringify(await st())); }
   await b.close(); }
 })();
